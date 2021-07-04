@@ -1,0 +1,13 @@
+[package]
+name = "twilight-interactions-derive"
+version = "0.1.0"
+edition = "2018"
+license = "ISC"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0.27"
+quote = "1.0.9"
+syn = "1.0.73"

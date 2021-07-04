@@ -1,0 +1,9 @@
+[package]
+name = "twilight-interactions"
+version = "0.1.0"
+edition = "2018"
+license = "ISC"
+
+[dependencies]
+twilight-model = "0.6"
+twilight-interactions-derive = { path = "../twilight-interactions-derive" }
