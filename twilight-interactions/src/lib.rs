@@ -1,224 +1,73 @@
-use twilight_model::{
-    application::{
-        command::{CommandOption as ApplicationCommandOption, CommandOptionType},
-        interaction::application_command::{
-            CommandData, CommandInteractionDataResolved, CommandOptionValue, InteractionChannel,
-            InteractionMember,
-        },
-    },
-    guild::Role,
-    id::{ChannelId, RoleId, UserId},
-    user::User,
-};
-pub use twilight_slash_proc::SlashCommand;
+//! # twilight-interactions
+//!
+//! Set of macros and utilities to work with Discord Interactions using [Twilight](https://twilight.rs/overview.html).
+//!
+//! **Note:** This crate is not affiliated with the Twilight organization.
+//!
+//! ## Slash commands
+//! One of the primary feature of this crate is parsing slash command data ([`CommandData`]) into typed structure.
+//! This is made easy with the use of derive macro to automatically implement the [`CommandModel`] trait on your types.
+//! Kind like `serde`, but for Discord slash commands.
+//!
+//! Each type that implements [`CommandModel`] expose a function to parse it from a [`CommandData`]. This trait can be
+//! automatically derived if struct field types implements the [`CommandOption`] trait.
+//!
+//! ### Example usage
+//! The following struct correspond to a command that take a required `message` string option,
+//! and an optional `user` option.
+//!
+//! ```ignore
+//! use twilight_interactions::{CommandModel, ResolvedUser};
+//!
+//! #[derive(CommandModel)]
+//! struct HelloCommand {
+//!     message: String,
+//!     user: Option<ResolvedUser>
+//! }
+//! ```
+//!
+//! ### Validating command options
+//! Its very common to perform some additional validation on received options. This crate only focus on parsing command data,
+//! and therefore the [`CommandOption`] trait is not meant to be implemented on your own types to perform some specific validation.
+//!
+//! For example, you can use [`Option<InteractionMember>`] in models, but not [`InteractionMember`] as there is
+//! not guarantee that member data will be present when receiving a `USER` option.
+//!
+//! You can adopt a code structure like this if you want to perform additional validation:
+//!
+//! ```ignore
+//! use twilight_interactions::{CommandModel, ResolvedUser};
+//! use twilight_model::application::interaction::application_command::{InteractionMember, CommandData};
+//!
+//! struct HelloCommand {
+//!     message: String,
+//!     member: InteractionMember
+//! }
+//!
+//! impl HelloCommand {
+//!     fn validate(data: CommandData) -> Result<Self, HelloCommandError> {
+//!         let parsed = HelloCommandModel::from_interaction(data);
+//!         todo!()  // Perform your validations here
+//!     }
+//! }
+//!
+//! struct HelloCommandError;
+//!
+//! #[derive(CommandModel)]
+//! struct HelloCommandModel {
+//!     pub message: String,
+//!     pub member: Option<ResolvedUser>
+//! }
+//!
+//! ```
+//!
+//! [`CommandData`]: twilight_model::application::interaction::application_command::CommandData
+//! [`InteractionMember`]: twilight_model::application::interaction::application_command::InteractionMember
+//! [`Option<InteractionMember>`]: twilight_model::application::interaction::application_command::InteractionMember
 
-pub trait SlashCommand: Sized {
-    fn from_interaction(data: CommandData) -> Option<Self>;
-    fn create_application_command() -> CreateApplicationCommand;
-}
+mod command_model;
+mod command_option;
+pub mod error;
 
-pub trait CommandOption: Sized {
-    const OPTION_TYPE: CommandOptionType;
-    const DEFAULT: Option<Self> = None;
-    fn from_option(
-        value: CommandOptionValue,
-        resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Option<Self>;
-}
-
-pub struct CreateApplicationCommand {
-    pub name: String,
-    pub description: String,
-    pub options: Vec<ApplicationCommandOption>,
-    pub default_permission: Option<bool>,
-}
-
-impl CommandOption for String {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::String;
-
-    fn from_option(
-        value: CommandOptionValue,
-        _: Option<&CommandInteractionDataResolved>,
-    ) -> Option<Self> {
-        match value {
-            CommandOptionValue::String(s) => Some(s),
-            _ => None,
-        }
-    }
-}
-
-impl CommandOption for i64 {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::Integer;
-
-    fn from_option(
-        value: CommandOptionValue,
-        _: Option<&CommandInteractionDataResolved>,
-    ) -> Option<Self> {
-        match value {
-            CommandOptionValue::Integer(i) => Some(i),
-            _ => None,
-        }
-    }
-}
-
-impl CommandOption for bool {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::Boolean;
-
-    fn from_option(
-        value: CommandOptionValue,
-        _: Option<&CommandInteractionDataResolved>,
-    ) -> Option<Self> {
-        match value {
-            CommandOptionValue::Boolean(b) => Some(b),
-            _ => None,
-        }
-    }
-}
-
-impl CommandOption for UserId {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::User;
-
-    fn from_option(
-        value: CommandOptionValue,
-        _: Option<&CommandInteractionDataResolved>,
-    ) -> Option<Self> {
-        match value {
-            CommandOptionValue::User(user) => Some(user),
-            _ => None,
-        }
-    }
-}
-
-impl CommandOption for ChannelId {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::Channel;
-
-    fn from_option(
-        value: CommandOptionValue,
-        _: Option<&CommandInteractionDataResolved>,
-    ) -> Option<Self> {
-        match value {
-            CommandOptionValue::Channel(channel) => Some(channel),
-            _ => None,
-        }
-    }
-}
-
-impl CommandOption for RoleId {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::Role;
-
-    fn from_option(
-        value: CommandOptionValue,
-        _: Option<&CommandInteractionDataResolved>,
-    ) -> Option<Self> {
-        match value {
-            CommandOptionValue::Role(role) => Some(role),
-            _ => None,
-        }
-    }
-}
-
-macro_rules! lookup {
-    ($resolved:ident.$cat:ident[$id:expr]) => {
-        $resolved.and_then(|resolved| resolved.$cat.iter().find(|val| val.id == $id).cloned())
-    };
-}
-
-impl CommandOption for User {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::User;
-
-    fn from_option(
-        value: CommandOptionValue,
-        resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Option<Self> {
-        match value {
-            CommandOptionValue::User(user) => lookup!(resolved.users[user]),
-            _ => None,
-        }
-    }
-}
-
-impl CommandOption for InteractionMember {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::User;
-
-    fn from_option(
-        value: CommandOptionValue,
-        resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Option<Self> {
-        match value {
-            CommandOptionValue::User(member) => lookup!(resolved.members[member]),
-            _ => None,
-        }
-    }
-}
-
-impl CommandOption for (User, InteractionMember) {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::User;
-
-    fn from_option(
-        value: CommandOptionValue,
-        resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Option<Self> {
-        match value {
-            CommandOptionValue::User(user) => {
-                lookup!(resolved.members[user]).map(|m| (lookup!(resolved.users[user]).unwrap(), m))
-            }
-            _ => None,
-        }
-    }
-}
-
-impl CommandOption for (User, Option<InteractionMember>) {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::User;
-
-    fn from_option(
-        value: CommandOptionValue,
-        resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Option<Self> {
-        match value {
-            CommandOptionValue::User(user) => {
-                lookup!(resolved.users[user]).map(|u| (u, lookup!(resolved.members[user])))
-            }
-            _ => None,
-        }
-    }
-}
-
-impl CommandOption for InteractionChannel {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::Channel;
-
-    fn from_option(
-        value: CommandOptionValue,
-        resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Option<Self> {
-        match value {
-            CommandOptionValue::Channel(channel) => lookup!(resolved.channels[channel]),
-            _ => None,
-        }
-    }
-}
-
-impl CommandOption for Role {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::Role;
-
-    fn from_option(
-        value: CommandOptionValue,
-        resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Option<Self> {
-        match value {
-            CommandOptionValue::Role(role) => lookup!(resolved.roles[role]),
-            _ => None,
-        }
-    }
-}
-
-impl<T: CommandOption> CommandOption for Option<T> {
-    const OPTION_TYPE: CommandOptionType = T::OPTION_TYPE;
-    const DEFAULT: Option<Self> = Some(None);
-
-    fn from_option(
-        value: CommandOptionValue,
-        resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Option<Self> {
-        Some(T::from_option(value, resolved))
-    }
-}
+pub use command_model::CommandModel;
+pub use command_option::{CommandOption, ResolvedUser};
