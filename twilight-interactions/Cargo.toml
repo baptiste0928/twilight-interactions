@@ -4,6 +4,10 @@ version = "0.1.0"
 edition = "2018"
 license = "ISC"
 
+[features]
+default = ["derive"]
+derive = ["twilight-interactions-derive"]
+
 [dependencies]
 twilight-model = "0.6"
-twilight-interactions-derive = { path = "../twilight-interactions-derive" }
+twilight-interactions-derive = { path = "../twilight-interactions-derive", optional = true }

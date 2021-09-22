@@ -16,7 +16,7 @@
 //! The following struct correspond to a command that take a required `message` string option,
 //! and an optional `user` option.
 //!
-//! ```ignore
+//! ```
 //! use twilight_interactions::{CommandModel, ResolvedUser};
 //!
 //! #[derive(CommandModel)]
@@ -25,6 +25,8 @@
 //!     user: Option<ResolvedUser>
 //! }
 //! ```
+//!
+//! You can construct the type from a [`CommandData`] with the [`from_interaction`] method.
 //!
 //! ### Validating command options
 //! Its very common to perform some additional validation on received options. This crate only focus on parsing command data,
@@ -35,7 +37,7 @@
 //!
 //! You can adopt a code structure like this if you want to perform additional validation:
 //!
-//! ```ignore
+//! ```
 //! use twilight_interactions::{CommandModel, ResolvedUser};
 //! use twilight_model::application::interaction::application_command::{InteractionMember, CommandData};
 //!
@@ -62,6 +64,7 @@
 //! ```
 //!
 //! [`CommandData`]: twilight_model::application::interaction::application_command::CommandData
+//! [`from_interaction`]: crate::CommandModel::from_interaction
 //! [`InteractionMember`]: twilight_model::application::interaction::application_command::InteractionMember
 //! [`Option<InteractionMember>`]: twilight_model::application::interaction::application_command::InteractionMember
 
@@ -71,3 +74,5 @@ pub mod error;
 
 pub use command_model::CommandModel;
 pub use command_option::{CommandOption, ResolvedUser};
+
+pub use twilight_interactions_derive::CommandModel;
