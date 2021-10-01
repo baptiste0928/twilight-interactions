@@ -17,7 +17,7 @@ While this crate is not published on *crates.io*, you should use it as a git dep
 It is recommended to link to a specific commit to avoid unwanted breaking changes.
 
 ```toml
-# Crates.toml
+# Cargo.toml
 [dependencies]
 twilight-interactions = { git = "https://github.com/baptiste0928/twilight-interactions", rev = "commit" }
 ```
@@ -31,7 +31,7 @@ use twilight_interactions::{CommandModel, ResolvedUser};
 struct HelloCommand {
     message: String,
     user: Option<ResolvedUser>
-    }
+}
 ```
 
 > Initial work by [LeSeulArtichaut](https://github.com/LeSeulArtichaut).
