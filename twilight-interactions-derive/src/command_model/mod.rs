@@ -82,10 +82,13 @@ fn field_constructor(field: &StructField) -> TokenStream {
 
     match field.kind {
         FieldType::Required => quote! {
-            #ident: #ident.ok_or(::twilight_interactions::error::ParseError {
-                field: ::std::convert::From::from(#ident_str),
-                kind: ::twilight_interactions::error::ParseErrorType::RequiredField
-            })?
+            #ident: match #ident {
+                Some(value) => value,
+                None => return Err(::twilight_interactions::error::ParseError {
+                    field: ::std::convert::From::from(#ident_str),
+                    kind: ::twilight_interactions::error::ParseErrorType::RequiredField
+                })
+            }
         },
         FieldType::Optional => quote!(#ident),
     }

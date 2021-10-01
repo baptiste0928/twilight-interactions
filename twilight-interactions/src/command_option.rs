@@ -1,12 +1,8 @@
 use std::str::FromStr;
 
 use twilight_model::{
-    application::{
-        command::CommandOptionType,
-        interaction::application_command::{
-            CommandDataOption, CommandInteractionDataResolved, InteractionChannel,
-            InteractionMember,
-        },
+    application::interaction::application_command::{
+        CommandDataOption, CommandInteractionDataResolved, InteractionChannel, InteractionMember,
     },
     guild::Role,
     id::{ChannelId, GenericId, RoleId, UserId},
@@ -15,22 +11,27 @@ use twilight_model::{
 
 use crate::error::ParseErrorType;
 
-/// Trait to convert a slash command option into a concrete type.
+/// Trait to convert a [`CommandDataOption`] into a concrete type.
 ///
-/// This trait is implemented for primitive Rust types, ID types and some
-/// concrete Discord types that can be resolved from a command option.
+/// ## Provided implementations
 ///
-/// The `from_option` method should only fails if an invalid option is provided,
-/// and not when its a user error. For example, this trait is implemented for
-/// [`Option<InteractionMember>`] but not for [`InteractionMember`] as there is
-/// not guarantee that member data will be present when receiving a `USER`
-/// option.
+/// | Option type         | Implemented types                      |
+/// |---------------------|----------------------------------------|
+/// | `STRING`            | [`String`]                             |
+/// | `INTEGER`           | [`i64`]                                |
+/// | `BOOLEAN`           | [`bool`]                               |
+/// | `USER`              | [`ResolvedUser`], [`User`], [`UserId`] |
+/// | `CHANNEL`           | [`InteractionChannel`], [`ChannelId`]  |
+/// | `ROLE`              | [`Role`], [`RoleId`]                   |
+/// | `MENTIONABLE`       | [`GenericId`]                          |
+/// | `SUB_COMMAND`       | Not yet implemented.                   |
+/// | `SUB_COMMAND_GROUP` | Not yet implemented.                   |
+///
+/// This trait is only implemented for types where the conversion cannot
+/// fail due to a user error (when input is considered as invalid by your
+/// application but is valid according the requested data type).
+/// For example, this is why the trait is only implemented for [`i64`].
 pub trait CommandOption: Sized {
-    /// Expected option type.
-    ///
-    /// This value is used when generating slash command builder.
-    const OPTION_TYPE: CommandOptionType;
-
     /// Convert a [`CommandDataOption`] into this value.
     fn from_option(
         value: CommandDataOption,
@@ -67,8 +68,6 @@ macro_rules! lookup {
 }
 
 impl CommandOption for String {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::String;
-
     fn from_option(
         value: CommandDataOption,
         _resolved: Option<&CommandInteractionDataResolved>,
@@ -81,8 +80,6 @@ impl CommandOption for String {
 }
 
 impl CommandOption for i64 {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::Integer;
-
     fn from_option(
         value: CommandDataOption,
         _resolved: Option<&CommandInteractionDataResolved>,
@@ -95,8 +92,6 @@ impl CommandOption for i64 {
 }
 
 impl CommandOption for bool {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::Boolean;
-
     fn from_option(
         value: CommandDataOption,
         _resolved: Option<&CommandInteractionDataResolved>,
@@ -109,8 +104,6 @@ impl CommandOption for bool {
 }
 
 impl CommandOption for UserId {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::User;
-
     fn from_option(
         value: CommandDataOption,
         _resolved: Option<&CommandInteractionDataResolved>,
@@ -123,8 +116,6 @@ impl CommandOption for UserId {
 }
 
 impl CommandOption for ChannelId {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::Channel;
-
     fn from_option(
         value: CommandDataOption,
         _resolved: Option<&CommandInteractionDataResolved>,
@@ -137,8 +128,6 @@ impl CommandOption for ChannelId {
 }
 
 impl CommandOption for RoleId {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::Role;
-
     fn from_option(
         value: CommandDataOption,
         _resolved: Option<&CommandInteractionDataResolved>,
@@ -151,8 +140,6 @@ impl CommandOption for RoleId {
 }
 
 impl CommandOption for GenericId {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::Mentionable;
-
     fn from_option(
         value: CommandDataOption,
         _resolved: Option<&CommandInteractionDataResolved>,
@@ -165,8 +152,6 @@ impl CommandOption for GenericId {
 }
 
 impl CommandOption for User {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::User;
-
     fn from_option(
         value: CommandDataOption,
         resolved: Option<&CommandInteractionDataResolved>,
@@ -180,25 +165,7 @@ impl CommandOption for User {
     }
 }
 
-impl CommandOption for Option<InteractionMember> {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::User;
-
-    fn from_option(
-        value: CommandDataOption,
-        resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType> {
-        let user_id: UserId = match value {
-            CommandDataOption::String { value, .. } => parse_id(&value)?,
-            other => return Err(ParseErrorType::InvalidType(other.kind())),
-        };
-
-        Ok(lookup!(resolved.members, user_id).ok())
-    }
-}
-
 impl CommandOption for ResolvedUser {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::User;
-
     fn from_option(
         value: CommandDataOption,
         resolved: Option<&CommandInteractionDataResolved>,
@@ -216,8 +183,6 @@ impl CommandOption for ResolvedUser {
 }
 
 impl CommandOption for InteractionChannel {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::Channel;
-
     fn from_option(
         value: CommandDataOption,
         resolved: Option<&CommandInteractionDataResolved>,
@@ -232,8 +197,6 @@ impl CommandOption for InteractionChannel {
 }
 
 impl CommandOption for Role {
-    const OPTION_TYPE: CommandOptionType = CommandOptionType::Role;
-
     fn from_option(
         value: CommandDataOption,
         resolved: Option<&CommandInteractionDataResolved>,

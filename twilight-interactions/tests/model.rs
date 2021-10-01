@@ -53,6 +53,8 @@ fn test_demo_command() {
         public_flags: None,
         system: None,
         verified: None,
+        accent_color: None,
+        banner: None,
     };
 
     let resolved = CommandInteractionDataResolved {
@@ -60,6 +62,7 @@ fn test_demo_command() {
         members: vec![member.clone()],
         roles: Vec::new(),
         users: vec![user.clone()],
+        messages: Vec::new(),
     };
 
     let data = CommandData {

@@ -70,9 +70,11 @@
 
 mod command_model;
 mod command_option;
+mod create_option;
 pub mod error;
 
-pub use command_model::CommandModel;
-pub use command_option::{CommandOption, ResolvedUser};
+pub use crate::command_model::{ApplicationCommandData, CommandModel, CreateCommand};
+pub use crate::command_option::{CommandOption, ResolvedUser};
+pub use crate::create_option::{CommandOptionData, CreateOption};
 
 pub use twilight_interactions_derive::CommandModel;
