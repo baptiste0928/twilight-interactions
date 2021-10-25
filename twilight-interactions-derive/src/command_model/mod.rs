@@ -29,7 +29,7 @@ pub fn impl_command_model(input: DeriveInput) -> TokenStream {
                 #(#fields_init)*
 
                 for opt in data.options {
-                    match opt.name() {
+                    match &*opt.name {
                         #(#fields_match_arms,)*
                         other => {
                             return ::std::result::Result::Err(
@@ -61,7 +61,7 @@ fn field_match_arm(field: &StructField) -> TokenStream {
     let span = field.span;
 
     quote_spanned! {span=>
-        #ident_str => match ::twilight_interactions::CommandOption::from_option(opt, data.resolved.as_ref()) {
+        #ident_str => match ::twilight_interactions::CommandOption::from_option(opt.value, data.resolved.as_ref()) {
             ::std::result::Result::Ok(value) => #ident = Some(value),
             ::std::result::Result::Err(kind) => {
                 return ::std::result::Result::Err(

@@ -1,11 +1,12 @@
 use twilight_model::{
     application::{
         command::{
-            BaseCommandOptionData, ChoiceCommandOptionData, CommandOption, CommandOptionChoice,
-            OptionsCommandOptionData,
+            BaseCommandOptionData, ChannelCommandOptionData, ChoiceCommandOptionData,
+            CommandOption, CommandOptionChoice, OptionsCommandOptionData,
         },
         interaction::application_command::InteractionChannel,
     },
+    channel::ChannelType,
     guild::Role,
     id::{ChannelId, GenericId, RoleId, UserId},
     user::User,
@@ -51,6 +52,16 @@ impl CommandOptionData {
         }
     }
 
+    /// Conversion into a [`ChannelCommandOptionData`]
+    pub fn into_channel(self, channel_types: Vec<ChannelType>) -> ChannelCommandOptionData {
+        ChannelCommandOptionData {
+            channel_types,
+            description: self.description,
+            name: self.name,
+            required: self.required,
+        }
+    }
+
     /// Conversion into a [`ChoiceCommandOptionData`]
     pub fn into_choice(self, choices: Vec<CommandOptionChoice>) -> ChoiceCommandOptionData {
         ChoiceCommandOptionData {
@@ -67,7 +78,6 @@ impl CommandOptionData {
             description: self.description,
             name: self.name,
             options,
-            required: self.required,
         }
     }
 }
@@ -98,7 +108,7 @@ impl CreateOption for UserId {
 
 impl CreateOption for ChannelId {
     fn create_option(data: CommandOptionData) -> CommandOption {
-        CommandOption::Channel(data.into_data())
+        CommandOption::Channel(data.into_channel(Vec::new()))
     }
 }
 
@@ -128,7 +138,7 @@ impl CreateOption for ResolvedUser {
 
 impl CreateOption for InteractionChannel {
     fn create_option(data: CommandOptionData) -> CommandOption {
-        CommandOption::Channel(data.into_data())
+        CommandOption::Channel(data.into_channel(Vec::new()))
     }
 }
 

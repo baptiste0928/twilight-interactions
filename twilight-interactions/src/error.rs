@@ -3,7 +3,10 @@
 use std::{
     error::Error,
     fmt::{Display, Formatter, Result as FmtResult},
+    num::NonZeroU64,
 };
+
+use twilight_model::application::command::CommandOptionType;
 
 /// Error when parsing a command option.
 ///
@@ -25,8 +28,7 @@ impl Display for ParseError {
         write!(f, "failed to parse option `{}`: ", self.field)?;
 
         match &self.kind {
-            ParseErrorType::InvalidType(name) => write!(f, "invalid type, found {}", name),
-            ParseErrorType::ParseId(id) => write!(f, "`{}` is not a valid discord id", id),
+            ParseErrorType::InvalidType(ty) => write!(f, "invalid type, found {}", ty.kind()),
             ParseErrorType::LookupFailed(id) => write!(f, "failed to resolve `{}`", id),
             ParseErrorType::UnknownField => write!(f, "unknown field"),
             ParseErrorType::RequiredField => write!(f, "missing required field"),
@@ -38,11 +40,9 @@ impl Display for ParseError {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ParseErrorType {
     /// Found an invalid option type.
-    InvalidType(&'static str),
-    /// Failed to parse a Discord ID.
-    ParseId(String),
+    InvalidType(CommandOptionType),
     /// Failed to resolve data associated with an ID.
-    LookupFailed(u64),
+    LookupFailed(NonZeroU64),
     /// Missing a required option field
     RequiredField,
     /// Received an unknown option field

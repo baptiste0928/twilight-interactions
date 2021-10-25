@@ -1,8 +1,10 @@
 use twilight_interactions::{CommandModel, ResolvedUser};
 use twilight_model::{
     application::interaction::application_command::{
-        CommandData, CommandDataOption, CommandInteractionDataResolved, InteractionMember,
+        CommandData, CommandDataOption, CommandInteractionDataResolved, CommandOptionValue,
+        InteractionMember,
     },
+    id::{CommandId, UserId},
     user::User,
 };
 
@@ -15,24 +17,25 @@ struct DemoCommand {
 
 #[test]
 fn test_demo_command() {
+    let user_id = UserId::new(123).unwrap();
     let options = vec![
-        CommandDataOption::String {
+        CommandDataOption {
             name: "user".to_string(),
-            value: "123".to_string(),
+            value: CommandOptionValue::User(user_id),
         },
-        CommandDataOption::String {
+        CommandDataOption {
             name: "text".into(),
-            value: "hello world".into(),
+            value: CommandOptionValue::String("hello world".into()),
         },
-        CommandDataOption::Integer {
+        CommandDataOption {
             name: "number".into(),
-            value: 42,
+            value: CommandOptionValue::Integer(42),
         },
     ];
 
     let member = InteractionMember {
         hoisted_role: None,
-        id: 123.into(),
+        id: user_id,
         joined_at: None,
         nick: None,
         premium_since: None,
@@ -42,10 +45,10 @@ fn test_demo_command() {
     let user = User {
         avatar: None,
         bot: false,
-        discriminator: "0001".into(),
+        discriminator: 1,
         email: None,
         flags: None,
-        id: 123.into(),
+        id: user_id,
         locale: None,
         mfa_enabled: None,
         name: "someone".into(),
@@ -66,7 +69,7 @@ fn test_demo_command() {
     };
 
     let data = CommandData {
-        id: 123.into(),
+        id: CommandId::new(123).unwrap(),
         name: "demo".to_string(),
         options,
         resolved: Some(resolved),
