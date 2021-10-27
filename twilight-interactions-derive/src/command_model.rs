@@ -1,9 +1,11 @@
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{quote, quote_spanned};
-use syn::{spanned::Spanned, Data, DataStruct, DeriveInput, Fields};
+use syn::{spanned::Spanned, Data, DataStruct, DeriveInput, Error, Fields, Result};
+
+use crate::attributes::{find_attr, FieldAttributes};
 
 /// Implementation of CommandModel derive macro
-pub fn impl_command_model(input: DeriveInput) -> TokenStream {
+pub fn impl_command_model(input: DeriveInput) -> Result<TokenStream> {
     let ident = &input.ident;
 
     // Parse type fields
@@ -11,9 +13,12 @@ pub fn impl_command_model(input: DeriveInput) -> TokenStream {
         Data::Struct(DataStruct {
             fields: Fields::Named(fields),
             ..
-        }) => StructField::from_fields(fields),
+        }) => StructField::from_fields(fields)?,
         _ => {
-            return quote!(compile_error!("`#[derive(CommandModel)] can only be applied to structs with named fields");)
+            return Err(Error::new(
+                input.span(),
+                "`#[derive(CommandModel)] can only be applied to structs with named fields",
+            ));
         }
     };
 
@@ -21,7 +26,7 @@ pub fn impl_command_model(input: DeriveInput) -> TokenStream {
     let fields_match_arms = fields.iter().map(field_match_arm);
     let fields_constructor = fields.iter().map(field_constructor);
 
-    quote! {
+    Ok(quote! {
         impl ::twilight_interactions::CommandModel for #ident {
             fn from_interaction(
                 data: ::twilight_model::application::interaction::application_command::CommandData,
@@ -45,7 +50,7 @@ pub fn impl_command_model(input: DeriveInput) -> TokenStream {
                 ::std::result::Result::Ok(Self { #(#fields_constructor),* })
             }
         }
-    }
+    })
 }
 
 /// Generate field initialization variables
@@ -57,16 +62,20 @@ fn field_init(field: &StructField) -> TokenStream {
 /// Generate field match arm
 fn field_match_arm(field: &StructField) -> TokenStream {
     let ident = &field.ident;
-    let ident_str = ident.to_string();
+    let name = field
+        .attributes
+        .rename
+        .clone()
+        .unwrap_or_else(|| ident.to_string());
     let span = field.span;
 
     quote_spanned! {span=>
-        #ident_str => match ::twilight_interactions::CommandOption::from_option(opt.value, data.resolved.as_ref()) {
+        #name => match ::twilight_interactions::CommandOption::from_option(opt.value, data.resolved.as_ref()) {
             ::std::result::Result::Ok(value) => #ident = Some(value),
             ::std::result::Result::Err(kind) => {
                 return ::std::result::Result::Err(
                     ::twilight_interactions::error::ParseError {
-                        field: ::std::convert::From::from(#ident_str),
+                        field: ::std::convert::From::from(#name),
                         kind,
                     }
                 )
@@ -98,7 +107,7 @@ fn field_constructor(field: &StructField) -> TokenStream {
 struct StructField {
     span: Span,
     ident: Ident,
-    // ty: syn::Type,
+    attributes: FieldAttributes,
     kind: FieldType,
 }
 
@@ -110,21 +119,27 @@ enum FieldType {
 
 impl StructField {
     /// Parse a [`syn::Field`] as a [`StructField`]
-    fn from_field(field: syn::Field) -> Self {
+    fn from_field(field: syn::Field) -> Result<Self> {
         let kind = match crate::extract_option(&field.ty) {
             Some(_) => FieldType::Optional,
             None => FieldType::Required,
         };
 
-        Self {
+        let attributes = match find_attr(&field.attrs, "command") {
+            Some(attr) => FieldAttributes::parse(attr)?,
+            None => FieldAttributes::default(),
+        };
+
+        Ok(Self {
             span: field.span(),
             ident: field.ident.unwrap(),
+            attributes,
             kind,
-        }
+        })
     }
 
     /// Parse [`syn::FieldsNamed`] as a [`Vec<StructField>`]
-    fn from_fields(fields: syn::FieldsNamed) -> Vec<Self> {
+    fn from_fields(fields: syn::FieldsNamed) -> Result<Vec<Self>> {
         fields.named.into_iter().map(Self::from_field).collect()
     }
 }

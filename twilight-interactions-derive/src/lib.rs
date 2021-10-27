@@ -4,6 +4,7 @@
 //!
 //! Please refer to the `twilight-interactions` documentation for further information.
 
+mod attributes;
 mod command_model;
 
 use proc_macro::TokenStream;
@@ -15,7 +16,11 @@ use syn::{parse_macro_input, DeriveInput};
 #[proc_macro_derive(CommandModel, attributes(command))]
 pub fn command_model(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
-    command_model::impl_command_model(input).into()
+
+    match command_model::impl_command_model(input) {
+        Ok(output) => output.into(),
+        Err(error) => error.to_compile_error().into(),
+    }
 }
 
 /// Extracts type from an [`Option<T>`]

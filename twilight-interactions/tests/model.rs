@@ -10,6 +10,7 @@ use twilight_model::{
 
 #[derive(CommandModel, Debug, PartialEq, Eq)]
 struct DemoCommand {
+    #[command(rename = "member", desc = "test")]
     user: ResolvedUser,
     text: String,
     number: Option<i64>,
@@ -20,7 +21,7 @@ fn test_demo_command() {
     let user_id = UserId::new(123).unwrap();
     let options = vec![
         CommandDataOption {
-            name: "user".to_string(),
+            name: "member".to_string(),
             value: CommandOptionValue::User(user_id),
         },
         CommandDataOption {

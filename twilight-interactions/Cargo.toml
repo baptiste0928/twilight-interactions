@@ -11,3 +11,6 @@ derive = ["twilight-interactions-derive"]
 [dependencies]
 twilight-model = "0.7"
 twilight-interactions-derive = { path = "../twilight-interactions-derive", optional = true }
+
+[dev-dependencies]
+trybuild = "1"
