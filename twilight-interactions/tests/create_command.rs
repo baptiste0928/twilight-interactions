@@ -10,6 +10,8 @@ struct DemoCommand {
     /// This should be overwritten
     user: ResolvedUser,
     /// Some text
+    ///
+    /// This documentation comment is ignored
     text: String,
     /// A number
     number: Option<i64>,

@@ -6,6 +6,8 @@ use proc_macro2::Span;
 use syn::{spanned::Spanned, Attribute, Error, Lit, Meta, MetaNameValue, Result};
 
 /// Find an [`Attribute`] with a specific name
+///
+/// Returns the first match
 pub fn find_attr<'a>(attrs: &'a [Attribute], name: &str) -> Option<&'a Attribute> {
     for attr in attrs {
         if let Some(ident) = attr.path.get_ident() {
@@ -111,32 +113,34 @@ fn parse_description(val: &AttrValue) -> Result<String> {
 
 /// Parse description from #[doc] attributes.
 ///
+/// Only fist attribute is parsed (corresponding to the first line of documentation)
 /// https://doc.rust-lang.org/rustdoc/the-doc-attribute.html
 pub(crate) fn parse_doc(attrs: &[Attribute], span: Span) -> Result<String> {
-    let mut doc = String::new();
-
-    for attr in attrs {
-        match attr.parse_meta() {
-            Ok(Meta::NameValue(MetaNameValue {
-                path,
-                lit: Lit::Str(descr),
-                ..
-            })) if path.segments.len() == 1 && path.segments.first().unwrap().ident == "doc" => {
-                doc.push_str(&descr.value());
-                doc.push('\n');
-            }
-            _ => {}
+    let attr = match find_attr(attrs, "doc") {
+        Some(attr) => attr,
+        None => {
+            return Err(Error::new(
+                span,
+                "Description is required (documentation comment or `desc` attribute)",
+            ))
         }
-    }
+    };
 
-    let doc = doc.trim().to_owned();
+    let doc = match attr.parse_meta()? {
+        Meta::NameValue(MetaNameValue {
+            lit: Lit::Str(inner),
+            ..
+        }) => inner.value().trim().to_owned(),
+        _ => {
+            return Err(Error::new(
+                attr.span(),
+                "Failed to parse documentation attribute",
+            ))
+        }
+    };
 
     match doc.chars().count() {
         1..=100 => Ok(doc),
-        0 => Err(Error::new(
-            span,
-            "Description is required (documentation comment or `desc` attribute)",
-        )),
         _ => Err(Error::new(
             span,
             "Description must be between 1 and 100 characters",
