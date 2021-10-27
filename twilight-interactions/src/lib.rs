@@ -77,4 +77,5 @@ pub use crate::command_model::{ApplicationCommandData, CommandModel, CreateComma
 pub use crate::command_option::{CommandOption, ResolvedUser};
 pub use crate::create_option::{CommandOptionData, CreateOption};
 
-pub use twilight_interactions_derive::CommandModel;
+#[cfg(feature = "derive")]
+pub use twilight_interactions_derive::{CommandModel, CreateCommand};

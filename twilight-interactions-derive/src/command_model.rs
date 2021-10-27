@@ -1,8 +1,8 @@
-use proc_macro2::{Ident, Span, TokenStream};
+use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::{spanned::Spanned, Data, DataStruct, DeriveInput, Error, Fields, Result};
 
-use crate::attributes::{find_attr, FieldAttributes};
+use crate::fields::{FieldType, StructField};
 
 /// Implementation of CommandModel derive macro
 pub fn impl_command_model(input: DeriveInput) -> Result<TokenStream> {
@@ -62,11 +62,7 @@ fn field_init(field: &StructField) -> TokenStream {
 /// Generate field match arm
 fn field_match_arm(field: &StructField) -> TokenStream {
     let ident = &field.ident;
-    let name = field
-        .attributes
-        .rename
-        .clone()
-        .unwrap_or_else(|| ident.to_string());
+    let name = field.attributes.name_default(ident.to_string());
     let span = field.span;
 
     quote_spanned! {span=>
@@ -100,46 +96,5 @@ fn field_constructor(field: &StructField) -> TokenStream {
             }
         },
         FieldType::Optional => quote!(#ident),
-    }
-}
-
-/// Parsed struct field
-struct StructField {
-    span: Span,
-    ident: Ident,
-    attributes: FieldAttributes,
-    kind: FieldType,
-}
-
-/// Type of a parsed struct field
-enum FieldType {
-    Required,
-    Optional,
-}
-
-impl StructField {
-    /// Parse a [`syn::Field`] as a [`StructField`]
-    fn from_field(field: syn::Field) -> Result<Self> {
-        let kind = match crate::extract_option(&field.ty) {
-            Some(_) => FieldType::Optional,
-            None => FieldType::Required,
-        };
-
-        let attributes = match find_attr(&field.attrs, "command") {
-            Some(attr) => FieldAttributes::parse(attr)?,
-            None => FieldAttributes::default(),
-        };
-
-        Ok(Self {
-            span: field.span(),
-            ident: field.ident.unwrap(),
-            attributes,
-            kind,
-        })
-    }
-
-    /// Parse [`syn::FieldsNamed`] as a [`Vec<StructField>`]
-    fn from_fields(fields: syn::FieldsNamed) -> Result<Vec<Self>> {
-        fields.named.into_iter().map(Self::from_field).collect()
     }
 }

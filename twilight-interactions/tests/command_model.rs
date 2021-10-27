@@ -17,7 +17,7 @@ struct DemoCommand {
 }
 
 #[test]
-fn test_demo_command() {
+fn test_command_model() {
     let user_id = UserId::new(123).unwrap();
     let options = vec![
         CommandDataOption {

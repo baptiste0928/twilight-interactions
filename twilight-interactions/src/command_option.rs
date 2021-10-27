@@ -9,7 +9,7 @@ use twilight_model::{
 
 use crate::error::ParseErrorType;
 
-/// Trait to convert a [`CommandDataOption`] into a concrete type.
+/// Trait to convert a [`CommandOptionValue`] into a concrete type.
 ///
 /// ## Provided implementations
 ///

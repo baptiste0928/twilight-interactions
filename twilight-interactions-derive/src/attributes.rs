@@ -1,7 +1,9 @@
+//! Parsing of #[command] attributes
+
 use std::collections::HashMap;
 
 use proc_macro2::Span;
-use syn::{spanned::Spanned, Attribute, Error, Lit, Meta, Result};
+use syn::{spanned::Spanned, Attribute, Error, Lit, Meta, MetaNameValue, Result};
 
 /// Find an [`Attribute`] with a specific name
 pub fn find_attr<'a>(attrs: &'a [Attribute], name: &str) -> Option<&'a Attribute> {
@@ -16,18 +18,52 @@ pub fn find_attr<'a>(attrs: &'a [Attribute], name: &str) -> Option<&'a Attribute
     None
 }
 
+/// Parsed type attribute
+pub(crate) struct TypeAttribute {
+    /// Rename the field to the given name
+    pub(crate) name: String,
+    /// Overwrite the field description
+    pub(crate) desc: Option<String>,
+    /// Limit to specific channel types
+    pub(crate) default_permission: bool,
+}
+
+impl TypeAttribute {
+    /// Parse a single [`Attribute`]
+    pub(crate) fn parse(attr: &Attribute) -> Result<Self> {
+        let meta = attr.parse_meta()?;
+        let attrs = NamedAttrs::parse(meta, &["name", "desc", "default_permission"])?;
+
+        let name = match attrs.get("name") {
+            Some(val) => parse_name(val)?,
+            None => return Err(Error::new(attr.span(), "Missing required attribute `name`")),
+        };
+        let desc = attrs.get("desc").map(parse_description).transpose()?;
+        let default_permission = attrs
+            .get("default_permission")
+            .map(|v| v.parse_bool())
+            .unwrap_or(Ok(true))?;
+
+        Ok(Self {
+            name,
+            desc,
+            default_permission,
+        })
+    }
+}
+
 /// Parsed field attribute
 #[derive(Default)]
-pub(crate) struct FieldAttributes {
+pub(crate) struct FieldAttribute {
     /// Rename the field to the given name
     pub(crate) rename: Option<String>,
     /// Overwrite the field description
     pub(crate) desc: Option<String>,
-    /// Limit to specific channel types
-    pub(crate) channel_types: Vec<()>,
+    // Limit to specific channel types
+    // pub(crate) channel_types: Vec<()>,
 }
 
-impl FieldAttributes {
+impl FieldAttribute {
     /// Parse a single [`Attribute`]
     pub(crate) fn parse(attr: &Attribute) -> Result<Self> {
         let meta = attr.parse_meta()?;
@@ -36,11 +72,14 @@ impl FieldAttributes {
         let rename = attrs.get("rename").map(parse_name).transpose()?;
         let desc = attrs.get("desc").map(parse_description).transpose()?;
 
-        Ok(Self {
-            rename,
-            desc,
-            channel_types: Vec::new(),
-        })
+        Ok(Self { rename, desc })
+    }
+
+    pub(crate) fn name_default(&self, default: String) -> String {
+        match &self.rename {
+            Some(name) => name.clone(),
+            None => default,
+        }
     }
 }
 
@@ -63,6 +102,41 @@ fn parse_description(val: &AttrValue) -> Result<String> {
 
     match val.chars().count() {
         1..=100 => Ok(val),
+        _ => Err(Error::new(
+            span,
+            "Description must be between 1 and 100 characters",
+        )),
+    }
+}
+
+/// Parse description from #[doc] attributes.
+///
+/// https://doc.rust-lang.org/rustdoc/the-doc-attribute.html
+pub(crate) fn parse_doc(attrs: &[Attribute], span: Span) -> Result<String> {
+    let mut doc = String::new();
+
+    for attr in attrs {
+        match attr.parse_meta() {
+            Ok(Meta::NameValue(MetaNameValue {
+                path,
+                lit: Lit::Str(descr),
+                ..
+            })) if path.segments.len() == 1 && path.segments.first().unwrap().ident == "doc" => {
+                doc.push_str(&descr.value());
+                doc.push('\n');
+            }
+            _ => {}
+        }
+    }
+
+    let doc = doc.trim().to_owned();
+
+    match doc.chars().count() {
+        1..=100 => Ok(doc),
+        0 => Err(Error::new(
+            span,
+            "Description is required (documentation comment or `desc` attribute)",
+        )),
         _ => Err(Error::new(
             span,
             "Description must be between 1 and 100 characters",
@@ -144,6 +218,16 @@ impl AttrValue {
             _ => Err(Error::new(
                 self.0.span(),
                 "Invalid attribute type, expected string",
+            )),
+        }
+    }
+
+    fn parse_bool(&self) -> Result<bool> {
+        match &self.0 {
+            Lit::Bool(inner) => Ok(inner.value()),
+            _ => Err(Error::new(
+                self.0.span(),
+                "Invalid attribute type, expected boolean",
             )),
         }
     }
