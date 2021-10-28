@@ -76,7 +76,7 @@ fn test_command_model() {
         resolved: Some(resolved),
     };
 
-    let result = DemoCommand::from_interaction(data.clone()).unwrap();
+    let result = DemoCommand::from_interaction(data).unwrap();
 
     assert_eq!(
         DemoCommand {

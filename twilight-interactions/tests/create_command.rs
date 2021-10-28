@@ -27,27 +27,25 @@ struct DemoCommand {
 
 #[test]
 fn test_create_command() {
-    let mut options = Vec::new();
-
-    options.push(CommandOption::User(BaseCommandOptionData {
-        description: "A member".into(),
-        name: "member".into(),
-        required: true,
-    }));
-
-    options.push(CommandOption::String(ChoiceCommandOptionData {
-        description: "Some text".into(),
-        name: "text".into(),
-        required: true,
-        choices: vec![],
-    }));
-
-    options.push(CommandOption::Channel(ChannelCommandOptionData {
-        channel_types: vec![ChannelType::GuildText, ChannelType::Private],
-        description: "A text channel".into(),
-        name: "channel".into(),
-        required: false,
-    }));
+    let options = vec![
+        CommandOption::User(BaseCommandOptionData {
+            description: "A member".into(),
+            name: "member".into(),
+            required: true,
+        }),
+        CommandOption::String(ChoiceCommandOptionData {
+            description: "Some text".into(),
+            name: "text".into(),
+            required: true,
+            choices: vec![],
+        }),
+        CommandOption::Channel(ChannelCommandOptionData {
+            channel_types: vec![ChannelType::GuildText, ChannelType::Private],
+            description: "A text channel".into(),
+            name: "channel".into(),
+            required: false,
+        }),
+    ];
 
     let expected = ApplicationCommandData {
         name: "demo".into(),
