@@ -118,4 +118,5 @@ pub use command_model::{CommandModel, CommandOption, ResolvedUser};
 pub use create_command::{ApplicationCommandData, CommandOptionData, CreateCommand, CreateOption};
 
 #[cfg(feature = "derive")]
+#[cfg_attr(docsrs, doc(cfg(feature = "derive")))]
 pub use twilight_interactions_derive::{CommandModel, CreateCommand};

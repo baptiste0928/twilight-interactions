@@ -19,8 +19,10 @@
 //! Additional features can be enabled using [feature flags]:
 //!
 //! - `derive` (enabled by default): derive macros support.
+//! - `http`: create interactions using `twilight-http`.
 //!
 //! [feature flags]: https://doc.rust-lang.org/cargo/reference/features.html
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 pub mod command;
 pub mod error;

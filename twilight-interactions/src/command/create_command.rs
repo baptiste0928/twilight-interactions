@@ -12,6 +12,11 @@ use twilight_model::{
     user::User,
 };
 
+#[cfg(feature = "http")]
+use twilight_http::{request::application::InteractionError, response::ResponseFuture, Client};
+#[cfg(feature = "http")]
+use twilight_model::{application::command::Command, id::GuildId};
+
 use super::ResolvedUser;
 
 /// Create a [`ApplicationCommandData`] from a type.
@@ -63,6 +68,9 @@ pub trait CreateCommand: Sized {
 }
 
 /// Data sent to Discord to create a command.
+///
+/// If the `http` feature is enabled, this type provide
+/// two methods to create the command.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ApplicationCommandData {
     /// Name of the command. It must be 32 characters or less.
@@ -73,6 +81,39 @@ pub struct ApplicationCommandData {
     pub options: Vec<CommandOption>,
     /// Whether the command is enabled by default when the app is added to a guild.
     pub default_permission: bool,
+}
+
+impl ApplicationCommandData {
+    #[cfg(feature = "http")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "http")))]
+    /// Create a global application command from this [`ApplicationCommandData`].
+    pub fn create_global_command(
+        &self,
+        client: &Client,
+    ) -> Result<ResponseFuture<Command>, InteractionError> {
+        Ok(client
+            .create_global_command(&self.name)?
+            .chat_input(&self.description)?
+            .default_permission(self.default_permission)
+            .command_options(&self.options)?
+            .exec())
+    }
+
+    #[cfg(feature = "http")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "http")))]
+    /// Create a guild application command from this [`ApplicationCommandData`].
+    pub fn create_guild_command(
+        &self,
+        client: &Client,
+        guild_id: GuildId,
+    ) -> Result<ResponseFuture<Command>, InteractionError> {
+        Ok(client
+            .create_guild_command(guild_id, &self.name)?
+            .chat_input(&self.description)?
+            .default_permission(self.default_permission)
+            .command_options(&self.options)?
+            .exec())
+    }
 }
 
 /// Trait to create a [`CommandOption`] from a type.
