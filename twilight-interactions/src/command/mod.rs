@@ -89,6 +89,7 @@
 //! |---------------------|----------------------------------------|
 //! | `STRING`            | [`String`]                             |
 //! | `INTEGER`           | [`i64`]                                |
+//! | `NUMBER`            | [`Number`], [`f64`]
 //! | `BOOLEAN`           | [`bool`]                               |
 //! | `USER`              | [`ResolvedUser`], [`User`], [`UserId`] |
 //! | `CHANNEL`           | [`InteractionChannel`], [`ChannelId`]  |
@@ -103,6 +104,7 @@
 //! [`CommandData`]: twilight_model::application::interaction::application_command::CommandData
 //! [`InteractionMember`]: twilight_model::application::interaction::application_command::InteractionMember
 //!
+//! [`Number`]: twilight_model::application::command::Number
 //! [`User`]: twilight_model::user::User
 //! [`UserId`]: twilight_model::id::UserId
 //! [`InteractionChannel`]: twilight_model::application::interaction::application_command::InteractionChannel

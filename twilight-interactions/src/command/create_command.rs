@@ -2,7 +2,7 @@ use twilight_model::{
     application::{
         command::{
             BaseCommandOptionData, ChannelCommandOptionData, ChoiceCommandOptionData,
-            CommandOption, CommandOptionChoice, OptionsCommandOptionData,
+            CommandOption, CommandOptionChoice, Number, OptionsCommandOptionData,
         },
         interaction::application_command::InteractionChannel,
     },
@@ -193,6 +193,18 @@ impl CreateOption for String {
 impl CreateOption for i64 {
     fn create_option(data: CommandOptionData) -> CommandOption {
         CommandOption::Integer(data.into_choice(Vec::new()))
+    }
+}
+
+impl CreateOption for Number {
+    fn create_option(data: CommandOptionData) -> CommandOption {
+        CommandOption::Number(data.into_choice(Vec::new()))
+    }
+}
+
+impl CreateOption for f64 {
+    fn create_option(data: CommandOptionData) -> CommandOption {
+        CommandOption::Number(data.into_choice(Vec::new()))
     }
 }
 

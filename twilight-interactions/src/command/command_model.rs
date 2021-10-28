@@ -1,7 +1,10 @@
 use twilight_model::{
-    application::interaction::application_command::{
-        CommandData, CommandInteractionDataResolved, CommandOptionValue, InteractionChannel,
-        InteractionMember,
+    application::{
+        command::Number,
+        interaction::application_command::{
+            CommandData, CommandInteractionDataResolved, CommandOptionValue, InteractionChannel,
+            InteractionMember,
+        },
     },
     guild::Role,
     id::{ChannelId, GenericId, RoleId, UserId},
@@ -92,6 +95,30 @@ impl CommandOption for i64 {
     ) -> Result<Self, ParseErrorType> {
         match value {
             CommandOptionValue::Integer(value) => Ok(value),
+            other => Err(ParseErrorType::InvalidType(other.kind())),
+        }
+    }
+}
+
+impl CommandOption for Number {
+    fn from_option(
+        value: CommandOptionValue,
+        _resolved: Option<&CommandInteractionDataResolved>,
+    ) -> Result<Self, ParseErrorType> {
+        match value {
+            CommandOptionValue::Number(value) => Ok(value),
+            other => Err(ParseErrorType::InvalidType(other.kind())),
+        }
+    }
+}
+
+impl CommandOption for f64 {
+    fn from_option(
+        value: CommandOptionValue,
+        _resolved: Option<&CommandInteractionDataResolved>,
+    ) -> Result<Self, ParseErrorType> {
+        match value {
+            CommandOptionValue::Number(value) => Ok(value.0),
             other => Err(ParseErrorType::InvalidType(other.kind())),
         }
     }
