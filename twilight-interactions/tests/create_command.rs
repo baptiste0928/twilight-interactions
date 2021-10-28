@@ -1,5 +1,12 @@
-use twilight_interactions::command::{
-    ApplicationCommandData, CommandOptionData, CreateCommand, CreateOption, ResolvedUser,
+use twilight_interactions::command::{ApplicationCommandData, CreateCommand, ResolvedUser};
+use twilight_model::{
+    application::{
+        command::{
+            BaseCommandOptionData, ChannelCommandOptionData, ChoiceCommandOptionData, CommandOption,
+        },
+        interaction::application_command::InteractionChannel,
+    },
+    channel::ChannelType,
 };
 
 /// Demo command for testing purposes
@@ -13,29 +20,32 @@ struct DemoCommand {
     ///
     /// This documentation comment is ignored
     text: String,
-    /// A number
-    number: Option<i64>,
+    /// A text channel
+    #[command(channel_types = "guild_text private")]
+    channel: Option<InteractionChannel>,
 }
 
 #[test]
 fn test_create_command() {
     let mut options = Vec::new();
 
-    options.push(ResolvedUser::create_option(CommandOptionData {
-        name: "member".into(),
+    options.push(CommandOption::User(BaseCommandOptionData {
         description: "A member".into(),
+        name: "member".into(),
         required: true,
     }));
 
-    options.push(String::create_option(CommandOptionData {
-        name: "text".into(),
+    options.push(CommandOption::String(ChoiceCommandOptionData {
         description: "Some text".into(),
+        name: "text".into(),
         required: true,
+        choices: vec![],
     }));
 
-    options.push(i64::create_option(CommandOptionData {
-        name: "number".into(),
-        description: "A number".into(),
+    options.push(CommandOption::Channel(ChannelCommandOptionData {
+        channel_types: vec![ChannelType::GuildText, ChannelType::Private],
+        description: "A text channel".into(),
+        name: "channel".into(),
         required: false,
     }));
 

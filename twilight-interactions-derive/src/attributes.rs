@@ -62,7 +62,7 @@ pub(crate) struct FieldAttribute {
     /// Overwrite the field description
     pub(crate) desc: Option<String>,
     // Limit to specific channel types
-    // pub(crate) channel_types: Vec<()>,
+    pub(crate) channel_types: Vec<ChannelType>,
 }
 
 impl FieldAttribute {
@@ -73,8 +73,17 @@ impl FieldAttribute {
 
         let rename = attrs.get("rename").map(parse_name).transpose()?;
         let desc = attrs.get("desc").map(parse_description).transpose()?;
+        let channel_types = attrs
+            .get("channel_types")
+            .map(ChannelType::parse_attr)
+            .transpose()?
+            .unwrap_or_default();
 
-        Ok(Self { rename, desc })
+        Ok(Self {
+            rename,
+            desc,
+            channel_types,
+        })
     }
 
     pub(crate) fn name_default(&self, default: String) -> String {
@@ -145,6 +154,54 @@ pub(crate) fn parse_doc(attrs: &[Attribute], span: Span) -> Result<String> {
             span,
             "Description must be between 1 and 100 characters",
         )),
+    }
+}
+
+/// Parsed channel type
+pub(crate) enum ChannelType {
+    GuildText,
+    Private,
+    GuildVoice,
+    Group,
+    GuildCategory,
+    GuildNews,
+    GuildStore,
+    GuildNewsThread,
+    GuildPublicThread,
+    GuildPrivateThread,
+    GuildStageVoice,
+}
+
+impl ChannelType {
+    /// Parse an [`AttrValue`] string as a [`ChannelType`]
+    fn parse_attr(attr: &AttrValue) -> Result<Vec<Self>> {
+        let span = attr.span();
+        let val = attr.parse_string()?;
+
+        val.split_whitespace()
+            .map(|value| ChannelType::parse(value, span))
+            .collect()
+    }
+
+    /// Parse a single string as a [`ChannelType`]
+    fn parse(value: &str, span: Span) -> Result<Self> {
+        match value {
+            "guild_text" => Ok(Self::GuildText),
+            "private" => Ok(Self::Private),
+            "guild_voice" => Ok(Self::GuildVoice),
+            "group" => Ok(Self::Group),
+            "guild_category" => Ok(Self::GuildCategory),
+            "guild_news" => Ok(Self::GuildNews),
+            "guild_store" => Ok(Self::GuildStore),
+            "guild_news_thread" => Ok(Self::GuildNewsThread),
+            "guild_public_thread" => Ok(Self::GuildPublicThread),
+            "guild_private_thread" => Ok(Self::GuildPrivateThread),
+            "guild_stage_voice" => Ok(Self::GuildStageVoice),
+            invalid => Err(Error::new(
+                span,
+                format!("`{}` is not a valid channel type", invalid),
+            )),
+        }
     }
 }
 

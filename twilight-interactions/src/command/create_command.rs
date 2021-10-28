@@ -34,6 +34,7 @@ use super::ResolvedUser;
 /// **Field parameters**:
 /// - `#[command(rename = "")]`: use a different option name than the field name.
 /// - `#[command(desc = "")]`: set the option description.[^desc]
+/// - `#[command(channel_types = "")]`: restricts the channel choice to specific types.[^channel_types]
 ///
 /// It is mandatory to provide a description for each option and the command itself,
 /// either using documentation comments or `desc` attribute parameter.
@@ -53,6 +54,9 @@ use super::ResolvedUser;
 /// ```
 ///
 /// [^desc]: Documentation comments can also be used. Only the fist line will be taken in account.
+///
+/// [^channel_types]: List [`ChannelType`] names in snake_case separated by spaces
+///                   like `guild_text private`.
 pub trait CreateCommand: Sized {
     /// Create an [`ApplicationCommandData`] for this type.
     fn create_command() -> ApplicationCommandData;
@@ -95,6 +99,8 @@ pub struct CommandOptionData {
     pub description: String,
     /// Whether the option is required to be completed by a user.
     pub required: bool,
+    /// Restricts the channel choice to specific types. Only for `CHANNEL` option type.
+    pub channel_types: Vec<ChannelType>,
 }
 
 impl CommandOptionData {
@@ -108,9 +114,9 @@ impl CommandOptionData {
     }
 
     /// Conversion into a [`ChannelCommandOptionData`]
-    pub fn into_channel(self, channel_types: Vec<ChannelType>) -> ChannelCommandOptionData {
+    pub fn into_channel(self) -> ChannelCommandOptionData {
         ChannelCommandOptionData {
-            channel_types,
+            channel_types: self.channel_types,
             description: self.description,
             name: self.name,
             required: self.required,
@@ -163,7 +169,7 @@ impl CreateOption for UserId {
 
 impl CreateOption for ChannelId {
     fn create_option(data: CommandOptionData) -> CommandOption {
-        CommandOption::Channel(data.into_channel(Vec::new()))
+        CommandOption::Channel(data.into_channel())
     }
 }
 
@@ -193,7 +199,7 @@ impl CreateOption for ResolvedUser {
 
 impl CreateOption for InteractionChannel {
     fn create_option(data: CommandOptionData) -> CommandOption {
-        CommandOption::Channel(data.into_channel(Vec::new()))
+        CommandOption::Channel(data.into_channel())
     }
 }
 

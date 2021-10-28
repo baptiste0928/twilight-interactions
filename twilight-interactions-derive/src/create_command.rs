@@ -3,7 +3,7 @@ use quote::{quote, quote_spanned};
 use syn::{Data, DataStruct, DeriveInput, Error, Fields, Result};
 
 use crate::{
-    attributes::{find_attr, parse_doc, TypeAttribute},
+    attributes::{find_attr, parse_doc, ChannelType, TypeAttribute},
     fields::StructField,
 };
 
@@ -77,6 +77,7 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
         None => parse_doc(&field.raw_attrs, field.span)?,
     };
     let required = field.kind.required();
+    let channel_types = field.attributes.channel_types.iter().map(channel_type);
 
     Ok(quote_spanned! {span=>
         command_options.push(<#ty as ::twilight_interactions::command::CreateOption>::create_option(
@@ -84,7 +85,33 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
                 name: ::std::convert::From::from(#name),
                 description: ::std::convert::From::from(#description),
                 required: #required,
+                channel_types: ::std::vec![#(#channel_types),*]
             }
         ));
     })
+}
+
+/// Convert a [`ChannelType`] into a [`TokenStream`]
+fn channel_type(kind: &ChannelType) -> TokenStream {
+    match kind {
+        ChannelType::GuildText => quote!(::twilight_model::channel::ChannelType::GuildText),
+        ChannelType::Private => quote!(::twilight_model::channel::ChannelType::Private),
+        ChannelType::GuildVoice => quote!(::twilight_model::channel::ChannelType::GuildVoice),
+        ChannelType::Group => quote!(::twilight_model::channel::ChannelType::Group),
+        ChannelType::GuildCategory => quote!(::twilight_model::channel::ChannelType::GuildCategory),
+        ChannelType::GuildNews => quote!(::twilight_model::channel::ChannelType::GuildNews),
+        ChannelType::GuildStore => quote!(::twilight_model::channel::ChannelType::GuildStore),
+        ChannelType::GuildNewsThread => {
+            quote!(::twilight_model::channel::ChannelType::GuildNewsThread)
+        }
+        ChannelType::GuildPublicThread => {
+            quote!(::twilight_model::channel::ChannelType::GuildPublicThread)
+        }
+        ChannelType::GuildPrivateThread => {
+            quote!(::twilight_model::channel::ChannelType::GuildPrivateThread)
+        }
+        ChannelType::GuildStageVoice => {
+            quote!(::twilight_model::channel::ChannelType::GuildStageVoice)
+        }
+    }
 }
