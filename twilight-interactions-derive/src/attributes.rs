@@ -1,4 +1,4 @@
-//! Parsing of #[command] attributes
+//! Parsing of command attributes
 
 use std::collections::HashMap;
 

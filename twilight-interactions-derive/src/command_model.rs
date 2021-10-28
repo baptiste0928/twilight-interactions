@@ -27,7 +27,7 @@ pub fn impl_command_model(input: DeriveInput) -> Result<TokenStream> {
     let fields_constructor = fields.iter().map(field_constructor);
 
     Ok(quote! {
-        impl ::twilight_interactions::CommandModel for #ident {
+        impl ::twilight_interactions::command::CommandModel for #ident {
             fn from_interaction(
                 data: ::twilight_model::application::interaction::application_command::CommandData,
             ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseError> {
@@ -66,7 +66,7 @@ fn field_match_arm(field: &StructField) -> TokenStream {
     let span = field.span;
 
     quote_spanned! {span=>
-        #name => match ::twilight_interactions::CommandOption::from_option(opt.value, data.resolved.as_ref()) {
+        #name => match ::twilight_interactions::command::CommandOption::from_option(opt.value, data.resolved.as_ref()) {
             ::std::result::Result::Ok(value) => #ident = Some(value),
             ::std::result::Result::Err(kind) => {
                 return ::std::result::Result::Err(

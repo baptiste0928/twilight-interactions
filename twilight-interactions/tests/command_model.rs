@@ -1,4 +1,4 @@
-use twilight_interactions::{CommandModel, ResolvedUser};
+use twilight_interactions::command::{CommandModel, ResolvedUser};
 use twilight_model::{
     application::interaction::application_command::{
         CommandData, CommandDataOption, CommandInteractionDataResolved, CommandOptionValue,

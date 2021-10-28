@@ -12,7 +12,7 @@ use twilight_model::application::command::CommandOptionType;
 ///
 /// This error type is returned by the [`CommandModel::from_interaction`] method.
 ///
-/// [`CommandModel::from_interaction`]: crate::CommandModel::from_interaction
+/// [`CommandModel::from_interaction`]: crate::command::CommandModel::from_interaction
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParseError {
     /// The name of the option field that caused the error.
@@ -43,8 +43,8 @@ pub enum ParseErrorType {
     InvalidType(CommandOptionType),
     /// Failed to resolve data associated with an ID.
     LookupFailed(NonZeroU64),
-    /// Missing a required option field
+    /// Missing a required option field.
     RequiredField,
-    /// Received an unknown option field
+    /// Received an unknown option field.
     UnknownField,
 }

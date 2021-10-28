@@ -12,7 +12,64 @@ use twilight_model::{
     user::User,
 };
 
-use crate::ResolvedUser;
+use super::ResolvedUser;
+
+/// Create a [`ApplicationCommandData`] from a type.
+///
+/// This trait allow to obtain command information from a type.
+/// See the module-level documentation to learn more.
+///
+/// ## Derive macro
+/// A derive macro is provided to implement this trait. The macro only works
+/// with structs with named fields where all field types implement [`CreateOption`].
+///
+/// ### Macro attributes
+/// The macro provide a `#[command]` attribute to provide additional information.
+///
+/// **Type parameters**:
+/// - `#[command(name = "")]`: set the command name (*required*).
+/// - `#[command(desc = "")]`: set the command description.[^desc]
+/// - `#[command(default_permission = true)]`: whether the command should be enabled by default.
+///
+/// **Field parameters**:
+/// - `#[command(rename = "")]`: use a different option name than the field name.
+/// - `#[command(desc = "")]`: set the option description.[^desc]
+///
+/// It is mandatory to provide a description for each option and the command itself,
+/// either using documentation comments or `desc` attribute parameter.
+///
+/// ## Example
+/// ```
+/// use twilight_interactions::command::{CreateCommand, ResolvedUser};
+///
+/// #[derive(CreateCommand)]
+/// #[command(name = "hello", desc = "Say hello")]
+/// struct HelloCommand {
+///     /// The message to send.
+///     message: String,
+///     /// The user to send the message to.
+///     user: Option<ResolvedUser>,
+/// }
+/// ```
+///
+/// [^desc]: Documentation comments can also be used. Only the fist line will be taken in account.
+pub trait CreateCommand: Sized {
+    /// Create an [`ApplicationCommandData`] for this type.
+    fn create_command() -> ApplicationCommandData;
+}
+
+/// Data sent to Discord to create a command.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ApplicationCommandData {
+    /// Name of the command. It must be 32 characters or less.
+    pub name: String,
+    /// Description of the option. It must be 100 characters or less.
+    pub description: String,
+    /// List of command options.
+    pub options: Vec<CommandOption>,
+    /// Whether the command is enabled by default when the app is added to a guild.
+    pub default_permission: bool,
+}
 
 /// Trait to create a [`CommandOption`] from a type.
 ///
@@ -20,10 +77,8 @@ use crate::ResolvedUser;
 /// implementation generated when deriving [`CreateCommand`].
 ///
 /// ## Provided implementations
-/// This trait is implemented on the same types as the [`CommandOption`](crate::CommandOption)
+/// This trait is implemented on the same types as the [`CommandOption`]
 /// trait. Please refer to its documentation for the full list.
-///
-/// [`CreateCommand`]: crate::CreateCommand
 pub trait CreateOption: Sized {
     /// Create a [`CommandOption`] from this type.
     fn create_option(data: CommandOptionData) -> CommandOption;

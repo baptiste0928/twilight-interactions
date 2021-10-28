@@ -1,4 +1,4 @@
-use twilight_interactions::{
+use twilight_interactions::command::{
     ApplicationCommandData, CommandOptionData, CreateCommand, CreateOption, ResolvedUser,
 };
 

@@ -49,13 +49,13 @@ pub fn impl_create_command(input: DeriveInput) -> Result<TokenStream> {
     let default_permission = attributes.default_permission;
 
     Ok(quote! {
-        impl ::twilight_interactions::CreateCommand for #ident {
-            fn create_command() -> ::twilight_interactions::ApplicationCommandData {
+        impl ::twilight_interactions::command::CreateCommand for #ident {
+            fn create_command() -> ::twilight_interactions::command::ApplicationCommandData {
                 let mut command_options = ::std::vec::Vec::new();
 
                 #(#field_options)*
 
-                ::twilight_interactions::ApplicationCommandData {
+                ::twilight_interactions::command::ApplicationCommandData {
                     name: ::std::convert::From::from(#name),
                     description: ::std::convert::From::from(#description),
                     options: command_options,
@@ -79,8 +79,8 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
     let required = field.kind.required();
 
     Ok(quote_spanned! {span=>
-        command_options.push(<#ty as ::twilight_interactions::CreateOption>::create_option(
-            ::twilight_interactions::CommandOptionData {
+        command_options.push(<#ty as ::twilight_interactions::command::CreateOption>::create_option(
+            ::twilight_interactions::command::CommandOptionData {
                 name: ::std::convert::From::from(#name),
                 description: ::std::convert::From::from(#description),
                 required: #required,

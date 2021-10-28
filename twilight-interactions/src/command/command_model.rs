@@ -1,34 +1,49 @@
 use twilight_model::{
     application::interaction::application_command::{
-        CommandInteractionDataResolved, CommandOptionValue, InteractionChannel, InteractionMember,
+        CommandData, CommandInteractionDataResolved, CommandOptionValue, InteractionChannel,
+        InteractionMember,
     },
     guild::Role,
     id::{ChannelId, GenericId, RoleId, UserId},
     user::User,
 };
 
-use crate::error::ParseErrorType;
+use crate::error::{ParseError, ParseErrorType};
 
-/// Trait to convert a [`CommandOptionValue`] into a concrete type.
+/// Parse [`CommandData`] into a concrete type.
 ///
-/// ## Provided implementations
+/// This trait represent a slash command model, that can be initialized
+/// from a [`CommandData`]. See the module-level documentation to learn more.
 ///
-/// | Option type         | Implemented types                      |
-/// |---------------------|----------------------------------------|
-/// | `STRING`            | [`String`]                             |
-/// | `INTEGER`           | [`i64`]                                |
-/// | `BOOLEAN`           | [`bool`]                               |
-/// | `USER`              | [`ResolvedUser`], [`User`], [`UserId`] |
-/// | `CHANNEL`           | [`InteractionChannel`], [`ChannelId`]  |
-/// | `ROLE`              | [`Role`], [`RoleId`]                   |
-/// | `MENTIONABLE`       | [`GenericId`]                          |
-/// | `SUB_COMMAND`       | Not yet implemented.                   |
-/// | `SUB_COMMAND_GROUP` | Not yet implemented.                   |
+/// ## Derive macro
+/// A derive macro is provided to implement this trait. The macro only works
+/// with structs with named fields where all field types implement [`CommandOption`].
 ///
-/// This trait is only implemented for types where the conversion cannot
-/// fail due to a user error (when input is considered as invalid by your
-/// application but is valid according the requested data type).
-/// For example, this is why the trait is only implemented for [`i64`].
+/// ### Macro attributes
+/// The macro provide a `#[command]` attribute to configure generated code.
+///
+/// **Field parameters**:
+/// - `#[command(rename = "")]`: use a different name for the field when parsing.
+///
+/// ## Example
+/// ```
+/// use twilight_interactions::command::{CommandModel, ResolvedUser};
+///
+/// #[derive(CommandModel)]
+/// struct HelloCommand {
+///     message: String,
+///     user: Option<ResolvedUser>
+/// }
+/// ```
+pub trait CommandModel: Sized {
+    /// Construct this type from a [`CommandData`].
+    fn from_interaction(data: CommandData) -> Result<Self, ParseError>;
+}
+
+/// Convert a [`CommandOptionValue`] into a concrete type.
+///
+/// This trait is used by the implementation of [`CommandData`] generated
+/// by the derive macro.
 pub trait CommandOption: Sized {
     /// Convert a [`CommandOptionValue`] into this value.
     fn from_option(
