@@ -1,37 +1,47 @@
-# twilight-interactions
+# Twilight interactions
+
+[![Crates.io](https://img.shields.io/crates/v/twilight-interactions)](https://crates.io/crates/twilight-interactions)
+[![dependency status](https://deps.rs/repo/github/baptiste0928/twilight-interactions/status.svg)](https://deps.rs/repo/github/baptiste0928/twilight-interactions)
+[![docs.rs](https://img.shields.io/docsrs/twilight-interactions)](https://docs.rs/twilight-interactions/)
+[![CI](https://github.com/baptiste0928/twilight-interactions/actions/workflows/ci.yaml/badge.svg?event=push)](https://github.com/baptiste0928/twilight-interactions/actions/workflows/ci.yaml)
 
 `twilight-interactions` is a set of macros and utilities to work with Discord Interactions using [`twilight`](https://github.com/twilight-rs/twilight).
 
-**Disclamer:** This crate is currently work in progress and is not affiliated with the [`twilight`](https://github.com/twilight-rs/twilight) project. Breaking changes
-may happen at any time before the crate is published on *crates.io*. If you are using it, it is recommended to link to a specific commit in your `Cargo.toml` file to
-avoid unwanted breaking change. Any feedback is welcome.
+**Note:** This crate is not affiliated with the [`twilight`](https://github.com/twilight-rs/twilight) project.
 
 ## Features
-- Slash command parsing with the `CommandModel` trait
-- Slash command with the `CreateCommand` trait
-- Advanced slash command option parsing for choices and subcommands (WIP)
-- **Derive macros to automatically implement most of provided traits**
-
-## Installing
-While this crate is not published on *crates.io*, you should use it as a git dependency.
-It is recommended to link to a specific commit to avoid unwanted breaking changes.
-
-```toml
-# Cargo.toml
-[dependencies]
-twilight-interactions = { git = "https://github.com/baptiste0928/twilight-interactions", rev = "commit" }
-```
-
-## Example usage
+- **Slash command parsing**: parse interaction data as typed structs using the `CommandModel` macro.
+- **Slash command creation**: create commands from your structs with the `CreateCommand` macro. Commands are configured using attributes.
 
 ```rust
-use twilight_interactions::{CommandModel, ResolvedUser};
+use twilight_interactions::command::{CommandModel, CreateCommand, ResolvedUser};
 
-#[derive(CommandModel)]
+#[derive(CommandModel, CreateCommand)]
+#[command(name = "hello", desc = "Say hello to other members")]
 struct HelloCommand {
+    /// Message to send
     message: String,
+    /// User to send the message to
     user: Option<ResolvedUser>
 }
 ```
 
-> Initial work by [LeSeulArtichaut](https://github.com/LeSeulArtichaut).
+## Installing
+To install `twilight-interactions`, add the following to your `Cargo.toml`:
+
+```toml
+[dependencies]
+twilight-interactions = "0.7"
+```
+
+The crate major version follow the version of the official twilight crates.
+
+## Documentation
+
+The API documentation is available on *docs.rs*: [`twilight-interactions` documentation](https://docs.rs/twilight-interactions/).
+
+## Contributing
+There is no particular contribution guidelines, feel free to open a new PR to improve the code. If you want to introduce a new feature, please create an issue before.
+
+
+*Special thanks to [LeSeulArtichaut](https://github.com/LeSeulArtichaut) who worked the first on this project.*
