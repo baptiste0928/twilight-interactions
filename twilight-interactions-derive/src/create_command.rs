@@ -26,6 +26,8 @@ pub fn impl_create_command(input: DeriveInput) -> Result<TokenStream> {
         }
     };
 
+    check_fields_order(&fields)?;
+
     let attributes = match find_attr(&input.attrs, "command") {
         Some(attr) => TypeAttribute::parse(attr)?,
         None => {
@@ -89,6 +91,26 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
             }
         ));
     })
+}
+
+/// Ensure optional options are after required ones
+fn check_fields_order(fields: &[StructField]) -> Result<()> {
+    let mut optional_option_added = false;
+
+    for field in fields {
+        if !optional_option_added && !field.kind.required() {
+            optional_option_added = true;
+        }
+
+        if optional_option_added && field.kind.required() {
+            return Err(Error::new(
+                field.span,
+                "Required options should be added before optional",
+            ));
+        }
+    }
+
+    Ok(())
 }
 
 /// Convert a [`ChannelType`] into a [`TokenStream`]

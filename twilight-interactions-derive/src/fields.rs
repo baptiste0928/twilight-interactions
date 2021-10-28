@@ -35,7 +35,7 @@ impl StructField {
         };
 
         Ok(Self {
-            span: field.span(),
+            span: field.ty.span(),
             ident: field.ident.unwrap(),
             ty,
             raw_attrs: field.attrs,
