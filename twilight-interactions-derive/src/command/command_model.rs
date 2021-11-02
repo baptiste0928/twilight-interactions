@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::{spanned::Spanned, Data, DataStruct, DeriveInput, Error, Fields, Result};
 
-use crate::fields::{FieldType, StructField};
+use super::fields::{FieldType, StructField};
 
 /// Implementation of CommandModel derive macro
 pub fn impl_command_model(input: DeriveInput) -> Result<TokenStream> {

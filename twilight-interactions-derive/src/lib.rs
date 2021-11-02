@@ -4,11 +4,8 @@
 //!
 //! Please refer to the `twilight-interactions` documentation for further information.
 
-mod attributes;
-mod fields;
-
-mod command_model;
-mod create_command;
+mod command;
+mod parse;
 
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput};
@@ -20,7 +17,7 @@ use syn::{parse_macro_input, DeriveInput};
 pub fn command_model(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    match command_model::impl_command_model(input) {
+    match command::impl_command_model(input) {
         Ok(output) => output.into(),
         Err(error) => error.to_compile_error().into(),
     }
@@ -33,7 +30,7 @@ pub fn command_model(input: TokenStream) -> TokenStream {
 pub fn create_command(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    match create_command::impl_create_command(input) {
+    match command::impl_create_command(input) {
         Ok(output) => output.into(),
         Err(error) => error.to_compile_error().into(),
     }

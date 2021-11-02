@@ -2,8 +2,10 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::{Data, DataStruct, DeriveInput, Error, Fields, Result};
 
-use crate::{
-    attributes::{find_attr, parse_doc, ChannelType, TypeAttribute},
+use crate::parse::find_attr;
+
+use super::{
+    attributes::{parse_doc, ChannelType, TypeAttribute},
     fields::StructField,
 };
 
