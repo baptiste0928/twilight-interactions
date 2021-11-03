@@ -1,8 +1,8 @@
 use twilight_model::{
     application::{
         command::{
-            BaseCommandOptionData, ChannelCommandOptionData, ChoiceCommandOptionData,
-            CommandOption, CommandOptionChoice, Number, OptionsCommandOptionData,
+            BaseCommandOptionData, ChannelCommandOptionData, ChoiceCommandOptionData, Command,
+            CommandOption, CommandOptionChoice, CommandType, Number, OptionsCommandOptionData,
         },
         interaction::application_command::InteractionChannel,
     },
@@ -15,7 +15,7 @@ use twilight_model::{
 #[cfg(feature = "http")]
 use twilight_http::{request::application::InteractionError, response::ResponseFuture, Client};
 #[cfg(feature = "http")]
-use twilight_model::{application::command::Command, id::GuildId};
+use twilight_model::id::GuildId;
 
 use super::ResolvedUser;
 
@@ -69,6 +69,9 @@ pub trait CreateCommand: Sized {
 
 /// Data sent to Discord to create a command.
 ///
+/// This type can be converted to a [`Command`] using the
+/// [`Into`] trait.
+///
 /// If the `http` feature is enabled, this type provide
 /// two methods to create the command.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -113,6 +116,21 @@ impl ApplicationCommandData {
             .default_permission(self.default_permission)
             .command_options(&self.options)?
             .exec())
+    }
+}
+
+impl From<ApplicationCommandData> for Command {
+    fn from(item: ApplicationCommandData) -> Self {
+        Command {
+            application_id: None,
+            guild_id: None,
+            name: item.name,
+            default_permission: Some(item.default_permission),
+            description: item.description,
+            id: None,
+            kind: CommandType::ChatInput,
+            options: item.options,
+        }
     }
 }
 
