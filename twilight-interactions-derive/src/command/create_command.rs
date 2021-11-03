@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
-use syn::{Data, DataStruct, DeriveInput, Error, Fields, Result};
+use syn::{Data, DataStruct, DeriveInput, Error, Fields, Ident, Result};
 
 use crate::parse::find_attr;
 
@@ -68,6 +68,21 @@ pub fn impl_create_command(input: DeriveInput) -> Result<TokenStream> {
             }
         }
     })
+}
+
+/// Dummy implementation of the `CreateCommand` trait in case of macro error
+pub fn dummy_create_command(ident: Ident, error: Error) -> TokenStream {
+    let error = error.to_compile_error();
+
+    quote! {
+        #error
+
+        impl ::twilight_interactions::command::CreateCommand for #ident {
+            fn create_command() -> ::twilight_interactions::command::ApplicationCommandData {
+                ::std::unimplemented!()
+            }
+        }
+    }
 }
 
 /// Generate field option code

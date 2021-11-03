@@ -16,10 +16,11 @@ use syn::{parse_macro_input, DeriveInput};
 #[proc_macro_derive(CommandModel, attributes(command))]
 pub fn command_model(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
+    let ident = input.ident.clone();
 
     match command::impl_command_model(input) {
         Ok(output) => output.into(),
-        Err(error) => error.to_compile_error().into(),
+        Err(error) => command::dummy_command_model(ident, error).into(),
     }
 }
 
@@ -29,9 +30,10 @@ pub fn command_model(input: TokenStream) -> TokenStream {
 #[proc_macro_derive(CreateCommand, attributes(command))]
 pub fn create_command(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
+    let ident = input.ident.clone();
 
     match command::impl_create_command(input) {
         Ok(output) => output.into(),
-        Err(error) => error.to_compile_error().into(),
+        Err(error) => command::dummy_create_command(ident, error).into(),
     }
 }

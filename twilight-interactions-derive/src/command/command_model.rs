@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
-use syn::{spanned::Spanned, Data, DataStruct, DeriveInput, Error, Fields, Result};
+use syn::{spanned::Spanned, Data, DataStruct, DeriveInput, Error, Fields, Ident, Result};
 
 use super::fields::{FieldType, StructField};
 
@@ -51,6 +51,23 @@ pub fn impl_command_model(input: DeriveInput) -> Result<TokenStream> {
             }
         }
     })
+}
+
+/// Dummy implementation of the `CommandModel` trait in case of macro error
+pub fn dummy_command_model(ident: Ident, error: Error) -> TokenStream {
+    let error = error.to_compile_error();
+
+    quote! {
+        #error
+
+        impl ::twilight_interactions::command::CommandModel for #ident {
+            fn from_interaction(
+                data: ::twilight_model::application::interaction::application_command::CommandData,
+            ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseError> {
+                ::std::unimplemented!()
+            }
+        }
+    }
 }
 
 /// Generate field initialization variables
