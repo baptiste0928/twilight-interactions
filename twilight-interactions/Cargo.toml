@@ -1,6 +1,6 @@
 [package]
 name = "twilight-interactions"
-version = "0.7.0"
+version = "0.7.1"
 description = "Macros and utilities to make Discord Interactions easy to use with Twilight."
 categories = ["parsing", "configuration", "asynchronous"]
 keywords = ["twilight", "discord", "slash-command"]
@@ -11,6 +11,7 @@ repository = "https://github.com/baptiste0928/twilight-interactions"
 documentation = "https://docs.rs/twilight-interactions"
 edition = "2018"
 license = "ISC"
+include = ["src/**/*", "README.md"]
 
 [features]
 default = ["derive"]
@@ -19,7 +20,7 @@ http = ["twilight-http"]
 
 [dependencies]
 twilight-model = "0.7"
-twilight-interactions-derive = { version = "=0.7.0", path = "../twilight-interactions-derive", optional = true }
+twilight-interactions-derive = { version = "=0.7.1", path = "../twilight-interactions-derive", optional = true }
 twilight-http =  { version = "0.7", optional = true }
 
 [package.metadata.docs.rs]
