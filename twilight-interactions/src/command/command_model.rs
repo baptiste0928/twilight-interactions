@@ -47,6 +47,34 @@ pub trait CommandModel: Sized {
 ///
 /// This trait is used by the implementation of [`CommandData`] generated
 /// by the derive macro.
+///
+/// ## Derive macro
+/// A derive macro is provided to implement this trait for slash command
+/// options with predefined choices. The macro only works on enums and
+/// require that the `#[option]` attribute (see below) is present on
+/// each variant.
+///
+/// ### Macro attributes
+/// The macro provide a `#[option]` attribute to configure the generated code.
+///
+/// ***Variant parameters:**
+/// - `#[option(name = "")]`: name of the command option choice
+/// - `#[option(value = ..)]`: value of the command option choice (either string, integer or float)
+///
+/// ## Example
+/// ```
+/// use twilight_interactions::command::CommandOption;
+///
+/// #[derive(CommandOption)]
+/// enum TimeUnit {
+///     #[option(name = "Minute", value = 60)]
+///     Minute,
+///     #[option(name = "Hour", value = 3600)]
+///     Hour,
+///     #[option(name = "Day", value = 86400)]
+///     Day
+/// }
+/// ```
 pub trait CommandOption: Sized {
     /// Convert a [`CommandOptionValue`] into this value.
     fn from_option(

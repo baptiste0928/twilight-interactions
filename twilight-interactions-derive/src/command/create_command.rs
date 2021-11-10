@@ -30,6 +30,7 @@ pub fn impl_create_command(input: DeriveInput) -> Result<TokenStream> {
 
     check_fields_order(&fields)?;
 
+    let capacity = fields.len();
     let attributes = match find_attr(&input.attrs, "command") {
         Some(attr) => TypeAttribute::parse(attr)?,
         None => {
@@ -55,7 +56,7 @@ pub fn impl_create_command(input: DeriveInput) -> Result<TokenStream> {
     Ok(quote! {
         impl ::twilight_interactions::command::CreateCommand for #ident {
             fn create_command() -> ::twilight_interactions::command::ApplicationCommandData {
-                let mut command_options = ::std::vec::Vec::new();
+                let mut command_options = ::std::vec::Vec::with_capacity(#capacity);
 
                 #(#field_options)*
 

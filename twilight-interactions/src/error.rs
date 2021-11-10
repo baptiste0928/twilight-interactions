@@ -29,6 +29,9 @@ impl Display for ParseError {
 
         match &self.kind {
             ParseErrorType::InvalidType(ty) => write!(f, "invalid type, found {}", ty.kind()),
+            ParseErrorType::InvalidChoice(choice) => {
+                write!(f, "invalid choice value, found `{}`", choice)
+            }
             ParseErrorType::LookupFailed(id) => write!(f, "failed to resolve `{}`", id),
             ParseErrorType::UnknownField => write!(f, "unknown field"),
             ParseErrorType::RequiredField => write!(f, "missing required field"),
@@ -39,8 +42,10 @@ impl Display for ParseError {
 /// Type of [`ParseError`] that occurred.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ParseErrorType {
-    /// Found an invalid option type.
+    /// Received an invalid option type.
     InvalidType(CommandOptionType),
+    /// Received an invalid value on choice option type.
+    InvalidChoice(String),
     /// Failed to resolve data associated with an ID.
     LookupFailed(NonZeroU64),
     /// Missing a required option field.

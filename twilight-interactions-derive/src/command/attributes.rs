@@ -79,7 +79,7 @@ impl FieldAttribute {
     }
 }
 
-/// Parse command or option name.
+/// Parse command or option name
 fn parse_name(val: &AttrValue) -> Result<String> {
     let span = val.span();
     let val = val.parse_string()?;

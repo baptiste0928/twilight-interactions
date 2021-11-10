@@ -98,6 +98,28 @@
 //! | `SUB_COMMAND`       | Not yet implemented.                   |
 //! | `SUB_COMMAND_GROUP` | Not yet implemented.                   |
 //!
+//! ### Command option choices
+//! Command option choices are supported for `STRING`, `INTEGER` and `NUMBER` option types.
+//! Derive macros for the [`CommandOption`] and [`CreateOption`] traits are provided to
+//! parse command option with choices as enums.
+//!
+//! ```
+//! use twilight_interactions::command::{CommandOption, CreateOption};
+//!
+//! #[derive(CommandOption, CreateOption)]
+//! enum TimeUnit {
+//!     #[option(name = "Minute", value = 60)]
+//!     Minute,
+//!     #[option(name = "Hour", value = 3600)]
+//!     Hour,
+//!     #[option(name = "Day", value = 86400)]
+//!     Day
+//! }
+//! ```
+//!
+//! The slash command option type corresponding to the enum is automatically inferred
+//! from the `value` parameter. In the previous example, the inferred type would be `INTEGER`.
+//!
 //! [`from_interaction`]: CommandModel::from_interaction
 //! [`create_command`]: CreateCommand::create_command
 //!
@@ -121,4 +143,4 @@ pub use create_command::{ApplicationCommandData, CommandOptionData, CreateComman
 
 #[cfg(feature = "derive")]
 #[cfg_attr(docsrs, doc(cfg(feature = "derive")))]
-pub use twilight_interactions_derive::{CommandModel, CreateCommand};
+pub use twilight_interactions_derive::{CommandModel, CommandOption, CreateCommand, CreateOption};

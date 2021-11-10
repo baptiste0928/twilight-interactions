@@ -139,9 +139,34 @@ impl From<ApplicationCommandData> for Command {
 /// This trait allow to create a [`CommandOption`] for a type. It is primarily used in the
 /// implementation generated when deriving [`CreateCommand`].
 ///
-/// ## Provided implementations
-/// This trait is implemented on the same types as the [`CommandOption`]
-/// trait. Please refer to its documentation for the full list.
+///
+/// ## Derive macro
+/// A derive macro is provided to implement this trait for slash command
+/// options with predefined choices. The macro only works on enums and
+/// require that the `#[option]` attribute (see below) is present on
+/// each variant.
+///
+/// ### Macro attributes
+/// The macro provide a `#[option]` attribute to configure the generated code.
+///
+/// ***Variant parameters:**
+/// - `#[option(name = "")]`: name of the command option choice
+/// - `#[option(value = ..)]`: value of the command option choice (either string, integer or float)
+///
+/// ## Example
+/// ```
+/// use twilight_interactions::command::CreateOption;
+///
+/// #[derive(CreateOption)]
+/// enum TimeUnit {
+///     #[option(name = "Minute", value = 60)]
+///     Minute,
+///     #[option(name = "Hour", value = 3600)]
+///     Hour,
+///     #[option(name = "Day", value = 86400)]
+///     Day
+/// }
+/// ```
 pub trait CreateOption: Sized {
     /// Create a [`CommandOption`] from this type.
     fn create_option(data: CommandOptionData) -> CommandOption;

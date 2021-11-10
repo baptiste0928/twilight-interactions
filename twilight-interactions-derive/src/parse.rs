@@ -113,8 +113,13 @@ impl NamedAttrs {
 pub struct AttrValue(Lit);
 
 impl AttrValue {
+    /// Borrow the inner value
+    pub fn inner(&self) -> &Lit {
+        &self.0
+    }
+
     pub fn parse_string(&self) -> Result<String> {
-        match &self.0 {
+        match self.inner() {
             Lit::Str(inner) => Ok(inner.value()),
             _ => Err(Error::new(
                 self.0.span(),
@@ -124,7 +129,7 @@ impl AttrValue {
     }
 
     pub fn parse_bool(&self) -> Result<bool> {
-        match &self.0 {
+        match self.inner() {
             Lit::Bool(inner) => Ok(inner.value()),
             _ => Err(Error::new(
                 self.0.span(),
