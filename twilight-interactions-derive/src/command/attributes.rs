@@ -46,28 +46,60 @@ pub struct FieldAttribute {
     pub rename: Option<String>,
     /// Overwrite the field description
     pub desc: Option<String>,
-    // Limit to specific channel types
+    /// Whether the command supports autocomplete
+    pub autocomplete: bool,
+    /// Limit to specific channel types
     pub channel_types: Vec<ChannelType>,
+    /// Maximum value permitted
+    pub max_value: Option<CommandOptionValue>,
+    /// Minimum value permitted
+    pub min_value: Option<CommandOptionValue>,
 }
 
 impl FieldAttribute {
     /// Parse a single [`Attribute`]
     pub fn parse(attr: &Attribute) -> Result<Self> {
         let meta = attr.parse_meta()?;
-        let attrs = NamedAttrs::parse(meta, &["rename", "desc", "channel_types"])?;
+        let attrs = NamedAttrs::parse(
+            meta,
+            &[
+                "rename",
+                "desc",
+                "autocomplete",
+                "channel_types",
+                "max_value",
+                "min_value",
+            ],
+        )?;
 
         let rename = attrs.get("rename").map(parse_name).transpose()?;
         let desc = attrs.get("desc").map(parse_description).transpose()?;
+        let autocomplete = attrs
+            .get("autocomplete")
+            .map(|val| val.parse_bool())
+            .transpose()?
+            .unwrap_or_default();
         let channel_types = attrs
             .get("channel_types")
             .map(ChannelType::parse_attr)
             .transpose()?
             .unwrap_or_default();
+        let max_value = attrs
+            .get("max_value")
+            .map(CommandOptionValue::parse_attr)
+            .transpose()?;
+        let min_value = attrs
+            .get("min_value")
+            .map(CommandOptionValue::parse_attr)
+            .transpose()?;
 
         Ok(Self {
             rename,
             desc,
+            autocomplete,
             channel_types,
+            max_value,
+            min_value,
         })
     }
 
@@ -148,6 +180,27 @@ impl ChannelType {
             invalid => Err(Error::new(
                 span,
                 format!("`{}` is not a valid channel type", invalid),
+            )),
+        }
+    }
+}
+
+/// Parsed command option value
+#[derive(Clone, Copy)]
+pub enum CommandOptionValue {
+    Integer(i64),
+    Number(f64),
+}
+
+impl CommandOptionValue {
+    /// Parse an [`AttrValue`] as a [`CommandOptionValue`]
+    fn parse_attr(attr: &AttrValue) -> Result<Self> {
+        match attr.inner() {
+            Lit::Int(inner) => Ok(Self::Integer(inner.base10_parse()?)),
+            Lit::Float(inner) => Ok(Self::Number(inner.base10_parse()?)),
+            _ => Err(Error::new(
+                attr.span(),
+                "Invalid attribute type, expected integer or float",
             )),
         }
     }

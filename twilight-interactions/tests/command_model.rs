@@ -4,6 +4,7 @@ use twilight_model::{
         CommandData, CommandDataOption, CommandInteractionDataResolved, CommandOptionValue,
         InteractionMember,
     },
+    datetime::Timestamp,
     id::{CommandId, UserId},
     user::User,
 };
@@ -23,21 +24,24 @@ fn test_command_model() {
         CommandDataOption {
             name: "member".to_string(),
             value: CommandOptionValue::User(user_id),
+            focused: false,
         },
         CommandDataOption {
             name: "text".into(),
             value: CommandOptionValue::String("hello world".into()),
+            focused: false,
         },
         CommandDataOption {
             name: "number".into(),
             value: CommandOptionValue::Integer(42),
+            focused: false,
         },
     ];
 
     let member = InteractionMember {
         hoisted_role: None,
         id: user_id,
-        joined_at: None,
+        joined_at: Timestamp::from_secs(1609455600).unwrap(),
         nick: None,
         premium_since: None,
         roles: vec![],

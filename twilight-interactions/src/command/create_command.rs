@@ -2,13 +2,14 @@ use twilight_model::{
     application::{
         command::{
             BaseCommandOptionData, ChannelCommandOptionData, ChoiceCommandOptionData, Command,
-            CommandOption, CommandOptionChoice, CommandType, Number, OptionsCommandOptionData,
+            CommandOption, CommandOptionChoice, CommandOptionValue, CommandType, Number,
+            NumberCommandOptionData, OptionsCommandOptionData,
         },
         interaction::application_command::InteractionChannel,
     },
     channel::ChannelType,
     guild::Role,
-    id::{ChannelId, GenericId, RoleId, UserId},
+    id::{ChannelId, CommandVersionId, GenericId, RoleId, UserId},
     user::User,
 };
 
@@ -39,7 +40,9 @@ use super::ResolvedUser;
 /// **Field parameters**:
 /// - `#[command(rename = "")]`: use a different option name than the field name.
 /// - `#[command(desc = "")]`: set the option description.[^desc]
+/// - `#[command(autocomplete = true)]`: enable autocomplete on this field.[^autocomplete]
 /// - `#[command(channel_types = "")]`: restricts the channel choice to specific types.[^channel_types]
+/// - `#[command(max_value = 0, min_value = 0)]`: set the maximum and/or minimum value permitted (integer or float).
 ///
 /// It is mandatory to provide a description for each option and the command itself,
 /// either using documentation comments or `desc` attribute parameter.
@@ -59,6 +62,8 @@ use super::ResolvedUser;
 /// ```
 ///
 /// [^desc]: Documentation comments can also be used. Only the fist line will be taken in account.
+///
+/// [^autocomplete]: Parsing of partial data received from autocomplete interaction is not yet supported.
 ///
 /// [^channel_types]: List [`ChannelType`] names in snake_case separated by spaces
 ///                   like `guild_text private`.
@@ -130,6 +135,7 @@ impl From<ApplicationCommandData> for Command {
             id: None,
             kind: CommandType::ChatInput,
             options: item.options,
+            version: CommandVersionId::new(1).unwrap(),
         }
     }
 }
@@ -183,8 +189,14 @@ pub struct CommandOptionData {
     pub description: String,
     /// Whether the option is required to be completed by a user.
     pub required: bool,
+    /// Whether the command supports autocomplete. Only for `STRING`, `INTEGER` and `NUMBER` option type.
+    pub autocomplete: bool,
     /// Restricts the channel choice to specific types. Only for `CHANNEL` option type.
     pub channel_types: Vec<ChannelType>,
+    /// Maximum value permitted. Only for `INTEGER` and `NUMBER` option type.
+    pub max_value: Option<CommandOptionValue>,
+    /// Minimum value permitted. Only for `INTEGER` and `NUMBER` option type.
+    pub min_value: Option<CommandOptionValue>,
 }
 
 impl CommandOptionData {
@@ -210,8 +222,22 @@ impl CommandOptionData {
     /// Conversion into a [`ChoiceCommandOptionData`]
     pub fn into_choice(self, choices: Vec<CommandOptionChoice>) -> ChoiceCommandOptionData {
         ChoiceCommandOptionData {
+            autocomplete: self.autocomplete,
             choices,
             description: self.description,
+            name: self.name,
+            required: self.required,
+        }
+    }
+
+    /// Conversion into a [`NumberCommandOptionData`]
+    pub fn into_number(self, choices: Vec<CommandOptionChoice>) -> NumberCommandOptionData {
+        NumberCommandOptionData {
+            autocomplete: self.autocomplete,
+            choices,
+            description: self.description,
+            max_value: self.max_value,
+            min_value: self.min_value,
             name: self.name,
             required: self.required,
         }
@@ -235,19 +261,19 @@ impl CreateOption for String {
 
 impl CreateOption for i64 {
     fn create_option(data: CommandOptionData) -> CommandOption {
-        CommandOption::Integer(data.into_choice(Vec::new()))
+        CommandOption::Integer(data.into_number(Vec::new()))
     }
 }
 
 impl CreateOption for Number {
     fn create_option(data: CommandOptionData) -> CommandOption {
-        CommandOption::Number(data.into_choice(Vec::new()))
+        CommandOption::Number(data.into_number(Vec::new()))
     }
 }
 
 impl CreateOption for f64 {
     fn create_option(data: CommandOptionData) -> CommandOption {
-        CommandOption::Number(data.into_choice(Vec::new()))
+        CommandOption::Number(data.into_number(Vec::new()))
     }
 }
 

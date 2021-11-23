@@ -2,7 +2,7 @@ use twilight_interactions::command::{CommandOption, CommandOptionData, CreateOpt
 use twilight_model::application::{
     command::{
         ChoiceCommandOptionData, CommandOption as TwilightCommandOption, CommandOptionChoice,
-        Number,
+        Number, NumberCommandOptionData,
     },
     interaction::application_command::CommandOptionValue,
 };
@@ -46,9 +46,13 @@ fn test_command_option_string() {
         name: "name".to_string(),
         description: "description".to_string(),
         required: false,
+        autocomplete: false,
         channel_types: Vec::new(),
+        max_value: None,
+        min_value: None,
     };
     let command_option = TwilightCommandOption::String(ChoiceCommandOptionData {
+        autocomplete: false,
         choices: vec![
             CommandOptionChoice::String {
                 name: "Dog".to_string(),
@@ -80,9 +84,13 @@ fn test_command_option_integer() {
         name: "name".to_string(),
         description: "description".to_string(),
         required: false,
+        autocomplete: false,
         channel_types: Vec::new(),
+        max_value: None,
+        min_value: None,
     };
-    let command_option = TwilightCommandOption::Integer(ChoiceCommandOptionData {
+    let command_option = TwilightCommandOption::Integer(NumberCommandOptionData {
+        autocomplete: false,
         choices: vec![
             CommandOptionChoice::Int {
                 name: "One".to_string(),
@@ -98,6 +106,8 @@ fn test_command_option_integer() {
             },
         ],
         description: "description".to_string(),
+        max_value: None,
+        min_value: None,
         name: "name".to_string(),
         required: false,
     });
@@ -114,9 +124,13 @@ fn test_command_option_number() {
         name: "name".to_string(),
         description: "description".to_string(),
         required: false,
+        autocomplete: false,
         channel_types: Vec::new(),
+        max_value: None,
+        min_value: None,
     };
-    let command_option = TwilightCommandOption::Number(ChoiceCommandOptionData {
+    let command_option = TwilightCommandOption::Number(NumberCommandOptionData {
+        autocomplete: false,
         choices: vec![
             CommandOptionChoice::Number {
                 name: "One".to_string(),
@@ -132,6 +146,8 @@ fn test_command_option_number() {
             },
         ],
         description: "description".to_string(),
+        max_value: None,
+        min_value: None,
         name: "name".to_string(),
         required: false,
     });

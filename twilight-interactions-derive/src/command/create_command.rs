@@ -5,7 +5,7 @@ use syn::{Data, DataStruct, DeriveInput, Error, Fields, Ident, Result};
 use crate::parse::find_attr;
 
 use super::{
-    attributes::{parse_doc, ChannelType, TypeAttribute},
+    attributes::{parse_doc, ChannelType, CommandOptionValue, TypeAttribute},
     fields::StructField,
 };
 
@@ -97,7 +97,10 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
         None => parse_doc(&field.raw_attrs, field.span)?,
     };
     let required = field.kind.required();
+    let autocomplete = field.attributes.autocomplete;
     let channel_types = field.attributes.channel_types.iter().map(channel_type);
+    let max_value = command_option_value(field.attributes.max_value);
+    let min_value = command_option_value(field.attributes.min_value);
 
     Ok(quote_spanned! {span=>
         command_options.push(<#ty as ::twilight_interactions::command::CreateOption>::create_option(
@@ -105,7 +108,10 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
                 name: ::std::convert::From::from(#name),
                 description: ::std::convert::From::from(#description),
                 required: #required,
-                channel_types: ::std::vec![#(#channel_types),*]
+                autocomplete: #autocomplete,
+                channel_types: ::std::vec![#(#channel_types),*],
+                max_value: #max_value,
+                min_value: #min_value
             }
         ));
     })
@@ -153,5 +159,20 @@ fn channel_type(kind: &ChannelType) -> TokenStream {
         ChannelType::GuildStageVoice => {
             quote!(::twilight_model::channel::ChannelType::GuildStageVoice)
         }
+    }
+}
+
+/// Convert a [`Option<CommandOptionValue>`] into a [`TokenStream`]
+fn command_option_value(value: Option<CommandOptionValue>) -> TokenStream {
+    match value {
+        None => quote!(None),
+        Some(CommandOptionValue::Integer(inner)) => {
+            quote!(Some(::twilight_model::application::command::CommandOptionValue::Integer(#inner)))
+        }
+        Some(CommandOptionValue::Number(inner)) => quote! {
+            Some(::twilight_model::application::command::CommandOptionValue::Number(
+                ::twilight_model::application::command::Number(#inner)
+            ))
+        },
     }
 }

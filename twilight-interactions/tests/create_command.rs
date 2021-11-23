@@ -2,7 +2,8 @@ use twilight_interactions::command::{ApplicationCommandData, CreateCommand, Reso
 use twilight_model::{
     application::{
         command::{
-            BaseCommandOptionData, ChannelCommandOptionData, ChoiceCommandOptionData, CommandOption,
+            BaseCommandOptionData, ChannelCommandOptionData, ChoiceCommandOptionData,
+            CommandOption, CommandOptionValue, Number, NumberCommandOptionData,
         },
         interaction::application_command::InteractionChannel,
     },
@@ -13,13 +14,16 @@ use twilight_model::{
 #[derive(CreateCommand, Debug, PartialEq, Eq)]
 #[command(name = "demo")]
 struct DemoCommand {
-    #[command(rename = "member", desc = "A member")]
     /// This should be overwritten
+    #[command(rename = "member", desc = "A member")]
     user: ResolvedUser,
     /// Some text
     ///
     /// This documentation comment is ignored
     text: String,
+    /// A number
+    #[command(autocomplete = true, max_value = 50.0)]
+    number: Number,
     /// A text channel
     #[command(channel_types = "guild_text private")]
     channel: Option<InteractionChannel>,
@@ -34,10 +38,20 @@ fn test_create_command() {
             required: true,
         }),
         CommandOption::String(ChoiceCommandOptionData {
+            autocomplete: false,
             description: "Some text".into(),
             name: "text".into(),
             required: true,
             choices: vec![],
+        }),
+        CommandOption::Number(NumberCommandOptionData {
+            autocomplete: true,
+            choices: vec![],
+            description: "A number".into(),
+            max_value: Some(CommandOptionValue::Number(Number(50.0))),
+            min_value: None,
+            name: "number".into(),
+            required: true,
         }),
         CommandOption::Channel(ChannelCommandOptionData {
             channel_types: vec![ChannelType::GuildText, ChannelType::Private],

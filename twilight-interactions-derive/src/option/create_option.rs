@@ -24,11 +24,7 @@ pub fn impl_create_option(input: DeriveInput) -> Result<TokenStream> {
 
     let vec_capacity = variants.len();
     let choice_variants = variants.iter().map(choice_variant);
-    let type_path = match kind {
-        ChoiceKind::String => quote! { String },
-        ChoiceKind::Integer => quote! { Integer },
-        ChoiceKind::Number => quote! { Number },
-    };
+    let command_option = command_option(kind);
 
     Ok(quote! {
         impl ::twilight_interactions::command::CreateOption for #ident {
@@ -39,7 +35,7 @@ pub fn impl_create_option(input: DeriveInput) -> Result<TokenStream> {
 
                 #(#choice_variants)*
 
-                twilight_model::application::command::CommandOption::#type_path(data.into_choice(choices))
+                #command_option
             }
         }
     })
@@ -81,4 +77,15 @@ fn choice_variant(variant: &ParsedVariant) -> TokenStream {
             value: #value,
         });
     }
+}
+
+/// Generate command option
+fn command_option(kind: ChoiceKind) -> TokenStream {
+    let path = match kind {
+        ChoiceKind::String => quote!(String(data.into_choice(choices))),
+        ChoiceKind::Integer => quote!(Integer(data.into_number(choices))),
+        ChoiceKind::Number => quote!(Number(data.into_number(choices))),
+    };
+
+    quote!(::twilight_model::application::command::CommandOption::#path)
 }
