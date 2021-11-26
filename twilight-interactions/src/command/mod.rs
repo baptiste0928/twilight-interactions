@@ -42,6 +42,12 @@
 //! If you perform additional validation, consider create another type that can be initialized
 //! from the raw parsed data.
 //!
+//! ### Autocomplete interactions
+//! When receiving an autocomplete interaction, you sometimes cares only about a subset of fields.
+//! In this case, you can use the `#[command(partial = true)]` attribute on the type used for
+//! parsing autocomplete interactions to ignore errors related to unknown fields. Note that partial
+//! models cannot implement the [`CreateCommand`] trait.
+//!
 //! ## Command creation
 //! In addition to command data parsing, the [`CreateCommand`] trait and derive macro are
 //! provided to register commands corresponding to your models to the Discord API. This

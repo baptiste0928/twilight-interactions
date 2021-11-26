@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
-use syn::{Data, DataStruct, DeriveInput, Error, Fields, Ident, Result};
+use syn::{spanned::Spanned, Data, DataStruct, DeriveInput, Error, Fields, Ident, Result};
 
 use crate::parse::find_attr;
 
@@ -23,7 +23,7 @@ pub fn impl_create_command(input: DeriveInput) -> Result<TokenStream> {
         _ => {
             return Err(Error::new(
                 span,
-                "`#[derive(CommandModel)] can only be applied to structs with named fields",
+                "`#[derive(CreateCommand)] can only be applied to structs with named fields",
             ));
         }
     };
@@ -31,12 +31,29 @@ pub fn impl_create_command(input: DeriveInput) -> Result<TokenStream> {
     check_fields_order(&fields)?;
 
     let capacity = fields.len();
-    let attributes = match find_attr(&input.attrs, "command") {
-        Some(attr) => TypeAttribute::parse(attr)?,
+    let (raw_attr, attributes) = match find_attr(&input.attrs, "command") {
+        Some(attr) => (attr, TypeAttribute::parse(attr)?),
         None => {
             return Err(Error::new(
                 span,
                 "Missing required #[command(...)] attribute",
+            ))
+        }
+    };
+
+    if attributes.partial {
+        return Err(Error::new(
+            raw_attr.span(),
+            "Cannot implement `CreateCommand` on partial model",
+        ));
+    }
+
+    let name = match &attributes.name {
+        Some(name) => name,
+        None => {
+            return Err(Error::new(
+                raw_attr.span(),
+                "Missing required attribute `name`",
             ))
         }
     };
@@ -46,7 +63,6 @@ pub fn impl_create_command(input: DeriveInput) -> Result<TokenStream> {
         .map(field_option)
         .collect::<Result<Vec<_>>>()?;
 
-    let name = &attributes.name;
     let description = match &attributes.desc {
         Some(desc) => desc.clone(),
         None => parse_doc(&input.attrs, span)?,

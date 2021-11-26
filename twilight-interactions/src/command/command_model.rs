@@ -25,6 +25,9 @@ use crate::error::{ParseError, ParseErrorType};
 /// ### Macro attributes
 /// The macro provide a `#[command]` attribute to configure generated code.
 ///
+/// **Type parameters**:
+/// - `#[command(partial = true)]`: set the model as partial.[^partial]
+///
 /// **Field parameters**:
 /// - `#[command(rename = "")]`: use a different name for the field when parsing.
 ///
@@ -38,6 +41,9 @@ use crate::error::{ParseError, ParseErrorType};
 ///     user: Option<ResolvedUser>
 /// }
 /// ```
+///
+/// [^partial]: Unknown fields don't fail the parsing. Useful for parsing autocomplete
+///             interaction data.
 pub trait CommandModel: Sized {
     /// Construct this type from a [`CommandData`].
     fn from_interaction(data: CommandData) -> Result<Self, ParseError>;

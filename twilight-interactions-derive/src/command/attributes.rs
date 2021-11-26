@@ -8,9 +8,11 @@ use crate::parse::{find_attr, AttrValue, NamedAttrs};
 /// Parsed type attribute
 pub struct TypeAttribute {
     /// Rename the field to the given name
-    pub name: String,
+    pub name: Option<String>,
     /// Overwrite the field description
     pub desc: Option<String>,
+    /// Whether the type is partial
+    pub partial: bool,
     /// Limit to specific channel types
     pub default_permission: bool,
 }
@@ -19,21 +21,25 @@ impl TypeAttribute {
     /// Parse a single [`Attribute`]
     pub fn parse(attr: &Attribute) -> Result<Self> {
         let meta = attr.parse_meta()?;
-        let attrs = NamedAttrs::parse(meta, &["name", "desc", "default_permission"])?;
+        let attrs = NamedAttrs::parse(meta, &["name", "desc", "partial", "default_permission"])?;
 
-        let name = match attrs.get("name") {
-            Some(val) => parse_name(val)?,
-            None => return Err(Error::new(attr.span(), "Missing required attribute `name`")),
-        };
+        let name = attrs.get("name").map(parse_name).transpose()?;
         let desc = attrs.get("desc").map(parse_description).transpose()?;
+        let partial = attrs
+            .get("partial")
+            .map(|v| v.parse_bool())
+            .transpose()?
+            .unwrap_or(false);
         let default_permission = attrs
             .get("default_permission")
             .map(|v| v.parse_bool())
-            .unwrap_or(Ok(true))?;
+            .transpose()?
+            .unwrap_or(true);
 
         Ok(Self {
             name,
             desc,
+            partial,
             default_permission,
         })
     }
