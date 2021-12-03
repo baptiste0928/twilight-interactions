@@ -16,12 +16,10 @@ include = ["src/**/*", "README.md"]
 [features]
 default = ["derive"]
 derive = ["twilight-interactions-derive"]
-http = ["twilight-http"]
 
 [dependencies]
 twilight-model = "0.7.2"
 twilight-interactions-derive = { version = "=0.7.2", path = "../twilight-interactions-derive", optional = true }
-twilight-http =  { version = "0.7.2", optional = true }
 
 [package.metadata.docs.rs]
 all-features = true

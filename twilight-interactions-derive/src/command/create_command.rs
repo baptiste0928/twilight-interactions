@@ -71,17 +71,18 @@ pub fn impl_create_command(input: DeriveInput) -> Result<TokenStream> {
 
     Ok(quote! {
         impl ::twilight_interactions::command::CreateCommand for #ident {
-            fn create_command() -> ::twilight_interactions::command::ApplicationCommandData {
+            fn create_command() -> ::twilight_model::application::command::Command {
                 let mut command_options = ::std::vec::Vec::with_capacity(#capacity);
 
                 #(#field_options)*
 
-                ::twilight_interactions::command::ApplicationCommandData {
+                ::twilight_interactions::command::internal::ApplicationCommandData {
                     name: ::std::convert::From::from(#name),
                     description: ::std::convert::From::from(#description),
                     options: command_options,
                     default_permission: #default_permission,
                 }
+                .into()
             }
         }
     })
@@ -95,7 +96,7 @@ pub fn dummy_create_command(ident: Ident, error: Error) -> TokenStream {
         #error
 
         impl ::twilight_interactions::command::CreateCommand for #ident {
-            fn create_command() -> ::twilight_interactions::command::ApplicationCommandData {
+            fn create_command() -> ::twilight_model::application::command::Command {
                 ::std::unimplemented!()
             }
         }
@@ -120,7 +121,7 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
 
     Ok(quote_spanned! {span=>
         command_options.push(<#ty as ::twilight_interactions::command::CreateOption>::create_option(
-            ::twilight_interactions::command::CommandOptionData {
+            ::twilight_interactions::command::internal::CommandOptionData {
                 name: ::std::convert::From::from(#name),
                 description: ::std::convert::From::from(#description),
                 required: #required,

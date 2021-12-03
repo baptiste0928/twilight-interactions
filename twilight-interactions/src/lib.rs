@@ -14,14 +14,6 @@
 //!
 //! ## Versioning
 //! To facilitate dependencies management, this crate will always use the same major version as the official `twilight` crates.
-//!
-//! ## Feature flags
-//! Additional features can be enabled using [feature flags]:
-//!
-//! - `derive` (enabled by default): derive macros support.
-//! - `http`: create interactions using `twilight-http`.
-//!
-//! [feature flags]: https://doc.rust-lang.org/cargo/reference/features.html
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 pub mod command;

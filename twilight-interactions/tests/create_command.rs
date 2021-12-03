@@ -1,4 +1,6 @@
-use twilight_interactions::command::{ApplicationCommandData, CreateCommand, ResolvedUser};
+use twilight_interactions::command::{
+    internal::ApplicationCommandData, CreateCommand, ResolvedUser,
+};
 use twilight_model::{
     application::{
         command::{
@@ -66,7 +68,8 @@ fn test_create_command() {
         description: "Demo command for testing purposes".into(),
         options,
         default_permission: true,
-    };
+    }
+    .into();
 
     assert_eq!(DemoCommand::create_command(), expected);
 }
