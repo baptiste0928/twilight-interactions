@@ -128,7 +128,7 @@ pub struct ResolvedUser {
 macro_rules! lookup {
     ($resolved:ident.$cat:ident, $id:expr) => {
         $resolved
-            .and_then(|resolved| resolved.$cat.iter().find(|val| val.id == $id).cloned())
+            .and_then(|resolved| resolved.$cat.get(&$id).cloned())
             .ok_or_else(|| ParseErrorType::LookupFailed($id.0))
     };
 }

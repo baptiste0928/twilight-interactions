@@ -1,5 +1,6 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, collections::HashMap};
 
+use maplit::hashmap;
 use twilight_interactions::command::{CommandInputData, CommandModel, ResolvedUser};
 use twilight_model::{
     application::interaction::application_command::{
@@ -40,8 +41,6 @@ fn test_command_model() {
     ];
 
     let member = InteractionMember {
-        hoisted_role: None,
-        id: user_id,
         joined_at: Timestamp::from_secs(1609455600).unwrap(),
         nick: None,
         premium_since: None,
@@ -67,11 +66,11 @@ fn test_command_model() {
     };
 
     let resolved = CommandInteractionDataResolved {
-        channels: Vec::new(),
-        members: vec![member.clone()],
-        roles: Vec::new(),
-        users: vec![user.clone()],
-        messages: Vec::new(),
+        channels: HashMap::new(),
+        members: hashmap! { user_id => member.clone() },
+        roles: HashMap::new(),
+        users: hashmap! { user_id => user.clone() },
+        messages: HashMap::new(),
     };
 
     let data = CommandInputData {
