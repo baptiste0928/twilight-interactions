@@ -146,7 +146,7 @@ mod command_model;
 mod create_command;
 pub mod internal;
 
-pub use command_model::{CommandModel, CommandOption, ResolvedUser};
+pub use command_model::{CommandInputData, CommandModel, CommandOption, ResolvedUser};
 pub use create_command::{CreateCommand, CreateOption};
 
 #[cfg(feature = "derive")]

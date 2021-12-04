@@ -1,9 +1,11 @@
+use std::borrow::Cow;
+
 use twilight_model::{
     application::{
         command::Number,
         interaction::application_command::{
-            CommandData, CommandInteractionDataResolved, CommandOptionValue, InteractionChannel,
-            InteractionMember,
+            CommandData, CommandDataOption, CommandInteractionDataResolved, CommandOptionValue,
+            InteractionChannel, InteractionMember,
         },
     },
     guild::Role,
@@ -13,10 +15,10 @@ use twilight_model::{
 
 use crate::error::{ParseError, ParseErrorType};
 
-/// Parse [`CommandData`] into a concrete type.
+/// Parse command data into a concrete type.
 ///
 /// This trait represent a slash command model, that can be initialized
-/// from a [`CommandData`]. See the module-level documentation to learn more.
+/// from a [`CommandInputData`]. See the module-level documentation to learn more.
 ///
 /// ## Derive macro
 /// A derive macro is provided to implement this trait. The macro only works
@@ -45,8 +47,8 @@ use crate::error::{ParseError, ParseErrorType};
 /// [^partial]: Unknown fields don't fail the parsing. Useful for parsing autocomplete
 ///             interaction data.
 pub trait CommandModel: Sized {
-    /// Construct this type from a [`CommandData`].
-    fn from_interaction(data: CommandData) -> Result<Self, ParseError>;
+    /// Construct this type from a [`CommandInputData`].
+    fn from_interaction(data: CommandInputData) -> Result<Self, ParseError>;
 }
 
 /// Convert a [`CommandOptionValue`] into a concrete type.
@@ -87,6 +89,27 @@ pub trait CommandOption: Sized {
         value: CommandOptionValue,
         resolved: Option<&CommandInteractionDataResolved>,
     ) -> Result<Self, ParseErrorType>;
+}
+
+/// Data sent by Discord when receiving a command.
+///
+/// This type is used in the [`CommandModel`] trait. It can be initialized
+/// from a [`CommandData`] using the [`From`] trait.
+///
+/// [`CommandModel`]: super::CommandModel
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CommandInputData<'a> {
+    pub options: Vec<CommandDataOption>,
+    pub resolved: Option<Cow<'a, CommandInteractionDataResolved>>,
+}
+
+impl From<CommandData> for CommandInputData<'_> {
+    fn from(data: CommandData) -> Self {
+        Self {
+            options: data.options,
+            resolved: data.resolved.map(Cow::Owned),
+        }
+    }
 }
 
 /// A resolved Discord user.

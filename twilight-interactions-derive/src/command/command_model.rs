@@ -37,7 +37,7 @@ pub fn impl_command_model(input: DeriveInput) -> Result<TokenStream> {
     Ok(quote! {
         impl ::twilight_interactions::command::CommandModel for #ident {
             fn from_interaction(
-                data: ::twilight_model::application::interaction::application_command::CommandData,
+                data: ::twilight_interactions::command::CommandInputData,
             ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseError> {
                 #(#fields_init)*
 
@@ -63,7 +63,7 @@ pub fn dummy_command_model(ident: Ident, error: Error) -> TokenStream {
 
         impl ::twilight_interactions::command::CommandModel for #ident {
             fn from_interaction(
-                data: ::twilight_model::application::interaction::application_command::CommandData,
+                data: ::twilight_interactions::command::CommandInputData,
             ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseError> {
                 ::std::unimplemented!()
             }
@@ -84,7 +84,7 @@ fn field_match_arm(field: &StructField) -> TokenStream {
     let span = field.span;
 
     quote_spanned! {span=>
-        #name => match ::twilight_interactions::command::CommandOption::from_option(opt.value, data.resolved.as_ref()) {
+        #name => match ::twilight_interactions::command::CommandOption::from_option(opt.value, data.resolved.as_deref()) {
             ::std::result::Result::Ok(value) => #ident = Some(value),
             ::std::result::Result::Err(kind) => {
                 return ::std::result::Result::Err(

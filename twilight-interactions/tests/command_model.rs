@@ -1,11 +1,12 @@
-use twilight_interactions::command::{CommandModel, ResolvedUser};
+use std::borrow::Cow;
+
+use twilight_interactions::command::{CommandInputData, CommandModel, ResolvedUser};
 use twilight_model::{
     application::interaction::application_command::{
-        CommandData, CommandDataOption, CommandInteractionDataResolved, CommandOptionValue,
-        InteractionMember,
+        CommandDataOption, CommandInteractionDataResolved, CommandOptionValue, InteractionMember,
     },
     datetime::Timestamp,
-    id::{CommandId, UserId},
+    id::UserId,
     user::User,
 };
 
@@ -73,11 +74,9 @@ fn test_command_model() {
         messages: Vec::new(),
     };
 
-    let data = CommandData {
-        id: CommandId::new(123).unwrap(),
-        name: "demo".to_string(),
+    let data = CommandInputData {
         options,
-        resolved: Some(resolved),
+        resolved: Some(Cow::Owned(resolved)),
     };
 
     let result = DemoCommand::from_interaction(data).unwrap();
