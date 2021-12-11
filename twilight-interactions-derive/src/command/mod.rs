@@ -1,10 +1,10 @@
 //! Implementation of `CommandModel` and `CreateCommand` derive macros.
 
-mod attributes;
-mod fields;
+mod impls;
 
-mod command_model;
-mod create_command;
+mod model;
+mod subcommand;
 
-pub use command_model::{dummy_command_model, impl_command_model};
-pub use create_command::{dummy_create_command, impl_create_command};
+pub use impls::{
+    dummy_command_model, dummy_create_command, impl_command_model, impl_create_command,
+};

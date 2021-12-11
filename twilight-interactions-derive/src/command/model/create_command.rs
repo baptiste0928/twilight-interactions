@@ -1,38 +1,22 @@
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
-use syn::{spanned::Spanned, Data, DataStruct, DeriveInput, Error, Fields, Ident, Result};
+use syn::{spanned::Spanned, DeriveInput, Error, FieldsNamed, Result};
 
-use crate::parse::find_attr;
+use crate::parse::{find_attr, parse_doc};
 
-use super::{
-    attributes::{parse_doc, ChannelType, CommandOptionValue, TypeAttribute},
-    fields::StructField,
-};
+use super::parse::{ChannelType, CommandOptionValue, StructField, TypeAttribute};
 
 /// Implementation of CreateCommand derive macro
-pub fn impl_create_command(input: DeriveInput) -> Result<TokenStream> {
+pub fn impl_create_command(input: DeriveInput, fields: FieldsNamed) -> Result<TokenStream> {
     let ident = &input.ident;
-    let span = ident.span();
-
-    // Parse type fields
-    let fields = match input.data {
-        Data::Struct(DataStruct {
-            fields: Fields::Named(fields),
-            ..
-        }) => StructField::from_fields(fields)?,
-        _ => {
-            return Err(Error::new(
-                span,
-                "`#[derive(CreateCommand)] can only be applied to structs with named fields",
-            ));
-        }
-    };
+    let span = input.span();
+    let fields = StructField::from_fields(fields)?;
 
     check_fields_order(&fields)?;
 
     let capacity = fields.len();
-    let (raw_attr, attributes) = match find_attr(&input.attrs, "command") {
-        Some(attr) => (attr, TypeAttribute::parse(attr)?),
+    let (attributes, attr_span) = match find_attr(&input.attrs, "command") {
+        Some(attr) => (TypeAttribute::parse(attr)?, attr.span()),
         None => {
             return Err(Error::new(
                 span,
@@ -43,64 +27,43 @@ pub fn impl_create_command(input: DeriveInput) -> Result<TokenStream> {
 
     if attributes.partial {
         return Err(Error::new(
-            raw_attr.span(),
+            attr_span,
             "Cannot implement `CreateCommand` on partial model",
         ));
     }
 
     let name = match &attributes.name {
         Some(name) => name,
-        None => {
-            return Err(Error::new(
-                raw_attr.span(),
-                "Missing required attribute `name`",
-            ))
-        }
+        None => return Err(Error::new(attr_span, "Missing required attribute `name`")),
     };
-
-    let field_options = fields
-        .iter()
-        .map(field_option)
-        .collect::<Result<Vec<_>>>()?;
-
     let description = match &attributes.desc {
         Some(desc) => desc.clone(),
         None => parse_doc(&input.attrs, span)?,
     };
     let default_permission = attributes.default_permission;
 
+    let field_options = fields
+        .iter()
+        .map(field_option)
+        .collect::<Result<Vec<_>>>()?;
+
     Ok(quote! {
         impl ::twilight_interactions::command::CreateCommand for #ident {
-            fn create_command() -> ::twilight_model::application::command::Command {
+            fn create_command() -> ::twilight_interactions::command::ApplicationCommandData {
                 let mut command_options = ::std::vec::Vec::with_capacity(#capacity);
 
                 #(#field_options)*
 
-                ::twilight_interactions::command::internal::ApplicationCommandData {
+                ::twilight_interactions::command::ApplicationCommandData {
                     name: ::std::convert::From::from(#name),
                     description: ::std::convert::From::from(#description),
                     options: command_options,
                     default_permission: #default_permission,
+                    group: false,
                 }
-                .into()
             }
         }
     })
-}
-
-/// Dummy implementation of the `CreateCommand` trait in case of macro error
-pub fn dummy_create_command(ident: Ident, error: Error) -> TokenStream {
-    let error = error.to_compile_error();
-
-    quote! {
-        #error
-
-        impl ::twilight_interactions::command::CreateCommand for #ident {
-            fn create_command() -> ::twilight_model::application::command::Command {
-                ::std::unimplemented!()
-            }
-        }
-    }
 }
 
 /// Generate field option code
@@ -121,7 +84,7 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
 
     Ok(quote_spanned! {span=>
         command_options.push(<#ty as ::twilight_interactions::command::CreateOption>::create_option(
-            ::twilight_interactions::command::internal::CommandOptionData {
+            ::twilight_interactions::command::CommandOptionData {
                 name: ::std::convert::From::from(#name),
                 description: ::std::convert::From::from(#description),
                 required: #required,

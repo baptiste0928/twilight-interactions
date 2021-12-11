@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 
 use proc_macro2::Span;
-use syn::{spanned::Spanned, Attribute, Error, Lit, Meta, Result};
+use syn::{spanned::Spanned, Attribute, Error, Lit, Meta, MetaNameValue, Result};
 
 /// Extracts type from an [`Option<T>`]
 ///
@@ -47,6 +47,43 @@ pub fn find_attr<'a>(attrs: &'a [Attribute], name: &str) -> Option<&'a Attribute
     }
 
     None
+}
+
+/// Parse description from #[doc] attributes.
+///
+/// Only fist attribute is parsed (corresponding to the first line of documentation)
+/// https://doc.rust-lang.org/rustdoc/the-doc-attribute.html
+pub fn parse_doc(attrs: &[Attribute], span: Span) -> Result<String> {
+    let attr = match find_attr(attrs, "doc") {
+        Some(attr) => attr,
+        None => {
+            return Err(Error::new(
+                span,
+                "Description is required (documentation comment or `desc` attribute)",
+            ))
+        }
+    };
+
+    let doc = match attr.parse_meta()? {
+        Meta::NameValue(MetaNameValue {
+            lit: Lit::Str(inner),
+            ..
+        }) => inner.value().trim().to_owned(),
+        _ => {
+            return Err(Error::new(
+                attr.span(),
+                "Failed to parse documentation attribute",
+            ))
+        }
+    };
+
+    match doc.chars().count() {
+        1..=100 => Ok(doc),
+        _ => Err(Error::new(
+            span,
+            "Description must be between 1 and 100 characters",
+        )),
+    }
 }
 
 /// Parsed list of named attributes like `#[command(rename = "name")]`.
@@ -142,5 +179,31 @@ impl AttrValue {
 impl Spanned for AttrValue {
     fn span(&self) -> Span {
         self.0.span()
+    }
+}
+
+/// Parse command or option name
+pub fn parse_name(val: &AttrValue) -> Result<String> {
+    let span = val.span();
+    let val = val.parse_string()?;
+
+    // https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure
+    match val.chars().count() {
+        1..=32 => Ok(val),
+        _ => Err(Error::new(span, "Name must be between 1 and 32 characters")),
+    }
+}
+
+/// Parse command or option description
+pub fn parse_desc(val: &AttrValue) -> Result<String> {
+    let span = val.span();
+    let val = val.parse_string()?;
+
+    match val.chars().count() {
+        1..=100 => Ok(val),
+        _ => Err(Error::new(
+            span,
+            "Description must be between 1 and 100 characters",
+        )),
     }
 }

@@ -1,28 +1,15 @@
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
-use syn::{spanned::Spanned, Data, DataStruct, DeriveInput, Error, Fields, Ident, Result};
+use syn::{DeriveInput, FieldsNamed, Result};
 
-use crate::{command::attributes::TypeAttribute, parse::find_attr};
+use crate::parse::find_attr;
 
-use super::fields::{FieldType, StructField};
+use super::parse::{FieldType, StructField, TypeAttribute};
 
 /// Implementation of CommandModel derive macro
-pub fn impl_command_model(input: DeriveInput) -> Result<TokenStream> {
+pub fn impl_command_model(input: DeriveInput, fields: FieldsNamed) -> Result<TokenStream> {
     let ident = &input.ident;
-
-    // Parse type fields
-    let fields = match input.data {
-        Data::Struct(DataStruct {
-            fields: Fields::Named(fields),
-            ..
-        }) => StructField::from_fields(fields)?,
-        _ => {
-            return Err(Error::new(
-                input.span(),
-                "`#[derive(CommandModel)] can only be applied to structs with named fields",
-            ));
-        }
-    };
+    let fields = StructField::from_fields(fields)?;
 
     let partial = match find_attr(&input.attrs, "command") {
         Some(attr) => TypeAttribute::parse(attr)?.partial,
@@ -39,6 +26,10 @@ pub fn impl_command_model(input: DeriveInput) -> Result<TokenStream> {
             fn from_interaction(
                 data: ::twilight_interactions::command::CommandInputData,
             ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseError> {
+                if data.options.is_empty() {
+                    return std::result::Result::Err(::twilight_interactions::error::ParseError::EmptyOptions);
+                }
+
                 #(#fields_init)*
 
                 for opt in data.options {
@@ -52,23 +43,6 @@ pub fn impl_command_model(input: DeriveInput) -> Result<TokenStream> {
             }
         }
     })
-}
-
-/// Dummy implementation of the `CommandModel` trait in case of macro error
-pub fn dummy_command_model(ident: Ident, error: Error) -> TokenStream {
-    let error = error.to_compile_error();
-
-    quote! {
-        #error
-
-        impl ::twilight_interactions::command::CommandModel for #ident {
-            fn from_interaction(
-                data: ::twilight_interactions::command::CommandInputData,
-            ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseError> {
-                ::std::unimplemented!()
-            }
-        }
-    }
 }
 
 /// Generate field initialization variables
@@ -88,10 +62,11 @@ fn field_match_arm(field: &StructField) -> TokenStream {
             ::std::result::Result::Ok(value) => #ident = Some(value),
             ::std::result::Result::Err(kind) => {
                 return ::std::result::Result::Err(
-                    ::twilight_interactions::error::ParseError {
-                        field: ::std::convert::From::from(#name),
-                        kind,
-                    }
+                    ::twilight_interactions::error::ParseError::Option(
+                        ::twilight_interactions::error::ParseOptionError {
+                            field: ::std::convert::From::from(#name),
+                            kind,
+                    })
                 )
             }
         }
@@ -107,10 +82,11 @@ fn field_constructor(field: &StructField) -> TokenStream {
         FieldType::Required => quote! {
             #ident: match #ident {
                 Some(value) => value,
-                None => return Err(::twilight_interactions::error::ParseError {
-                    field: ::std::convert::From::from(#ident_str),
-                    kind: ::twilight_interactions::error::ParseErrorType::RequiredField
-                })
+                None => return Err(::twilight_interactions::error::ParseError::Option(
+                    ::twilight_interactions::error::ParseOptionError {
+                        field: ::std::convert::From::from(#ident_str),
+                        kind: ::twilight_interactions::error::ParseOptionErrorType::RequiredField
+                }))
             }
         },
         FieldType::Optional => quote!(#ident),
@@ -124,10 +100,11 @@ fn field_unknown(partial: bool) -> TokenStream {
     } else {
         quote! {
             return ::std::result::Result::Err(
-                ::twilight_interactions::error::ParseError {
-                    field: ::std::convert::From::from(other),
-                    kind: ::twilight_interactions::error::ParseErrorType::UnknownField,
-                }
+                ::twilight_interactions::error::ParseError::Option(
+                    ::twilight_interactions::error::ParseOptionError {
+                        field: ::std::convert::From::from(other),
+                        kind: ::twilight_interactions::error::ParseOptionErrorType::UnknownField,
+                })
             )
         }
     }

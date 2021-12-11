@@ -1,4 +1,4 @@
-use twilight_interactions::command::{internal::CommandOptionData, CommandOption, CreateOption};
+use twilight_interactions::command::{CommandOption, CommandOptionData, CreateOption};
 use twilight_model::application::{
     command::{
         ChoiceCommandOptionData, CommandOption as TwilightCommandOption, CommandOptionChoice,

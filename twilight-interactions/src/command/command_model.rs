@@ -13,7 +13,7 @@ use twilight_model::{
     user::User,
 };
 
-use crate::error::{ParseError, ParseErrorType};
+use crate::error::{ParseError, ParseOptionErrorType};
 
 /// Parse command data into a concrete type.
 ///
@@ -88,7 +88,7 @@ pub trait CommandOption: Sized {
     fn from_option(
         value: CommandOptionValue,
         resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType>;
+    ) -> Result<Self, ParseOptionErrorType>;
 }
 
 /// Data sent by Discord when receiving a command.
@@ -101,6 +101,28 @@ pub trait CommandOption: Sized {
 pub struct CommandInputData<'a> {
     pub options: Vec<CommandDataOption>,
     pub resolved: Option<Cow<'a, CommandInteractionDataResolved>>,
+}
+
+impl<'a> CommandInputData<'a> {
+    /// Parse a subcommand [`CommandOptionValue`].
+    ///
+    /// This method signature is the same as the [`CommandOption`] trait,
+    /// except the explicit `'a` lifetime. It is used when parsing subcommands.
+    pub fn from_option(
+        value: CommandOptionValue,
+        resolved: Option<&'a CommandInteractionDataResolved>,
+    ) -> Result<Self, ParseOptionErrorType> {
+        let options = match value {
+            CommandOptionValue::SubCommand(options)
+            | CommandOptionValue::SubCommandGroup(options) => options,
+            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
+        };
+
+        Ok(CommandInputData {
+            options,
+            resolved: resolved.map(Cow::Borrowed),
+        })
+    }
 }
 
 impl From<CommandData> for CommandInputData<'_> {
@@ -129,7 +151,7 @@ macro_rules! lookup {
     ($resolved:ident.$cat:ident, $id:expr) => {
         $resolved
             .and_then(|resolved| resolved.$cat.get(&$id).cloned())
-            .ok_or_else(|| ParseErrorType::LookupFailed($id.0))
+            .ok_or_else(|| ParseOptionErrorType::LookupFailed($id.0))
     };
 }
 
@@ -137,10 +159,10 @@ impl CommandOption for String {
     fn from_option(
         value: CommandOptionValue,
         _resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType> {
+    ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::String(value) => Ok(value),
-            other => Err(ParseErrorType::InvalidType(other.kind())),
+            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
         }
     }
 }
@@ -149,10 +171,10 @@ impl CommandOption for i64 {
     fn from_option(
         value: CommandOptionValue,
         _resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType> {
+    ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::Integer(value) => Ok(value),
-            other => Err(ParseErrorType::InvalidType(other.kind())),
+            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
         }
     }
 }
@@ -161,10 +183,10 @@ impl CommandOption for Number {
     fn from_option(
         value: CommandOptionValue,
         _resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType> {
+    ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::Number(value) => Ok(value),
-            other => Err(ParseErrorType::InvalidType(other.kind())),
+            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
         }
     }
 }
@@ -173,10 +195,10 @@ impl CommandOption for f64 {
     fn from_option(
         value: CommandOptionValue,
         _resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType> {
+    ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::Number(value) => Ok(value.0),
-            other => Err(ParseErrorType::InvalidType(other.kind())),
+            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
         }
     }
 }
@@ -185,10 +207,10 @@ impl CommandOption for bool {
     fn from_option(
         value: CommandOptionValue,
         _resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType> {
+    ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::Boolean(value) => Ok(value),
-            other => Err(ParseErrorType::InvalidType(other.kind())),
+            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
         }
     }
 }
@@ -197,10 +219,10 @@ impl CommandOption for UserId {
     fn from_option(
         value: CommandOptionValue,
         _resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType> {
+    ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::User(value) => Ok(value),
-            other => Err(ParseErrorType::InvalidType(other.kind())),
+            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
         }
     }
 }
@@ -209,10 +231,10 @@ impl CommandOption for ChannelId {
     fn from_option(
         value: CommandOptionValue,
         _resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType> {
+    ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::Channel(value) => Ok(value),
-            other => Err(ParseErrorType::InvalidType(other.kind())),
+            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
         }
     }
 }
@@ -221,10 +243,10 @@ impl CommandOption for RoleId {
     fn from_option(
         value: CommandOptionValue,
         _resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType> {
+    ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::Role(value) => Ok(value),
-            other => Err(ParseErrorType::InvalidType(other.kind())),
+            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
         }
     }
 }
@@ -233,10 +255,10 @@ impl CommandOption for GenericId {
     fn from_option(
         value: CommandOptionValue,
         _resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType> {
+    ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::Mentionable(value) => Ok(value),
-            other => Err(ParseErrorType::InvalidType(other.kind())),
+            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
         }
     }
 }
@@ -245,10 +267,10 @@ impl CommandOption for User {
     fn from_option(
         value: CommandOptionValue,
         resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType> {
+    ) -> Result<Self, ParseOptionErrorType> {
         let user_id: UserId = match value {
             CommandOptionValue::User(value) => value,
-            other => return Err(ParseErrorType::InvalidType(other.kind())),
+            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
         };
 
         lookup!(resolved.users, user_id)
@@ -259,10 +281,10 @@ impl CommandOption for ResolvedUser {
     fn from_option(
         value: CommandOptionValue,
         resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType> {
+    ) -> Result<Self, ParseOptionErrorType> {
         let user_id: UserId = match value {
             CommandOptionValue::User(value) => value,
-            other => return Err(ParseErrorType::InvalidType(other.kind())),
+            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
         };
 
         Ok(Self {
@@ -276,10 +298,10 @@ impl CommandOption for InteractionChannel {
     fn from_option(
         value: CommandOptionValue,
         resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType> {
+    ) -> Result<Self, ParseOptionErrorType> {
         let channel_id: ChannelId = match value {
             CommandOptionValue::Channel(value) => value,
-            other => return Err(ParseErrorType::InvalidType(other.kind())),
+            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
         };
 
         lookup!(resolved.channels, channel_id)
@@ -290,10 +312,10 @@ impl CommandOption for Role {
     fn from_option(
         value: CommandOptionValue,
         resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseErrorType> {
+    ) -> Result<Self, ParseOptionErrorType> {
         let role_id: RoleId = match value {
             CommandOptionValue::Role(value) => value,
-            other => return Err(ParseErrorType::InvalidType(other.kind())),
+            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
         };
 
         lookup!(resolved.roles, role_id)

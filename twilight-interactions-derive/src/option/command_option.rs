@@ -2,9 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned, ToTokens};
 use syn::{spanned::Spanned, DataEnum, DeriveInput, Error, Ident, Result};
 
-use crate::option::{attributes::ChoiceValue, variants::ParsedVariant};
-
-use super::attributes::ChoiceKind;
+use super::parse::{ChoiceKind, ChoiceValue, ParsedVariant};
 
 /// Implementation of the `CommandOption` derive macro
 pub fn impl_command_option(input: DeriveInput) -> Result<TokenStream> {
@@ -32,13 +30,13 @@ pub fn impl_command_option(input: DeriveInput) -> Result<TokenStream> {
             fn from_option(
                 value: ::twilight_model::application::interaction::application_command::CommandOptionValue,
                 resolved: ::std::option::Option<&::twilight_model::application::interaction::application_command::CommandInteractionDataResolved>
-            ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseErrorType> {
+            ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseOptionErrorType> {
                 #parsed_init
 
                 match #match_expr {
                     #(#match_arms,)*
                     other => ::std::result::Result::Err(
-                        ::twilight_interactions::error::ParseErrorType::InvalidChoice(
+                        ::twilight_interactions::error::ParseOptionErrorType::InvalidChoice(
                             ::std::string::ToString::to_string(other)
                         )
                     )
@@ -59,7 +57,7 @@ pub fn dummy_command_option(ident: Ident, error: Error) -> TokenStream {
             fn from_option(
                 value: ::twilight_model::application::interaction::application_command::CommandOptionValue,
                 resolved: ::std::option::Option<&::twilight_model::application::interaction::application_command::CommandInteractionDataResolved>
-            ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseErrorType> {
+            ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseOptionErrorType> {
                 ::std::unimplemented!()
             }
         }

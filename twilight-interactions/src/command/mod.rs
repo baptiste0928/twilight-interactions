@@ -128,7 +128,6 @@
 //!
 //! [`from_interaction`]: CommandModel::from_interaction
 //! [`create_command`]: CreateCommand::create_command
-//! [`ApplicationCommandData`]: internal::ApplicationCommandData
 //!
 //! [`CommandData`]: twilight_model::application::interaction::application_command::CommandData
 //! [`InteractionMember`]: twilight_model::application::interaction::application_command::InteractionMember
@@ -144,10 +143,9 @@
 
 mod command_model;
 mod create_command;
-pub mod internal;
 
 pub use command_model::{CommandInputData, CommandModel, CommandOption, ResolvedUser};
-pub use create_command::{CreateCommand, CreateOption};
+pub use create_command::{ApplicationCommandData, CommandOptionData, CreateCommand, CreateOption};
 
 #[cfg(feature = "derive")]
 #[cfg_attr(docsrs, doc(cfg(feature = "derive")))]

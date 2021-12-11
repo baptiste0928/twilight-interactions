@@ -1,16 +1,21 @@
 use twilight_model::{
     application::{
-        command::{Command, CommandOption, Number},
+        command::{
+            BaseCommandOptionData, ChannelCommandOptionData, ChoiceCommandOptionData, Command,
+            CommandOption, CommandOptionChoice, CommandOptionValue, CommandType, Number,
+            NumberCommandOptionData, OptionsCommandOptionData,
+        },
         interaction::application_command::InteractionChannel,
     },
+    channel::ChannelType,
     guild::Role,
-    id::{ChannelId, GenericId, RoleId, UserId},
+    id::{ChannelId, CommandVersionId, GenericId, RoleId, UserId},
     user::User,
 };
 
-use super::{internal::CommandOptionData, ResolvedUser};
+use super::ResolvedUser;
 
-/// Create a [`Command`] from a type.
+/// Create a [`ApplicationCommandData`] from a type.
 ///
 /// This trait allow to obtain command information from a type.
 /// See the module-level documentation to learn more.
@@ -60,8 +65,8 @@ use super::{internal::CommandOptionData, ResolvedUser};
 ///
 /// [`ChannelType`]: twilight_model::channel::ChannelType
 pub trait CreateCommand: Sized {
-    /// Create an [`Command`] for this type.
-    fn create_command() -> Command;
+    /// Create an [`ApplicationCommandData`] for this type.
+    fn create_command() -> ApplicationCommandData;
 }
 
 /// Trait to create a [`CommandOption`] from a type.
@@ -100,6 +105,128 @@ pub trait CreateCommand: Sized {
 pub trait CreateOption: Sized {
     /// Create a [`CommandOption`] from this type.
     fn create_option(data: CommandOptionData) -> CommandOption;
+}
+
+/// Data sent to discord to create a command.
+///
+/// This type is used in the [`CreateCommand`] trait.
+/// To convert it into a [`Command`], use the [From] (or [Into]) trait.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ApplicationCommandData {
+    /// Name of the command. It must be 32 characters or less.
+    pub name: String,
+    /// Description of the option. It must be 100 characters or less.
+    pub description: String,
+    /// List of command options.
+    pub options: Vec<CommandOption>,
+    /// Whether the command is enabled by default when the app is added to a guild.
+    pub default_permission: bool,
+    /// Whether the command is a subcommand group.
+    pub group: bool,
+}
+
+impl From<ApplicationCommandData> for Command {
+    fn from(item: ApplicationCommandData) -> Self {
+        Command {
+            application_id: None,
+            guild_id: None,
+            name: item.name,
+            default_permission: Some(item.default_permission),
+            description: item.description,
+            id: None,
+            kind: CommandType::ChatInput,
+            options: item.options,
+            version: CommandVersionId::new(1).unwrap(),
+        }
+    }
+}
+
+impl From<ApplicationCommandData> for CommandOption {
+    fn from(item: ApplicationCommandData) -> Self {
+        let data = OptionsCommandOptionData {
+            description: item.description,
+            name: item.name,
+            options: item.options,
+        };
+
+        if item.group {
+            CommandOption::SubCommandGroup(data)
+        } else {
+            CommandOption::SubCommand(data)
+        }
+    }
+}
+
+/// Data of a command option.
+///
+/// This type is used in the [`CreateOption`] trait.
+///
+/// <pre class="compile_fail" style="white-space:normal;font:inherit;">
+///     <strong>Warning</strong>: This type is not intended to be used directly
+///     and does not respect semantic versioning. New fields can be introduced
+///     between minor versions.
+/// </pre>
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CommandOptionData {
+    /// Name of the option. It must be 32 characters or less.
+    pub name: String,
+    /// Description of the option. It must be 100 characters or less.
+    pub description: String,
+    /// Whether the option is required to be completed by a user.
+    pub required: bool,
+    /// Whether the command supports autocomplete. Only for `STRING`, `INTEGER` and `NUMBER` option type.
+    pub autocomplete: bool,
+    /// Restricts the channel choice to specific types. Only for `CHANNEL` option type.
+    pub channel_types: Vec<ChannelType>,
+    /// Maximum value permitted. Only for `INTEGER` and `NUMBER` option type.
+    pub max_value: Option<CommandOptionValue>,
+    /// Minimum value permitted. Only for `INTEGER` and `NUMBER` option type.
+    pub min_value: Option<CommandOptionValue>,
+}
+
+impl CommandOptionData {
+    /// Conversion into a [`BaseCommandOptionData`]
+    pub fn into_data(self) -> BaseCommandOptionData {
+        BaseCommandOptionData {
+            description: self.description,
+            name: self.name,
+            required: self.required,
+        }
+    }
+
+    /// Conversion into a [`ChannelCommandOptionData`]
+    pub fn into_channel(self) -> ChannelCommandOptionData {
+        ChannelCommandOptionData {
+            channel_types: self.channel_types,
+            description: self.description,
+            name: self.name,
+            required: self.required,
+        }
+    }
+
+    /// Conversion into a [`ChoiceCommandOptionData`]
+    pub fn into_choice(self, choices: Vec<CommandOptionChoice>) -> ChoiceCommandOptionData {
+        ChoiceCommandOptionData {
+            autocomplete: self.autocomplete,
+            choices,
+            description: self.description,
+            name: self.name,
+            required: self.required,
+        }
+    }
+
+    /// Conversion into a [`NumberCommandOptionData`]
+    pub fn into_number(self, choices: Vec<CommandOptionChoice>) -> NumberCommandOptionData {
+        NumberCommandOptionData {
+            autocomplete: self.autocomplete,
+            choices,
+            description: self.description,
+            max_value: self.max_value,
+            min_value: self.min_value,
+            name: self.name,
+            required: self.required,
+        }
+    }
 }
 
 impl CreateOption for String {
