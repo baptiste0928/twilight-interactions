@@ -3,8 +3,28 @@ name: CI
 on: [push, pull_request]
 
 jobs:
+  msrv:
+    name: Minimum supported Rust version
+    runs-on: ubuntu-latest
+    env:
+      minrust: 1.55
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install Rust ${{ env.minrust }}
+        run: rustup default ${{ env.minrust }}
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v1
+
+      - name: Run cargo check
+        run: cargo check --all-features
+
   test:
     name: Test
+    needs: [msrv]
     runs-on: ubuntu-latest
 
     steps:
@@ -21,6 +41,7 @@ jobs:
 
   clippy:
     name: Clippy
+    needs: [msrv]
     runs-on: ubuntu-latest
 
     steps:
@@ -35,19 +56,9 @@ jobs:
           RUSTFLAGS: -D warnings
         run: cargo clippy --all-features --tests
 
-  rustfmt:
-    name: Format
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
-
-      - name: Run cargo fmt
-        run: cargo fmt --all -- --check
-
   build-docs:
     name: Build docs
+    needs: [msrv]
     runs-on: ubuntu-latest
 
     steps:
@@ -62,9 +73,22 @@ jobs:
           RUSTDOCFLAGS: -D rustdoc::broken_intra_doc_links
         run: cargo doc --no-deps --all-features
 
+
+  rustfmt:
+    name: Format
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Run cargo fmt
+        run: cargo fmt --all -- --check
+
   codespell:
     name: Spelling
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2

@@ -35,10 +35,12 @@ twilight-interactions = "0.7"
 ```
 
 The crate major version follow the version of the official twilight crates.
+The MSRV is two version behind the latest stable version (current is `1.55`)
+and can be bumped in minor updates.
 
 ## Documentation
 
-The API documentation is available on *docs.rs*: [`twilight-interactions` documentation](https://docs.rs/twilight-interactions/).
+The API documentation is available on docs.rs: [`twilight-interactions` documentation](https://docs.rs/twilight-interactions/).
 
 ## Contributing
 There is no particular contribution guidelines, feel free to open a new PR to improve the code. If you want to introduce a new feature, please create an issue before.

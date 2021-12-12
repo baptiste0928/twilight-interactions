@@ -23,7 +23,7 @@ use super::{internal::CreateOptionData, ResolvedUser};
 /// Unlike the [`CommandModel`] trait, the type its field or variants must have
 /// a description. The description correspond either to the first line of the
 /// documentation comment, or the value of the `desc` attribute. The type must
-/// also be named witht he `name` attribute.
+/// also be named with the `name` attribute.
 ///
 /// ## Example
 /// ```
