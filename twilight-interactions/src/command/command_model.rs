@@ -19,23 +19,16 @@ use super::internal::CommandOptionData;
 
 /// Parse command data into a concrete type.
 ///
-/// This trait represent a slash command model, that can be initialized
-/// from a [`CommandInputData`]. See the module-level documentation to learn more.
+/// This trait is used to parse received command data into a concrete
+/// command model. A derive macro is provided to implement this trait
+/// automatically.
 ///
-/// ## Derive macro
-/// A derive macro is provided to implement this trait. The macro only works
-/// with structs with named fields where all field types implement [`CommandOption`].
+/// ## Command models
+/// This trait can be implemented on structs representing a slash command
+/// model. All type fields must implement the [`CommandOption`] trait. See
+/// the [module documentation](crate::command) for a full list of supported
+/// types.
 ///
-/// ### Macro attributes
-/// The macro provide a `#[command]` attribute to configure generated code.
-///
-/// **Type parameters**:
-/// - `#[command(partial = true)]`: set the model as partial.[^partial]
-///
-/// **Field parameters**:
-/// - `#[command(rename = "")]`: use a different name for the field when parsing.
-///
-/// ## Example
 /// ```
 /// use twilight_interactions::command::{CommandModel, ResolvedUser};
 ///
@@ -46,32 +39,110 @@ use super::internal::CommandOptionData;
 /// }
 /// ```
 ///
-/// [^partial]: Unknown fields don't fail the parsing. Useful for parsing autocomplete
-///             interaction data.
+/// ### Validating options
+/// The [`CommandModel`] trait only focus on parsing received interaction data
+/// and does not directly support additional validation. However, it will ensure
+/// that received data matches with the provided model. If you specify a `max_value`
+/// for a field, this requirement will be checked when parsing command data.
+///
+/// Not supporting additional validation is a design choice. This allow to clearly
+/// split between validations that are ensured by Discord, and those you perform
+/// on top of that. If an error occurs during parsing, it is always a bug, not
+/// a user mistake.
+///
+/// If you need to perform additional validation, consider creating another type
+/// that can be initialized from the command model.
+///
+/// ### Autocomplete interactions
+/// When receiving an autocomplete interaction, you sometimes only care
+/// about a subset of received fields. You can use the
+/// `#[command(partial = true)]` attribute to ignore errors related to
+/// unknown fields. The [`CreateCommand`] trait cannot be applied on a
+/// partial model.
+///
+/// ## Subcommands and subcommands groups
+/// This trait also support parsing subcommands and subcommands group when
+/// implemented on enums with all variants containing types that implement
+/// [`CommandModel`]. Each variant must have an attribute with the subcommand
+/// name.
+///
+/// Subcommand groups works in the same way as regular subcommands, except the
+/// variant type is another enum implementing [`CommandModel`].
+///
+/// ```
+/// use twilight_interactions::command::CommandModel;
+/// #
+/// # #[derive(CommandModel)]
+/// # struct HelloUser {
+/// #    message: String,
+/// # }
+/// #
+/// # #[derive(CommandModel)]
+/// # struct HelloConfig {
+/// #    message: String,
+/// # }
+///
+/// #[derive(CommandModel)]
+/// enum HelloCommand {
+///     #[command(name = "user")]
+///     User(HelloUser),
+///     #[command(name = "config")]
+///     Config(HelloConfig)
+/// }
+/// ```
+///
+///
+/// ## Macro attributes
+/// The macro provide a `#[command]` attribute to configure generated code.
+///
+/// | Attribute                | Type           | Location             | Description                                                     |
+/// |--------------------------|----------------|----------------------|-----------------------------------------------------------------|
+/// | `partial`                | `bool`         | Type                 | Ignore unknown fields when parsing.                             |
+/// | `name`                   | `str`          | Variant (subcommand) | Subcommand name (required).                                     |
+/// | `rename`                 | `str`          | Field                | Use a different name for the field when parsing.                |
+/// | `channel_types`          | `str`          | Field                | Restricts the channel choice to specific types.[^channel_types] |
+/// | `max_value`, `min_value` | `i64` or `f64` | Field                | Maximum and/or minimum value permitted.                         |
+///
+/// ### Example
+/// ```
+/// use twilight_interactions::command::{CommandModel, ResolvedUser};
+///
+/// #[derive(CommandModel)]
+/// #[command(partial = true)]
+/// struct HelloCommand {
+///     #[command(rename = "text")]
+///     message: String,
+///     #[command(max_value = 60)]
+///     delay: i64
+/// }
+/// ```
+///
+/// [^channel_types]: List of [`ChannelType`] names in snake_case separated by spaces
+///                   like `guild_text private`.
+///
+/// [`CreateCommand`]: super::CreateCommand
+/// [`ChannelType`]: twilight_model::channel::ChannelType
 pub trait CommandModel: Sized {
     /// Construct this type from a [`CommandInputData`].
     fn from_interaction(data: CommandInputData) -> Result<Self, ParseError>;
 }
 
-/// Convert a [`CommandOptionValue`] into a concrete type.
+/// Parse command option into a concrete type.
 ///
-/// This trait is used by the implementation of [`CommandData`] generated
-/// by the derive macro.
+/// This trait is used by the implementation of [`CommandModel`] generated
+/// by the derive macro. See the [module documentation](crate::command) for
+/// a list of implemented types.
 ///
-/// ## Derive macro
-/// A derive macro is provided to implement this trait for slash command
-/// options with predefined choices. The macro only works on enums and
-/// require that the `#[option]` attribute (see below) is present on
-/// each variant.
+/// ## Option choices
+/// This trait can be derived on enums to represent command options with
+/// predefined choices. The `#[option]` attribute must be present on each
+/// variant.
 ///
-/// ### Macro attributes
-/// The macro provide a `#[option]` attribute to configure the generated code.
+/// The corresponding slash command types is automatically inferred from
+/// the `value` attribute. In the example below, the inferred type would
+/// be `INTEGER`.
 ///
-/// ***Variant parameters:**
-/// - `#[option(name = "")]`: name of the command option choice
-/// - `#[option(value = ..)]`: value of the command option choice (either string, integer or float)
-///
-/// ## Example
+/// ### Example
 /// ```
 /// use twilight_interactions::command::CommandOption;
 ///
@@ -85,6 +156,15 @@ pub trait CommandModel: Sized {
 ///     Day
 /// }
 /// ```
+///
+/// ### Macro attributes
+/// The macro provide a `#[option]` attribute to configure the generated code.
+///
+/// | Attribute | Type                  | Location | Description                                |
+/// |-----------|-----------------------|----------|--------------------------------------------|
+/// | `name`    | `str`                 | Variant  | Set the name of the command option choice. |
+/// | `value`   | `str`, `i64` or `f64` | Variant  | Value of the command option choice.        |
+///
 pub trait CommandOption: Sized {
     /// Convert a [`CommandOptionValue`] into this value.
     fn from_option(
@@ -97,7 +177,7 @@ pub trait CommandOption: Sized {
 /// Data sent by Discord when receiving a command.
 ///
 /// This type is used in the [`CommandModel`] trait. It can be initialized
-/// from a [`CommandData`] using the [`From`] trait.
+/// from a [`CommandData`] using the [From] trait.
 ///
 /// [`CommandModel`]: super::CommandModel
 #[derive(Debug, Clone, PartialEq, Eq)]

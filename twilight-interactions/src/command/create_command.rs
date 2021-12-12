@@ -10,32 +10,20 @@ use twilight_model::{
 
 use super::{internal::CreateOptionData, ResolvedUser};
 
-/// Create a [`ApplicationCommandData`] from a type.
+/// Create a slash command from a type.
 ///
-/// This trait allow to obtain command information from a type.
-/// See the module-level documentation to learn more.
+/// This trait is used to create commands from command models. A derive
+/// macro is provided to automatically implement the traits.
 ///
-/// ## Derive macro
-/// A derive macro is provided to implement this trait. The macro only works
-/// with structs with named fields where all field types implement [`CreateOption`].
+/// ## Types and fields documentation
+/// The trait can be derived structs where all fields implement [`CreateOption`]
+/// (see the [module documentation](crate::command) for a list of supported types)
+/// or enums where variants implements [`CreateCommand`].
 ///
-/// ### Macro attributes
-/// The macro provide a `#[command]` attribute to provide additional information.
-///
-/// **Type parameters**:
-/// - `#[command(name = "")]`: set the command name (*required*).
-/// - `#[command(desc = "")]`: set the command description.[^desc]
-/// - `#[command(default_permission = true)]`: whether the command should be enabled by default.
-///
-/// **Field parameters**:
-/// - `#[command(rename = "")]`: use a different option name than the field name.
-/// - `#[command(desc = "")]`: set the option description.[^desc]
-/// - `#[command(autocomplete = true)]`: enable autocomplete on this field.[^autocomplete]
-/// - `#[command(channel_types = "")]`: restricts the channel choice to specific types.[^channel_types]
-/// - `#[command(max_value = 0, min_value = 0)]`: set the maximum and/or minimum value permitted (integer or float).
-///
-/// It is mandatory to provide a description for each option and the command itself,
-/// either using documentation comments or `desc` attribute parameter.
+/// Unlike the [`CommandModel`] trait, the type its field or variants must have
+/// a description. The description correspond either to the first line of the
+/// documentation comment, or the value of the `desc` attribute. The type must
+/// also be named witht he `name` attribute.
 ///
 /// ## Example
 /// ```
@@ -51,39 +39,56 @@ use super::{internal::CreateOptionData, ResolvedUser};
 /// }
 /// ```
 ///
-/// [^desc]: Documentation comments can also be used. Only the fist line will be taken in account.
+/// ## Macro attributes
+/// The macro provide a `#[command]` attribute to provide additional information.
 ///
-/// [^autocomplete]: Parsing of partial data received from autocomplete interaction is not yet supported.
+/// | Attribute                | Type           | Location               | Description                                                     |
+/// |--------------------------|----------------|------------------------|-----------------------------------------------------------------|
+/// | `name`                   | `str`          | Type                   | Name of the command (required).                                 |
+/// | `desc`                   | `str`          | Type / Field / Variant | Set the subcommand name (required).                             |
+/// | `default_permission`     | `bool`         | Type                   | Whether the command should be enabled by default.               |
+/// | `rename`                 | `str`          | Field                  | Use a different option name than the field name.                |
+/// | `autocomplete`           | `bool`         | Field                  | Enable autocomplete on this field.                              |
+/// | `channel_types`          | `str`          | Field                  | Restricts the channel choice to specific types.[^channel_types] |
+/// | `max_value`, `min_value` | `i64` or `f64` | Field                  | Set the maximum and/or minimum value permitted.                 |
+///
+/// ## Example
+/// ```
+/// use twilight_interactions::command::{CreateCommand, ResolvedUser};
+///
+/// #[derive(CreateCommand)]
+/// #[command(name = "hello", desc = "Say hello")]
+/// struct HelloCommand {
+///     /// The message to send.
+///     message: String,
+///     /// The user to send the message to.
+///     user: Option<ResolvedUser>,
+/// }
+/// ```
 ///
 /// [^channel_types]: List [`ChannelType`] names in snake_case separated by spaces
 ///                   like `guild_text private`.
 ///
+/// [`CommandModel`]: super::CommandModel
 /// [`ChannelType`]: twilight_model::channel::ChannelType
 pub trait CreateCommand: Sized {
     /// Create an [`ApplicationCommandData`] for this type.
     fn create_command() -> ApplicationCommandData;
 }
 
-/// Trait to create a [`CommandOption`] from a type.
+/// Create a command option from a type.
 ///
-/// This trait allow to create a [`CommandOption`] for a type. It is primarily used in the
-/// implementation generated when deriving [`CreateCommand`].
+/// This trait is used by the implementation of [`CreateCommand`] generated
+/// by the derive macro. See the [module documentation](crate::command) for
+/// a list of implemented types.
 ///
 ///
-/// ## Derive macro
-/// A derive macro is provided to implement this trait for slash command
-/// options with predefined choices. The macro only works on enums and
-/// require that the `#[option]` attribute (see below) is present on
-/// each variant.
+/// ## Option choices
+/// This trait can be derived on enums to represent command options with
+/// predefined choices. The `#[option]` attribute must be present on each
+/// variant.
 ///
-/// ### Macro attributes
-/// The macro provide a `#[option]` attribute to configure the generated code.
-///
-/// ***Variant parameters:**
-/// - `#[option(name = "")]`: name of the command option choice
-/// - `#[option(value = ..)]`: value of the command option choice (either string, integer or float)
-///
-/// ## Example
+/// ### Example
 /// ```
 /// use twilight_interactions::command::CreateOption;
 ///
@@ -97,6 +102,15 @@ pub trait CreateCommand: Sized {
 ///     Day
 /// }
 /// ```
+///
+/// ### Macro attributes
+/// The macro provide a `#[option]` attribute to configure the generated code.
+///
+/// | Attribute | Type                  | Location | Description                                |
+/// |-----------|-----------------------|----------|--------------------------------------------|
+/// | `name`    | `str`                 | Variant  | Set the name of the command option choice. |
+/// | `value`   | `str`, `i64` or `f64` | Variant  | Value of the command option choice.        |
+
 pub trait CreateOption: Sized {
     /// Create a [`CommandOption`] from this type.
     fn create_option(data: CreateOptionData) -> CommandOption;
