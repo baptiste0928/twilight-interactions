@@ -1,6 +1,7 @@
 //! Parsing of struct fields and attributes
 
-use proc_macro2::{Ident, Span};
+use proc_macro2::{Ident, Span, TokenStream};
+use quote::quote;
 use syn::{spanned::Spanned, Attribute, Error, Lit, Result, Type};
 
 use crate::parse::{extract_option, find_attr, parse_desc, parse_name, AttrValue, NamedAttrs};
@@ -237,5 +238,45 @@ impl CommandOptionValue {
                 "Invalid attribute type, expected integer or float",
             )),
         }
+    }
+}
+
+/// Convert a [`ChannelType`] into a [`TokenStream`]
+pub fn channel_type(kind: &ChannelType) -> TokenStream {
+    match kind {
+        ChannelType::GuildText => quote!(::twilight_model::channel::ChannelType::GuildText),
+        ChannelType::Private => quote!(::twilight_model::channel::ChannelType::Private),
+        ChannelType::GuildVoice => quote!(::twilight_model::channel::ChannelType::GuildVoice),
+        ChannelType::Group => quote!(::twilight_model::channel::ChannelType::Group),
+        ChannelType::GuildCategory => quote!(::twilight_model::channel::ChannelType::GuildCategory),
+        ChannelType::GuildNews => quote!(::twilight_model::channel::ChannelType::GuildNews),
+        ChannelType::GuildStore => quote!(::twilight_model::channel::ChannelType::GuildStore),
+        ChannelType::GuildNewsThread => {
+            quote!(::twilight_model::channel::ChannelType::GuildNewsThread)
+        }
+        ChannelType::GuildPublicThread => {
+            quote!(::twilight_model::channel::ChannelType::GuildPublicThread)
+        }
+        ChannelType::GuildPrivateThread => {
+            quote!(::twilight_model::channel::ChannelType::GuildPrivateThread)
+        }
+        ChannelType::GuildStageVoice => {
+            quote!(::twilight_model::channel::ChannelType::GuildStageVoice)
+        }
+    }
+}
+
+/// Convert a [`Option<CommandOptionValue>`] into a [`TokenStream`]
+pub fn command_option_value(value: Option<CommandOptionValue>) -> TokenStream {
+    match value {
+        None => quote!(None),
+        Some(CommandOptionValue::Integer(inner)) => {
+            quote!(Some(::twilight_model::application::command::CommandOptionValue::Integer(#inner)))
+        }
+        Some(CommandOptionValue::Number(inner)) => quote! {
+            Some(::twilight_model::application::command::CommandOptionValue::Number(
+                ::twilight_model::application::command::Number(#inner)
+            ))
+        },
     }
 }

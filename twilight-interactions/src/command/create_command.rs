@@ -1,19 +1,14 @@
 use twilight_model::{
     application::{
-        command::{
-            BaseCommandOptionData, ChannelCommandOptionData, ChoiceCommandOptionData, Command,
-            CommandOption, CommandOptionChoice, CommandOptionValue, CommandType, Number,
-            NumberCommandOptionData, OptionsCommandOptionData,
-        },
+        command::{Command, CommandOption, CommandType, Number, OptionsCommandOptionData},
         interaction::application_command::InteractionChannel,
     },
-    channel::ChannelType,
     guild::Role,
     id::{ChannelId, CommandVersionId, GenericId, RoleId, UserId},
     user::User,
 };
 
-use super::ResolvedUser;
+use super::{internal::CreateOptionData, ResolvedUser};
 
 /// Create a [`ApplicationCommandData`] from a type.
 ///
@@ -104,7 +99,7 @@ pub trait CreateCommand: Sized {
 /// ```
 pub trait CreateOption: Sized {
     /// Create a [`CommandOption`] from this type.
-    fn create_option(data: CommandOptionData) -> CommandOption;
+    fn create_option(data: CreateOptionData) -> CommandOption;
 }
 
 /// Data sent to discord to create a command.
@@ -157,152 +152,80 @@ impl From<ApplicationCommandData> for CommandOption {
     }
 }
 
-/// Data of a command option.
-///
-/// This type is used in the [`CreateOption`] trait.
-///
-/// <pre class="compile_fail" style="white-space:normal;font:inherit;">
-///     <strong>Warning</strong>: This type is not intended to be used directly
-///     and does not respect semantic versioning. New fields can be introduced
-///     between minor versions.
-/// </pre>
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CommandOptionData {
-    /// Name of the option. It must be 32 characters or less.
-    pub name: String,
-    /// Description of the option. It must be 100 characters or less.
-    pub description: String,
-    /// Whether the option is required to be completed by a user.
-    pub required: bool,
-    /// Whether the command supports autocomplete. Only for `STRING`, `INTEGER` and `NUMBER` option type.
-    pub autocomplete: bool,
-    /// Restricts the channel choice to specific types. Only for `CHANNEL` option type.
-    pub channel_types: Vec<ChannelType>,
-    /// Maximum value permitted. Only for `INTEGER` and `NUMBER` option type.
-    pub max_value: Option<CommandOptionValue>,
-    /// Minimum value permitted. Only for `INTEGER` and `NUMBER` option type.
-    pub min_value: Option<CommandOptionValue>,
-}
-
-impl CommandOptionData {
-    /// Conversion into a [`BaseCommandOptionData`]
-    pub fn into_data(self) -> BaseCommandOptionData {
-        BaseCommandOptionData {
-            description: self.description,
-            name: self.name,
-            required: self.required,
-        }
-    }
-
-    /// Conversion into a [`ChannelCommandOptionData`]
-    pub fn into_channel(self) -> ChannelCommandOptionData {
-        ChannelCommandOptionData {
-            channel_types: self.channel_types,
-            description: self.description,
-            name: self.name,
-            required: self.required,
-        }
-    }
-
-    /// Conversion into a [`ChoiceCommandOptionData`]
-    pub fn into_choice(self, choices: Vec<CommandOptionChoice>) -> ChoiceCommandOptionData {
-        ChoiceCommandOptionData {
-            autocomplete: self.autocomplete,
-            choices,
-            description: self.description,
-            name: self.name,
-            required: self.required,
-        }
-    }
-
-    /// Conversion into a [`NumberCommandOptionData`]
-    pub fn into_number(self, choices: Vec<CommandOptionChoice>) -> NumberCommandOptionData {
-        NumberCommandOptionData {
-            autocomplete: self.autocomplete,
-            choices,
-            description: self.description,
-            max_value: self.max_value,
-            min_value: self.min_value,
-            name: self.name,
-            required: self.required,
-        }
-    }
-}
-
 impl CreateOption for String {
-    fn create_option(data: CommandOptionData) -> CommandOption {
+    fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::String(data.into_choice(Vec::new()))
     }
 }
 
 impl CreateOption for i64 {
-    fn create_option(data: CommandOptionData) -> CommandOption {
+    fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Integer(data.into_number(Vec::new()))
     }
 }
 
 impl CreateOption for Number {
-    fn create_option(data: CommandOptionData) -> CommandOption {
+    fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Number(data.into_number(Vec::new()))
     }
 }
 
 impl CreateOption for f64 {
-    fn create_option(data: CommandOptionData) -> CommandOption {
+    fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Number(data.into_number(Vec::new()))
     }
 }
 
 impl CreateOption for bool {
-    fn create_option(data: CommandOptionData) -> CommandOption {
+    fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Boolean(data.into_data())
     }
 }
 
 impl CreateOption for UserId {
-    fn create_option(data: CommandOptionData) -> CommandOption {
+    fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::User(data.into_data())
     }
 }
 
 impl CreateOption for ChannelId {
-    fn create_option(data: CommandOptionData) -> CommandOption {
+    fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Channel(data.into_channel())
     }
 }
 
 impl CreateOption for RoleId {
-    fn create_option(data: CommandOptionData) -> CommandOption {
+    fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Role(data.into_data())
     }
 }
 
 impl CreateOption for GenericId {
-    fn create_option(data: CommandOptionData) -> CommandOption {
+    fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Mentionable(data.into_data())
     }
 }
 
 impl CreateOption for User {
-    fn create_option(data: CommandOptionData) -> CommandOption {
+    fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::User(data.into_data())
     }
 }
 
 impl CreateOption for ResolvedUser {
-    fn create_option(data: CommandOptionData) -> CommandOption {
+    fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::User(data.into_data())
     }
 }
 
 impl CreateOption for InteractionChannel {
-    fn create_option(data: CommandOptionData) -> CommandOption {
+    fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Channel(data.into_channel())
     }
 }
 
 impl CreateOption for Role {
-    fn create_option(data: CommandOptionData) -> CommandOption {
+    fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Role(data.into_data())
     }
 }

@@ -2,7 +2,10 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::{DeriveInput, FieldsNamed, Result};
 
-use crate::parse::find_attr;
+use crate::{
+    command::model::parse::{channel_type, command_option_value},
+    parse::find_attr,
+};
 
 use super::parse::{FieldType, StructField, TypeAttribute};
 
@@ -54,20 +57,32 @@ fn field_init(field: &StructField) -> TokenStream {
 /// Generate field match arm
 fn field_match_arm(field: &StructField) -> TokenStream {
     let ident = &field.ident;
-    let name = field.attributes.name_default(ident.to_string());
     let span = field.span;
 
+    let name = field.attributes.name_default(ident.to_string());
+    let channel_types = field.attributes.channel_types.iter().map(channel_type);
+    let max_value = command_option_value(field.attributes.max_value);
+    let min_value = command_option_value(field.attributes.min_value);
+
     quote_spanned! {span=>
-        #name => match ::twilight_interactions::command::CommandOption::from_option(opt.value, data.resolved.as_deref()) {
-            ::std::result::Result::Ok(value) => #ident = Some(value),
-            ::std::result::Result::Err(kind) => {
-                return ::std::result::Result::Err(
-                    ::twilight_interactions::error::ParseError::Option(
-                        ::twilight_interactions::error::ParseOptionError {
-                            field: ::std::convert::From::from(#name),
-                            kind,
-                    })
-                )
+        #name => {
+            let option_data = ::twilight_interactions::command::internal::CommandOptionData {
+                channel_types: ::std::vec![#(#channel_types),*],
+                max_value: #max_value,
+                min_value: #min_value,
+            };
+
+            match ::twilight_interactions::command::CommandOption::from_option(opt.value, option_data, data.resolved.as_deref()) {
+                ::std::result::Result::Ok(value) => #ident = Some(value),
+                ::std::result::Result::Err(kind) => {
+                    return ::std::result::Result::Err(
+                        ::twilight_interactions::error::ParseError::Option(
+                            ::twilight_interactions::error::ParseOptionError {
+                                field: ::std::convert::From::from(#name),
+                                kind,
+                        })
+                    )
+                }
             }
         }
     }

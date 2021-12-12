@@ -6,7 +6,10 @@ use std::{
     num::NonZeroU64,
 };
 
-use twilight_model::application::command::CommandOptionType;
+use twilight_model::{
+    application::command::{CommandOptionType, Number},
+    channel::ChannelType,
+};
 
 /// Error when parsing a command.
 ///
@@ -54,6 +57,15 @@ impl Display for ParseOptionError {
             ParseOptionErrorType::InvalidChoice(choice) => {
                 write!(f, "invalid choice value, found `{}`", choice)
             }
+            ParseOptionErrorType::IntegerOutOfRange(val) => {
+                write!(f, "out of range integer, received `{}`", val)
+            }
+            ParseOptionErrorType::NumberOutOfRange(val) => {
+                write!(f, "out of range number, received `{}`", val.0)
+            }
+            ParseOptionErrorType::InvalidChannelType(kind) => {
+                write!(f, "invalid channel type, received `{}`", kind.name())
+            }
             ParseOptionErrorType::LookupFailed(id) => write!(f, "failed to resolve `{}`", id),
             ParseOptionErrorType::UnknownField => write!(f, "unknown field"),
             ParseOptionErrorType::UnknownSubcommand => write!(f, "unknown subcommand"),
@@ -69,6 +81,12 @@ pub enum ParseOptionErrorType {
     InvalidType(CommandOptionType),
     /// Received an invalid value on choice option type.
     InvalidChoice(String),
+    /// Received an out of range integer
+    IntegerOutOfRange(i64),
+    /// Received an out of range floating point number
+    NumberOutOfRange(Number),
+    /// Received an invalid channel type
+    InvalidChannelType(ChannelType),
     /// Failed to resolve data associated with an ID.
     LookupFailed(NonZeroU64),
     /// Missing a required option field.

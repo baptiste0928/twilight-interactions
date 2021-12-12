@@ -29,6 +29,7 @@ pub fn impl_command_option(input: DeriveInput) -> Result<TokenStream> {
         impl ::twilight_interactions::command::CommandOption for #ident {
             fn from_option(
                 value: ::twilight_model::application::interaction::application_command::CommandOptionValue,
+                data: twilight_interactions::command::internal::CommandOptionData,
                 resolved: ::std::option::Option<&::twilight_model::application::interaction::application_command::CommandInteractionDataResolved>
             ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseOptionErrorType> {
                 #parsed_init
@@ -56,6 +57,7 @@ pub fn dummy_command_option(ident: Ident, error: Error) -> TokenStream {
         impl ::twilight_interactions::command::CommandOption for #ident {
             fn from_option(
                 value: ::twilight_model::application::interaction::application_command::CommandOptionValue,
+                data: ::twilight_interactions::command::internal::CommandOptionData,
                 resolved: ::std::option::Option<&::twilight_model::application::interaction::application_command::CommandInteractionDataResolved>
             ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseOptionErrorType> {
                 ::std::unimplemented!()
@@ -68,13 +70,13 @@ pub fn dummy_command_option(ident: Ident, error: Error) -> TokenStream {
 fn parsed_init(kind: ChoiceKind) -> TokenStream {
     match kind {
         ChoiceKind::String => {
-            quote! { let parsed: ::std::string::String = ::twilight_interactions::command::CommandOption::from_option(value, resolved)?; }
+            quote! { let parsed: ::std::string::String = ::twilight_interactions::command::CommandOption::from_option(value, ::std::default::Default::default(), resolved)?; }
         }
         ChoiceKind::Integer => {
-            quote! { let parsed: i64 = ::twilight_interactions::command::CommandOption::from_option(value, resolved)?; }
+            quote! { let parsed: i64 = ::twilight_interactions::command::CommandOption::from_option(value, ::std::default::Default::default(), resolved)?; }
         }
         ChoiceKind::Number => {
-            quote! { let parsed: f64 = ::twilight_interactions::command::CommandOption::from_option(value, resolved)?; }
+            quote! { let parsed: f64 = ::twilight_interactions::command::CommandOption::from_option(value, ::std::default::Default::default(), resolved)?; }
         }
     }
 }

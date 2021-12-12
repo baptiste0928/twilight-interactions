@@ -4,7 +4,7 @@ use syn::{spanned::Spanned, DeriveInput, Error, FieldsNamed, Result};
 
 use crate::parse::{find_attr, parse_doc};
 
-use super::parse::{ChannelType, CommandOptionValue, StructField, TypeAttribute};
+use super::parse::{channel_type, command_option_value, StructField, TypeAttribute};
 
 /// Implementation of CreateCommand derive macro
 pub fn impl_create_command(input: DeriveInput, fields: FieldsNamed) -> Result<TokenStream> {
@@ -84,14 +84,16 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
 
     Ok(quote_spanned! {span=>
         command_options.push(<#ty as ::twilight_interactions::command::CreateOption>::create_option(
-            ::twilight_interactions::command::CommandOptionData {
+            ::twilight_interactions::command::internal::CreateOptionData {
                 name: ::std::convert::From::from(#name),
                 description: ::std::convert::From::from(#description),
                 required: #required,
                 autocomplete: #autocomplete,
-                channel_types: ::std::vec![#(#channel_types),*],
-                max_value: #max_value,
-                min_value: #min_value
+                data: ::twilight_interactions::command::internal::CommandOptionData {
+                    channel_types: ::std::vec![#(#channel_types),*],
+                    max_value: #max_value,
+                    min_value: #min_value,
+                },
             }
         ));
     })
@@ -115,44 +117,4 @@ fn check_fields_order(fields: &[StructField]) -> Result<()> {
     }
 
     Ok(())
-}
-
-/// Convert a [`ChannelType`] into a [`TokenStream`]
-fn channel_type(kind: &ChannelType) -> TokenStream {
-    match kind {
-        ChannelType::GuildText => quote!(::twilight_model::channel::ChannelType::GuildText),
-        ChannelType::Private => quote!(::twilight_model::channel::ChannelType::Private),
-        ChannelType::GuildVoice => quote!(::twilight_model::channel::ChannelType::GuildVoice),
-        ChannelType::Group => quote!(::twilight_model::channel::ChannelType::Group),
-        ChannelType::GuildCategory => quote!(::twilight_model::channel::ChannelType::GuildCategory),
-        ChannelType::GuildNews => quote!(::twilight_model::channel::ChannelType::GuildNews),
-        ChannelType::GuildStore => quote!(::twilight_model::channel::ChannelType::GuildStore),
-        ChannelType::GuildNewsThread => {
-            quote!(::twilight_model::channel::ChannelType::GuildNewsThread)
-        }
-        ChannelType::GuildPublicThread => {
-            quote!(::twilight_model::channel::ChannelType::GuildPublicThread)
-        }
-        ChannelType::GuildPrivateThread => {
-            quote!(::twilight_model::channel::ChannelType::GuildPrivateThread)
-        }
-        ChannelType::GuildStageVoice => {
-            quote!(::twilight_model::channel::ChannelType::GuildStageVoice)
-        }
-    }
-}
-
-/// Convert a [`Option<CommandOptionValue>`] into a [`TokenStream`]
-fn command_option_value(value: Option<CommandOptionValue>) -> TokenStream {
-    match value {
-        None => quote!(None),
-        Some(CommandOptionValue::Integer(inner)) => {
-            quote!(Some(::twilight_model::application::command::CommandOptionValue::Integer(#inner)))
-        }
-        Some(CommandOptionValue::Number(inner)) => quote! {
-            Some(::twilight_model::application::command::CommandOptionValue::Number(
-                ::twilight_model::application::command::Number(#inner)
-            ))
-        },
-    }
 }

@@ -1,4 +1,7 @@
-use twilight_interactions::command::{CommandOption, CommandOptionData, CreateOption};
+use twilight_interactions::command::{
+    internal::{CommandOptionData, CreateOptionData},
+    CommandOption, CreateOption,
+};
 use twilight_model::application::{
     command::{
         ChoiceCommandOptionData, CommandOption as TwilightCommandOption, CommandOptionChoice,
@@ -39,18 +42,26 @@ enum ChoiceNumber {
 
 #[test]
 fn test_command_option_string() {
-    let parsed = ChoiceString::from_option(CommandOptionValue::String("crab".to_string()), None);
+    let parsed = ChoiceString::from_option(
+        CommandOptionValue::String("crab".to_string()),
+        CommandOptionData::default(),
+        None,
+    );
     assert_eq!(parsed, Ok(ChoiceString::Crab));
 
     let data = CommandOptionData {
-        name: "name".to_string(),
-        description: "description".to_string(),
-        required: false,
-        autocomplete: false,
         channel_types: Vec::new(),
         max_value: None,
         min_value: None,
     };
+    let create_data = CreateOptionData {
+        name: "name".to_string(),
+        description: "description".to_string(),
+        required: false,
+        autocomplete: false,
+        data,
+    };
+
     let command_option = TwilightCommandOption::String(ChoiceCommandOptionData {
         autocomplete: false,
         choices: vec![
@@ -72,23 +83,31 @@ fn test_command_option_string() {
         required: false,
     });
 
-    assert_eq!(command_option, ChoiceString::create_option(data))
+    assert_eq!(command_option, ChoiceString::create_option(create_data))
 }
 
 #[test]
 fn test_command_option_integer() {
-    let parsed = ChoiceInt::from_option(CommandOptionValue::Integer(2), None);
+    let parsed = ChoiceInt::from_option(
+        CommandOptionValue::Integer(2),
+        CommandOptionData::default(),
+        None,
+    );
     assert_eq!(parsed, Ok(ChoiceInt::Two));
 
     let data = CommandOptionData {
-        name: "name".to_string(),
-        description: "description".to_string(),
-        required: false,
-        autocomplete: false,
         channel_types: Vec::new(),
         max_value: None,
         min_value: None,
     };
+    let create_data = CreateOptionData {
+        name: "name".to_string(),
+        description: "description".to_string(),
+        required: false,
+        autocomplete: false,
+        data,
+    };
+
     let command_option = TwilightCommandOption::Integer(NumberCommandOptionData {
         autocomplete: false,
         choices: vec![
@@ -112,23 +131,31 @@ fn test_command_option_integer() {
         required: false,
     });
 
-    assert_eq!(command_option, ChoiceInt::create_option(data));
+    assert_eq!(command_option, ChoiceInt::create_option(create_data));
 }
 
 #[test]
 fn test_command_option_number() {
-    let parsed = ChoiceNumber::from_option(CommandOptionValue::Number(Number(0.5)), None);
+    let parsed = ChoiceNumber::from_option(
+        CommandOptionValue::Number(Number(0.5)),
+        CommandOptionData::default(),
+        None,
+    );
     assert_eq!(parsed, Ok(ChoiceNumber::Half));
 
     let data = CommandOptionData {
-        name: "name".to_string(),
-        description: "description".to_string(),
-        required: false,
-        autocomplete: false,
         channel_types: Vec::new(),
         max_value: None,
         min_value: None,
     };
+    let create_data = CreateOptionData {
+        name: "name".to_string(),
+        description: "description".to_string(),
+        required: false,
+        autocomplete: false,
+        data,
+    };
+
     let command_option = TwilightCommandOption::Number(NumberCommandOptionData {
         autocomplete: false,
         choices: vec![
@@ -152,5 +179,5 @@ fn test_command_option_number() {
         required: false,
     });
 
-    assert_eq!(command_option, ChoiceNumber::create_option(data));
+    assert_eq!(command_option, ChoiceNumber::create_option(create_data));
 }
