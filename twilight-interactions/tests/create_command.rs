@@ -70,4 +70,5 @@ fn test_create_command() {
     };
 
     assert_eq!(DemoCommand::create_command(), expected);
+    assert_eq!(DemoCommand::NAME, "demo");
 }

@@ -72,6 +72,9 @@ use super::{internal::CreateOptionData, ResolvedUser};
 /// [`CommandModel`]: super::CommandModel
 /// [`ChannelType`]: twilight_model::channel::ChannelType
 pub trait CreateCommand: Sized {
+    /// Name of the command.
+    const NAME: &'static str;
+
     /// Create an [`ApplicationCommandData`] for this type.
     fn create_command() -> ApplicationCommandData;
 }

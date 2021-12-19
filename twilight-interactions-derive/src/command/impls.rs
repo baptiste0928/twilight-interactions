@@ -73,6 +73,8 @@ pub fn dummy_create_command(ident: Ident, error: Error) -> TokenStream {
         #error
 
         impl ::twilight_interactions::command::CreateCommand for #ident {
+            const NAME: &'static str = "";
+
             fn create_command() -> ::twilight_interactions::command::ApplicationCommandData {
                 ::std::unimplemented!()
             }

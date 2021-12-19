@@ -49,6 +49,8 @@ pub fn impl_create_command(input: DeriveInput, fields: FieldsNamed) -> Result<To
 
     Ok(quote! {
         impl ::twilight_interactions::command::CreateCommand for #ident {
+            const NAME: &'static str = #name;
+
             fn create_command() -> ::twilight_interactions::command::ApplicationCommandData {
                 let mut command_options = ::std::vec::Vec::with_capacity(#capacity);
 
