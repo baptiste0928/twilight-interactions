@@ -29,11 +29,9 @@ struct DemoCommand {
     channel: Option<InteractionChannel>,
 }
 
-
 #[derive(CreateCommand, Debug, PartialEq, Eq)]
 #[command(name = "unit", desc = "Unit command for testing purposes")]
 struct UnitCommand;
-
 
 #[test]
 fn test_create_command() {

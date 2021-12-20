@@ -48,6 +48,9 @@ fn test_command_option_string() {
         None,
     );
     assert_eq!(parsed, Ok(ChoiceString::Crab));
+    assert_eq!(ChoiceString::Dog.value(), "dog");
+    assert_eq!(ChoiceString::Cat.value(), "cat");
+    assert_eq!(ChoiceString::Crab.value(), "crab");
 
     let data = CommandOptionData {
         channel_types: Vec::new(),
@@ -94,6 +97,9 @@ fn test_command_option_integer() {
         None,
     );
     assert_eq!(parsed, Ok(ChoiceInt::Two));
+    assert_eq!(ChoiceInt::One.value(), 1);
+    assert_eq!(ChoiceInt::Two.value(), 2);
+    assert_eq!(ChoiceInt::Three.value(), 3);
 
     let data = CommandOptionData {
         channel_types: Vec::new(),
@@ -142,6 +148,9 @@ fn test_command_option_number() {
         None,
     );
     assert_eq!(parsed, Ok(ChoiceNumber::Half));
+    assert_eq!(ChoiceNumber::One.value(), 1.0);
+    assert_eq!(ChoiceNumber::Half.value(), 0.5);
+    assert_eq!(ChoiceNumber::Quarter.value(), 0.25);
 
     let data = CommandOptionData {
         channel_types: Vec::new(),

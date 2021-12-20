@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- A `value` method is generated when deriving `CommandOption` for command option choices.
 - `CommandModel` and `CreateCommand` can be derived on unit structs.
 - `CreateCommand::NAME` associated constant to get the name of the command.
 

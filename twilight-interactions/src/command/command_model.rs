@@ -142,6 +142,10 @@ pub trait CommandModel: Sized {
 /// the `value` attribute. In the example below, the inferred type would
 /// be `INTEGER`.
 ///
+/// A `value` method is also generated for each variant to obtain the
+/// value of the variant. This method is not described in the trait
+/// as it is only implemented for option choices.
+///
 /// ### Example
 /// ```
 /// use twilight_interactions::command::CommandOption;
@@ -155,6 +159,8 @@ pub trait CommandModel: Sized {
 ///     #[option(name = "Day", value = 86400)]
 ///     Day
 /// }
+///
+/// assert_eq!(TimeUnit::Minute.value(), 60);
 /// ```
 ///
 /// ### Macro attributes
