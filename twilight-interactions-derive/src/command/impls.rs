@@ -1,23 +1,21 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
-use syn::{spanned::Spanned, Data, DataEnum, DataStruct, DeriveInput, Error, Fields, Result};
+use syn::{spanned::Spanned, Data, DeriveInput, Error, Fields, Result};
 
 /// Implementation of the CommandModel derive macro
 pub fn impl_command_model(input: DeriveInput) -> Result<TokenStream> {
     let span = input.span();
 
     match input.data.clone() {
-        Data::Struct(DataStruct {
-            fields: Fields::Named(fields),
-            ..
-        }) => super::model::impl_command_model(input, fields),
-        Data::Enum(DataEnum { variants, .. }) => {
-            super::subcommand::impl_command_model(input, variants)
-        }
-        Data::Struct(_) => Err(Error::new(
-            span,
-            "`CommandModel` can only be applied to structs with named fields",
-        )),
+        Data::Struct(data) => match data.fields {
+            Fields::Named(fields) => super::model::impl_command_model(input, Some(fields)),
+            Fields::Unit => super::model::impl_command_model(input, None),
+            _ => Err(Error::new(
+                span,
+                "`CommandModel` can only be applied to structs with named fields or unit structs",
+            )),
+        },
+        Data::Enum(data) => super::subcommand::impl_command_model(input, data.variants),
         _ => Err(Error::new(
             span,
             "`CommandModel` can only be applied to structs or enums",
@@ -47,17 +45,15 @@ pub fn impl_create_command(input: DeriveInput) -> Result<TokenStream> {
     let span = input.span();
 
     match input.data.clone() {
-        Data::Struct(DataStruct {
-            fields: Fields::Named(fields),
-            ..
-        }) => super::model::impl_create_command(input, fields),
-        Data::Enum(DataEnum { variants, .. }) => {
-            super::subcommand::impl_create_command(input, variants)
-        }
-        Data::Struct(_) => Err(Error::new(
-            span,
-            "`CreateCommand` can only be applied to structs with named fields",
-        )),
+        Data::Struct(data) => match data.fields {
+            Fields::Named(fields) => super::model::impl_create_command(input, Some(fields)),
+            Fields::Unit => super::model::impl_create_command(input, None),
+            _ => Err(Error::new(
+                span,
+                "`CreateCommand` can only be applied to structs with named fields or unit structs",
+            )),
+        },
+        Data::Enum(data) => super::subcommand::impl_create_command(input, data.variants),
         _ => Err(Error::new(
             span,
             "`CreateCommand` can only be applied to structs or enums",

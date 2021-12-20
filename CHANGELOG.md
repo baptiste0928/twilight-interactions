@@ -6,7 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- `CommandModel` and `CreateCommand` can be derived on unit structs.
 - `CreateCommand::NAME` associated constant to get the name of the command.
+
+### Fixed
+- `ParseError::EmptyOption` is only returned when parsing subcommands.  
+   This fixes command models without options or with only optional options.
 
 ## [0.8.0] - 2021-12-12
 ### Added

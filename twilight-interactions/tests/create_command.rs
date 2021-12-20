@@ -29,6 +29,12 @@ struct DemoCommand {
     channel: Option<InteractionChannel>,
 }
 
+
+#[derive(CreateCommand, Debug, PartialEq, Eq)]
+#[command(name = "unit", desc = "Unit command for testing purposes")]
+struct UnitCommand;
+
+
 #[test]
 fn test_create_command() {
     let options = vec![
@@ -71,4 +77,18 @@ fn test_create_command() {
 
     assert_eq!(DemoCommand::create_command(), expected);
     assert_eq!(DemoCommand::NAME, "demo");
+}
+
+#[test]
+fn test_unit_create_command() {
+    let expected = ApplicationCommandData {
+        name: "unit".into(),
+        description: "Unit command for testing purposes".into(),
+        options: vec![],
+        default_permission: true,
+        group: false,
+    };
+
+    assert_eq!(UnitCommand::create_command(), expected);
+    assert_eq!(UnitCommand::NAME, "unit");
 }

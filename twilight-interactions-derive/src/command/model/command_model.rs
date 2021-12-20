@@ -10,9 +10,12 @@ use crate::{
 use super::parse::{FieldType, StructField, TypeAttribute};
 
 /// Implementation of CommandModel derive macro
-pub fn impl_command_model(input: DeriveInput, fields: FieldsNamed) -> Result<TokenStream> {
+pub fn impl_command_model(input: DeriveInput, fields: Option<FieldsNamed>) -> Result<TokenStream> {
     let ident = &input.ident;
-    let fields = StructField::from_fields(fields)?;
+    let fields = match fields {
+        Some(fields) => StructField::from_fields(fields)?,
+        None => Vec::new(),
+    };
 
     let partial = match find_attr(&input.attrs, "command") {
         Some(attr) => TypeAttribute::parse(attr)?.partial,
@@ -29,10 +32,6 @@ pub fn impl_command_model(input: DeriveInput, fields: FieldsNamed) -> Result<Tok
             fn from_interaction(
                 data: ::twilight_interactions::command::CommandInputData,
             ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseError> {
-                if data.options.is_empty() {
-                    return std::result::Result::Err(::twilight_interactions::error::ParseError::EmptyOptions);
-                }
-
                 #(#fields_init)*
 
                 for opt in data.options {

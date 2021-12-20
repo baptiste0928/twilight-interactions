@@ -25,9 +25,9 @@ use super::internal::CommandOptionData;
 ///
 /// ## Command models
 /// This trait can be implemented on structs representing a slash command
-/// model. All type fields must implement the [`CommandOption`] trait. See
-/// the [module documentation](crate::command) for a full list of supported
-/// types.
+/// model. All type fields must implement the [`CommandOption`] trait. A
+/// unit struct can be used if the command has no options. See the
+/// [module documentation](crate::command) for a full list of supported types.
 ///
 /// ```
 /// use twilight_interactions::command::{CommandModel, ResolvedUser};

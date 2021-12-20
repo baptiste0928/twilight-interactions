@@ -19,6 +19,8 @@ use twilight_model::{
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ParseError {
     /// Received empty option list.
+    ///
+    /// This error is only returned when parsing subcommands.
     EmptyOptions,
     /// Error parsing a command option.
     Option(ParseOptionError),

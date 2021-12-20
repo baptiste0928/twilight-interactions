@@ -7,10 +7,13 @@ use crate::parse::{find_attr, parse_doc};
 use super::parse::{channel_type, command_option_value, StructField, TypeAttribute};
 
 /// Implementation of CreateCommand derive macro
-pub fn impl_create_command(input: DeriveInput, fields: FieldsNamed) -> Result<TokenStream> {
+pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> Result<TokenStream> {
     let ident = &input.ident;
     let span = input.span();
-    let fields = StructField::from_fields(fields)?;
+    let fields = match fields {
+        Some(fields) => StructField::from_fields(fields)?,
+        None => Vec::new(),
+    };
 
     check_fields_order(&fields)?;
 

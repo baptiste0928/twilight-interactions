@@ -19,6 +19,9 @@ struct DemoCommand {
     number: Option<i64>,
 }
 
+#[derive(CommandModel, Debug, PartialEq, Eq)]
+struct UnitCommand;
+
 #[test]
 fn test_command_model() {
     let user_id = UserId::new(123).unwrap();
@@ -91,4 +94,16 @@ fn test_command_model() {
         },
         result
     );
+}
+
+#[test]
+fn test_unit_command_model() {
+    let data = CommandInputData {
+        options: vec![],
+        resolved: None,
+    };
+
+    let result = UnitCommand::from_interaction(data).unwrap();
+
+    assert_eq!(UnitCommand, result);
 }
