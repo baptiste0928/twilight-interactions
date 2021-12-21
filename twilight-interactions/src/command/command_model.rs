@@ -127,6 +127,12 @@ pub trait CommandModel: Sized {
     fn from_interaction(data: CommandInputData) -> Result<Self, ParseError>;
 }
 
+impl CommandModel for Vec<CommandDataOption> {
+    fn from_interaction(data: CommandInputData) -> Result<Self, ParseError> {
+        Ok(data.options)
+    }
+}
+
 /// Parse command option into a concrete type.
 ///
 /// This trait is used by the implementation of [`CommandModel`] generated
@@ -242,6 +248,16 @@ macro_rules! lookup {
             .and_then(|resolved| resolved.$cat.get(&$id).cloned())
             .ok_or_else(|| ParseOptionErrorType::LookupFailed($id.0))
     };
+}
+
+impl CommandOption for CommandOptionValue {
+    fn from_option(
+        value: CommandOptionValue,
+        _data: CommandOptionData,
+        _resolved: Option<&CommandInteractionDataResolved>,
+    ) -> Result<Self, ParseOptionErrorType> {
+        Ok(value)
+    }
 }
 
 impl CommandOption for String {

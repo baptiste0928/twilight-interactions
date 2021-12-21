@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A `value` method is generated when deriving `CommandOption` for command option choices.
 - `CommandModel` and `CreateCommand` can be derived on unit structs.
 - `CreateCommand::NAME` associated constant to get the name of the command.
+- Implementation of `CommandModel` on `Vec<CommandDataOption>` and `CommandOption` on `CommandOptionValue` to get raw command data.
 
 ### Fixed
 - `ParseError::EmptyOption` is only returned when parsing subcommands.  
@@ -38,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.1] - 2021-11-10
 ### Added
 - Support of command option choices with the `CommandOption` and `CreateOption` traits.
-- A dummy implementation is generated in case of macro error to avoid additional "unimplemented trait" compilation errors 
+- A dummy implementation is generated in case of macro error to avoid additional "unimplemented trait" compilation errors.
 
 ### Changed
 - `ApplicationCommandData` can be converted into a twilight `Command` using `From`.
