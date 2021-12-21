@@ -13,7 +13,7 @@ use twilight_model::{
     user::User,
 };
 
-use crate::error::{ParseError, ParseOptionErrorType};
+use crate::error::{ParseError, ParseOptionError, ParseOptionErrorType};
 
 use super::internal::CommandOptionData;
 
@@ -199,6 +199,55 @@ pub struct CommandInputData<'a> {
 }
 
 impl<'a> CommandInputData<'a> {
+    /// Parse a field from the command data.
+    ///
+    /// This method can be used to manually parse a field from
+    /// raw data, for example with guild custom commands. The
+    /// method return [`None`] if the field is not present instead
+    /// of returning an error.
+    ///
+    /// ### Example
+    /// ```
+    /// use twilight_interactions::command::CommandInputData;
+    /// # use twilight_model::application::interaction::application_command::{CommandDataOption, CommandOptionValue};
+    /// #
+    /// # let options = vec![CommandDataOption { name: "message".into(), value: CommandOptionValue::String("Hello world".into()), focused: false }];
+    ///
+    /// // `options` is a Vec<CommandDataOption>
+    /// let data = CommandInputData { options, resolved: None };
+    /// let message = data.parse_field::<String>("message").unwrap();
+    ///
+    /// assert_eq!(message, Some("Hello world".to_string()));
+    /// ```
+    pub fn parse_field<T>(&self, name: &str) -> Result<Option<T>, ParseError>
+    where
+        T: CommandOption,
+    {
+        // Find command option value
+        let value = match self
+            .options
+            .iter()
+            .find(|option| option.name == name)
+            .map(|option| &option.value)
+        {
+            Some(value) => value.clone(),
+            None => return Ok(None),
+        };
+
+        // Parse command value
+        match CommandOption::from_option(
+            value,
+            CommandOptionData::default(),
+            self.resolved.as_deref(),
+        ) {
+            Ok(value) => Ok(Some(value)),
+            Err(kind) => Err(ParseError::Option(ParseOptionError {
+                field: name.to_string(),
+                kind,
+            })),
+        }
+    }
+
     /// Parse a subcommand [`CommandOptionValue`].
     ///
     /// This method signature is the same as the [`CommandOption`] trait,

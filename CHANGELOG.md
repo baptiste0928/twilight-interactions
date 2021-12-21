@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CommandModel` and `CreateCommand` can be derived on unit structs.
 - `CreateCommand::NAME` associated constant to get the name of the command.
 - Implementation of `CommandModel` on `Vec<CommandDataOption>` and `CommandOption` on `CommandOptionValue` to get raw command data.
+- `CommandInputData::parse_field` allow to directly parse a field without command model.
 
 ### Fixed
 - `ParseError::EmptyOption` is only returned when parsing subcommands.  
