@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A `value` method is generated when deriving `CommandOption` for command option choices.
 - `CreateCommand::NAME` associated constant to get the name of the command.
 - `CommandInputData::parse_field` method to directly parse a field without command model.
+- `CommandInputData::focused` method to get the name of the focused field.
 - Implementation of `CommandModel` for `Vec<CommandDataOption>` and `CommandOption` for `CommandOptionValue`.
 
 # Changed

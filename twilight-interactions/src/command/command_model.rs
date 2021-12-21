@@ -248,6 +248,30 @@ impl<'a> CommandInputData<'a> {
         }
     }
 
+    /// Get the name of the focused field.
+    ///
+    /// This method is useful when parsing commands with multiple
+    /// autocomplete fields.
+    ///
+    /// ### Example
+    /// ```
+    /// use twilight_interactions::command::CommandInputData;
+    /// # use twilight_model::application::interaction::application_command::{CommandDataOption, CommandOptionValue};
+    /// #
+    /// # let options = vec![CommandDataOption { name: "message".into(), value: CommandOptionValue::String("Hello world".into()), focused: true }];
+    ///
+    /// // `options` is a Vec<CommandDataOption>
+    /// let data = CommandInputData { options, resolved: None };
+    ///
+    /// assert_eq!(data.focused(), Some("message"));
+    /// ```
+    pub fn focused(&self) -> Option<&str> {
+        self.options
+            .iter()
+            .find(|option| option.focused)
+            .map(|option| &*option.name)
+    }
+
     /// Parse a subcommand [`CommandOptionValue`].
     ///
     /// This method signature is the same as the [`CommandOption`] trait,
