@@ -1,8 +1,8 @@
 [package]
 name = "twilight-interactions-derive"
-version = "0.8.0"
+version = "0.8.1"
 description = "Macros and utilities to make Discord Interactions easy to use with Twilight."
-categories = ["parsing", "configuration", "asynchronous"]
+categories = ["parsing", "config", "asynchronous"]
 keywords = ["twilight", "discord", "slash-command"]
 authors = ["baptiste0928"]
 readme = "README.md"

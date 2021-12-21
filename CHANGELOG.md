@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.8.1] - 2021-12-21
 ### Added
 - A `value` method is generated when deriving `CommandOption` for command option choices.
 - `CreateCommand::NAME` associated constant to get the name of the command.
@@ -12,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CommandInputData::focused` method to get the name of the focused field.
 - Implementation of `CommandModel` for `Vec<CommandDataOption>` and `CommandOption` for `CommandOptionValue`.
 
-# Changed
+### Changed
 - `CommandModel` and `CreateCommand` can be derived on unit structs.
 - Improved validation of command names.
 
@@ -53,7 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of `twilight-interactions` and `twilight-interactions-derive` crates.
 
-[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.8.0...main
+[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.8.1...main
+[0.8.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/baptiste0928/twilight-interactions/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.7.0...v0.7.1

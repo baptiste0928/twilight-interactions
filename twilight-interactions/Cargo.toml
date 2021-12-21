@@ -1,8 +1,8 @@
 [package]
 name = "twilight-interactions"
-version = "0.8.0"
+version = "0.8.1"
 description = "Macros and utilities to make Discord Interactions easy to use with Twilight."
-categories = ["parsing", "configuration", "asynchronous"]
+categories = ["parsing", "config", "asynchronous"]
 keywords = ["twilight", "discord", "slash-command"]
 authors = ["baptiste0928"]
 readme = "README.md"
@@ -19,7 +19,7 @@ derive = ["twilight-interactions-derive"]
 
 [dependencies]
 twilight-model = "0.8"
-twilight-interactions-derive = { version = "=0.8.0", path = "../twilight-interactions-derive", optional = true }
+twilight-interactions-derive = { version = "=0.8.1", path = "../twilight-interactions-derive", optional = true }
 
 [dev-dependencies]
 maplit = "1"
