@@ -1,0 +1,23 @@
+[advisories]
+vulnerability = "deny"
+unmaintained = "warn"
+ignore = []
+
+[licenses]
+allow = [
+    "MIT",
+    "ISC",
+    "Apache-2.0",
+]
+
+unlicensed = "deny"
+default = "deny"
+confidence-threshold = 0.8
+
+[bans]
+multiple-versions = "deny"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

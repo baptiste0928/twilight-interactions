@@ -73,6 +73,26 @@ jobs:
           RUSTDOCFLAGS: -D rustdoc::broken_intra_doc_links
         run: cargo doc --no-deps --all-features
 
+  cargo-deny:
+    name: Lint dependencies
+    needs: [msrv]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install cargo-deny
+        uses: baptiste0928/cargo-install@v1
+        with:
+          crate: cargo-deny
+
+      - name: Lint dependencies
+        run: cargo-deny check bans licenses sources
+
+      - name: Check security advisories
+        run: cargo-deny check advisories
+        continue-on-error: true  # Avoid sudden breakages
 
   rustfmt:
     name: Format
