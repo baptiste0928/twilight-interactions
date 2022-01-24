@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2022-01-24
+### Changed
+- Updated to `twilight-model` 0.9.
+- Updated MSRV to 1.57 and to Edition 2021.
+
 ## [0.8.1] - 2021-12-21
 ### Added
 - A `value` method is generated when deriving `CommandOption` for command option choices.
@@ -55,7 +60,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of `twilight-interactions` and `twilight-interactions-derive` crates.
 
-[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.8.1...main
+[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.9.0...main
+[0.9.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.7.2...v0.8.0
 [0.7.2]: https://github.com/baptiste0928/twilight-interactions/compare/v0.7.1...v0.7.2
