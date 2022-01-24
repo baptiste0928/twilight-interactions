@@ -7,7 +7,8 @@ use twilight_model::{
         CommandDataOption, CommandInteractionDataResolved, CommandOptionValue, InteractionMember,
     },
     datetime::Timestamp,
-    id::UserId,
+    guild::Permissions,
+    id::Id,
     user::User,
 };
 
@@ -24,7 +25,7 @@ struct UnitCommand;
 
 #[test]
 fn test_command_model() {
-    let user_id = UserId::new(123).unwrap();
+    let user_id = Id::new(123);
     let options = vec![
         CommandDataOption {
             name: "member".to_string(),
@@ -48,6 +49,10 @@ fn test_command_model() {
         nick: None,
         premium_since: None,
         roles: vec![],
+        avatar: None,
+        communication_disabled_until: None,
+        pending: false,
+        permissions: Permissions::empty(),
     };
 
     let user = User {

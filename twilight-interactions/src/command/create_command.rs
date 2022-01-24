@@ -4,7 +4,10 @@ use twilight_model::{
         interaction::application_command::InteractionChannel,
     },
     guild::Role,
-    id::{ChannelId, CommandVersionId, GenericId, RoleId, UserId},
+    id::{
+        marker::{ChannelMarker, GenericMarker, RoleMarker, UserMarker},
+        Id,
+    },
     user::User,
 };
 
@@ -148,7 +151,7 @@ impl From<ApplicationCommandData> for Command {
             id: None,
             kind: CommandType::ChatInput,
             options: item.options,
-            version: CommandVersionId::new(1).unwrap(),
+            version: Id::new(1),
         }
     }
 }
@@ -199,25 +202,25 @@ impl CreateOption for bool {
     }
 }
 
-impl CreateOption for UserId {
+impl CreateOption for Id<UserMarker> {
     fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::User(data.into_data())
     }
 }
 
-impl CreateOption for ChannelId {
+impl CreateOption for Id<ChannelMarker> {
     fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Channel(data.into_channel())
     }
 }
 
-impl CreateOption for RoleId {
+impl CreateOption for Id<RoleMarker> {
     fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Role(data.into_data())
     }
 }
 
-impl CreateOption for GenericId {
+impl CreateOption for Id<GenericMarker> {
     fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Mentionable(data.into_data())
     }

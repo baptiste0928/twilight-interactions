@@ -18,7 +18,7 @@ default = ["derive"]
 derive = ["twilight-interactions-derive"]
 
 [dependencies]
-twilight-model = "0.8"
+twilight-model = "0.9"
 twilight-interactions-derive = { version = "=0.8.1", path = "../twilight-interactions-derive", optional = true }
 
 [dev-dependencies]

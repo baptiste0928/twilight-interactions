@@ -3,7 +3,6 @@
 use std::{
     error::Error,
     fmt::{Display, Formatter, Result as FmtResult},
-    num::NonZeroU64,
 };
 
 use twilight_model::{
@@ -90,7 +89,7 @@ pub enum ParseOptionErrorType {
     /// Received an invalid channel type
     InvalidChannelType(ChannelType),
     /// Failed to resolve data associated with an ID.
-    LookupFailed(NonZeroU64),
+    LookupFailed(u64),
     /// Missing a required option field.
     RequiredField,
     /// Received an unknown option field.

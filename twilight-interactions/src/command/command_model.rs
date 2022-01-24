@@ -9,7 +9,10 @@ use twilight_model::{
         },
     },
     guild::Role,
-    id::{ChannelId, GenericId, RoleId, UserId},
+    id::{
+        marker::{ChannelMarker, GenericMarker, RoleMarker, UserMarker},
+        Id,
+    },
     user::User,
 };
 
@@ -319,7 +322,7 @@ macro_rules! lookup {
     ($resolved:ident.$cat:ident, $id:expr) => {
         $resolved
             .and_then(|resolved| resolved.$cat.get(&$id).cloned())
-            .ok_or_else(|| ParseOptionErrorType::LookupFailed($id.0))
+            .ok_or_else(|| ParseOptionErrorType::LookupFailed($id.get()))
     };
 }
 
@@ -423,7 +426,7 @@ impl CommandOption for bool {
     }
 }
 
-impl CommandOption for UserId {
+impl CommandOption for Id<UserMarker> {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
@@ -436,7 +439,7 @@ impl CommandOption for UserId {
     }
 }
 
-impl CommandOption for ChannelId {
+impl CommandOption for Id<ChannelMarker> {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
@@ -449,7 +452,7 @@ impl CommandOption for ChannelId {
     }
 }
 
-impl CommandOption for RoleId {
+impl CommandOption for Id<RoleMarker> {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
@@ -462,7 +465,7 @@ impl CommandOption for RoleId {
     }
 }
 
-impl CommandOption for GenericId {
+impl CommandOption for Id<GenericMarker> {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
@@ -481,7 +484,7 @@ impl CommandOption for User {
         _data: CommandOptionData,
         resolved: Option<&CommandInteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        let user_id: UserId = match value {
+        let user_id = match value {
             CommandOptionValue::User(value) => value,
             other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
         };
@@ -496,7 +499,7 @@ impl CommandOption for ResolvedUser {
         _data: CommandOptionData,
         resolved: Option<&CommandInteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        let user_id: UserId = match value {
+        let user_id = match value {
             CommandOptionValue::User(value) => value,
             other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
         };
@@ -533,7 +536,7 @@ impl CommandOption for Role {
         _data: CommandOptionData,
         resolved: Option<&CommandInteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        let role_id: RoleId = match value {
+        let role_id = match value {
             CommandOptionValue::Role(value) => value,
             other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
         };
