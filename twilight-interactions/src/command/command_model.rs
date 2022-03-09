@@ -10,7 +10,7 @@ use twilight_model::{
     },
     guild::Role,
     id::{
-        marker::{ChannelMarker, GenericMarker, RoleMarker, UserMarker},
+        marker::{AttachmentMarker, ChannelMarker, GenericMarker, RoleMarker, UserMarker},
         Id,
     },
     user::User,
@@ -473,6 +473,19 @@ impl CommandOption for Id<GenericMarker> {
     ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::Mentionable(value) => Ok(value),
+            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
+        }
+    }
+}
+
+impl CommandOption for Id<AttachmentMarker> {
+    fn from_option(
+        value: CommandOptionValue,
+        _data: CommandOptionData,
+        _resolved: Option<&CommandInteractionDataResolved>,
+    ) -> Result<Self, ParseOptionErrorType> {
+        match value {
+            CommandOptionValue::Attachment(value) => Ok(value),
             other => Err(ParseOptionErrorType::InvalidType(other.kind())),
         }
     }
