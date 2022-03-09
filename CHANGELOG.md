@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.1] - 2022-03-09
 ### Changed
 - Implemented `Attachment` command option type. (by @Lyssieth)
 - `command::internal` is now hidden from the documentation.
@@ -64,7 +65,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of `twilight-interactions` and `twilight-interactions-derive` crates.
 
-[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.9.0...main
+[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.9.1...main
+[0.9.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.7.2...v0.8.0
