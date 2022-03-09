@@ -57,6 +57,8 @@
 
 mod command_model;
 mod create_command;
+
+#[doc(hidden)]
 pub mod internal;
 
 pub use command_model::{CommandInputData, CommandModel, CommandOption, ResolvedUser};

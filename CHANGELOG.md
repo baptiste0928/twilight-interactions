@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Implemented `Attachment` command option type. (by @Lyssieth)
+- `command::internal` is now hidden from the documentation.
 
 ## [0.9.0] - 2022-01-24
 ### Changed
