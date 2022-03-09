@@ -34,12 +34,13 @@
 //! |---------------------|----------------------------------------|
 //! | `STRING`            | [`String`]                             |
 //! | `INTEGER`           | [`i64`]                                |
-//! | `NUMBER`            | [`Number`], [`f64`]
+//! | `NUMBER`            | [`Number`], [`f64`]                    |
 //! | `BOOLEAN`           | [`bool`]                               |
 //! | `USER`              | [`ResolvedUser`], [`User`], [`UserId`] |
 //! | `CHANNEL`           | [`InteractionChannel`], [`ChannelId`]  |
 //! | `ROLE`              | [`Role`], [`RoleId`]                   |
 //! | `MENTIONABLE`       | [`GenericId`]                          |
+//! | `ATTACHMENT`        | [`Attachment`], [`AttachmentId`]       |
 //!
 //! [`from_interaction`]: CommandModel::from_interaction
 //!
@@ -51,6 +52,8 @@
 //! [`Role`]: twilight_model::guild::Role
 //! [`RoleId`]: twilight_model::id::RoleId
 //! [`GenericId`]: twilight_model::id::GenericId
+//! [`Attachment`]: twilight_model::channel::Attachment
+//! [`AttachmentId`]: twilight_model::id::AttachmentId
 
 mod command_model;
 mod create_command;

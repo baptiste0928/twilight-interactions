@@ -8,9 +8,10 @@ use twilight_model::{
             InteractionChannel, InteractionMember,
         },
     },
+    channel::Attachment,
     guild::Role,
     id::{
-        marker::{ChannelMarker, GenericMarker, RoleMarker, UserMarker},
+        marker::{AttachmentMarker, ChannelMarker, GenericMarker, RoleMarker, UserMarker},
         Id,
     },
     user::User,
@@ -475,6 +476,34 @@ impl CommandOption for Id<GenericMarker> {
             CommandOptionValue::Mentionable(value) => Ok(value),
             other => Err(ParseOptionErrorType::InvalidType(other.kind())),
         }
+    }
+}
+
+impl CommandOption for Id<AttachmentMarker> {
+    fn from_option(
+        value: CommandOptionValue,
+        _data: CommandOptionData,
+        _resolved: Option<&CommandInteractionDataResolved>,
+    ) -> Result<Self, ParseOptionErrorType> {
+        match value {
+            CommandOptionValue::Attachment(value) => Ok(value),
+            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
+        }
+    }
+}
+
+impl CommandOption for Attachment {
+    fn from_option(
+        value: CommandOptionValue,
+        _data: CommandOptionData,
+        resolved: Option<&CommandInteractionDataResolved>,
+    ) -> Result<Self, ParseOptionErrorType> {
+        let attachment_id = match value {
+            CommandOptionValue::Attachment(value) => value,
+            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
+        };
+
+        lookup!(resolved.attachments, attachment_id)
     }
 }
 

@@ -3,9 +3,10 @@ use twilight_model::{
         command::{Command, CommandOption, CommandType, Number, OptionsCommandOptionData},
         interaction::application_command::InteractionChannel,
     },
+    channel::Attachment,
     guild::Role,
     id::{
-        marker::{ChannelMarker, GenericMarker, RoleMarker, UserMarker},
+        marker::{AttachmentMarker, ChannelMarker, GenericMarker, RoleMarker, UserMarker},
         Id,
     },
     user::User,
@@ -223,6 +224,18 @@ impl CreateOption for Id<RoleMarker> {
 impl CreateOption for Id<GenericMarker> {
     fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Mentionable(data.into_data())
+    }
+}
+
+impl CreateOption for Id<AttachmentMarker> {
+    fn create_option(data: CreateOptionData) -> CommandOption {
+        CommandOption::Attachment(data.into_data())
+    }
+}
+
+impl CreateOption for Attachment {
+    fn create_option(data: CreateOptionData) -> CommandOption {
+        CommandOption::Attachment(data.into_data())
     }
 }
 

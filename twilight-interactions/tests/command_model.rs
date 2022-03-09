@@ -79,6 +79,7 @@ fn test_command_model() {
         roles: HashMap::new(),
         users: hashmap! { user_id => user.clone() },
         messages: HashMap::new(),
+        attachments: HashMap::new(),
     };
 
     let data = CommandInputData {

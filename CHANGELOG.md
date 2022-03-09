@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Implemented `Attachment` command option type. (by @Lyssieth)
+
 ## [0.9.0] - 2022-01-24
 ### Changed
 - Updated to `twilight-model` 0.9.
