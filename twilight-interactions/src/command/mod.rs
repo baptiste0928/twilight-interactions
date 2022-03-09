@@ -34,12 +34,13 @@
 //! |---------------------|----------------------------------------|
 //! | `STRING`            | [`String`]                             |
 //! | `INTEGER`           | [`i64`]                                |
-//! | `NUMBER`            | [`Number`], [`f64`]
+//! | `NUMBER`            | [`Number`], [`f64`]                    |
 //! | `BOOLEAN`           | [`bool`]                               |
 //! | `USER`              | [`ResolvedUser`], [`User`], [`UserId`] |
 //! | `CHANNEL`           | [`InteractionChannel`], [`ChannelId`]  |
 //! | `ROLE`              | [`Role`], [`RoleId`]                   |
 //! | `MENTIONABLE`       | [`GenericId`]                          |
+//! | `ATTACHMENT`        | [`Attachment`], [`AttachmentId`]       |
 //!
 //! [`from_interaction`]: CommandModel::from_interaction
 //!
