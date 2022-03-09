@@ -3,6 +3,7 @@ use twilight_model::{
         command::{Command, CommandOption, CommandType, Number, OptionsCommandOptionData},
         interaction::application_command::InteractionChannel,
     },
+    channel::Attachment,
     guild::Role,
     id::{
         marker::{AttachmentMarker, ChannelMarker, GenericMarker, RoleMarker, UserMarker},
@@ -227,6 +228,12 @@ impl CreateOption for Id<GenericMarker> {
 }
 
 impl CreateOption for Id<AttachmentMarker> {
+    fn create_option(data: CreateOptionData) -> CommandOption {
+        CommandOption::Attachment(data.into_data())
+    }
+}
+
+impl CreateOption for Attachment {
     fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Attachment(data.into_data())
     }
