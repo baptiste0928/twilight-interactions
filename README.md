@@ -45,5 +45,4 @@ The API documentation is available on docs.rs: [`twilight-interactions` document
 ## Contributing
 There is no particular contribution guidelines, feel free to open a new PR to improve the code. If you want to introduce a new feature, please create an issue before.
 
-
 *Special thanks to [LeSeulArtichaut](https://github.com/LeSeulArtichaut) who worked the first on this project.*
