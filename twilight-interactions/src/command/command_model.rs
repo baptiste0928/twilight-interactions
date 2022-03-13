@@ -58,11 +58,9 @@ use super::internal::CommandOptionData;
 /// that can be initialized from the command model.
 ///
 /// ### Autocomplete interactions
-/// When receiving an autocomplete interaction, you sometimes only care
-/// about a subset of received fields. You can use the
-/// `#[command(partial = true)]` attribute to ignore errors related to
-/// unknown fields. The [`CreateCommand`] trait cannot be applied on a
-/// partial model.
+/// Autocomplete interactions are no longer supported since 0.10, as the previous
+/// implementation was incorrect. See [#9](https://github.com/baptiste0928/twilight-interactions/issues/9)
+/// for more information.
 ///
 /// ## Subcommands and subcommands groups
 /// This trait also support parsing subcommands and subcommands group when
@@ -101,7 +99,6 @@ use super::internal::CommandOptionData;
 ///
 /// | Attribute                | Type           | Location             | Description                                                     |
 /// |--------------------------|----------------|----------------------|-----------------------------------------------------------------|
-/// | `partial`                | `bool`         | Type                 | Ignore unknown fields when parsing.                             |
 /// | `name`                   | `str`          | Variant (subcommand) | Subcommand name (required).                                     |
 /// | `rename`                 | `str`          | Field                | Use a different name for the field when parsing.                |
 /// | `channel_types`          | `str`          | Field                | Restricts the channel choice to specific types.[^channel_types] |
@@ -109,10 +106,9 @@ use super::internal::CommandOptionData;
 ///
 /// ### Example
 /// ```
-/// use twilight_interactions::command::{CommandModel, ResolvedUser};
+/// use twilight_interactions::command::CommandModel;
 ///
 /// #[derive(CommandModel)]
-/// #[command(partial = true)]
 /// struct HelloCommand {
 ///     #[command(rename = "text")]
 ///     message: String,

@@ -28,13 +28,6 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
         }
     };
 
-    if attributes.partial {
-        return Err(Error::new(
-            attr_span,
-            "Cannot implement `CreateCommand` on partial model",
-        ));
-    }
-
     let name = match &attributes.name {
         Some(name) => name,
         None => return Err(Error::new(attr_span, "Missing required attribute `name`")),

@@ -2,12 +2,9 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::{DeriveInput, FieldsNamed, Result};
 
-use crate::{
-    command::model::parse::{channel_type, command_option_value},
-    parse::find_attr,
-};
+use crate::command::model::parse::{channel_type, command_option_value};
 
-use super::parse::{FieldType, StructField, TypeAttribute};
+use super::parse::{FieldType, StructField};
 
 /// Implementation of CommandModel derive macro
 pub fn impl_command_model(input: DeriveInput, fields: Option<FieldsNamed>) -> Result<TokenStream> {
@@ -17,12 +14,7 @@ pub fn impl_command_model(input: DeriveInput, fields: Option<FieldsNamed>) -> Re
         None => Vec::new(),
     };
 
-    let partial = match find_attr(&input.attrs, "command") {
-        Some(attr) => TypeAttribute::parse(attr)?.partial,
-        None => false,
-    };
-
-    let field_unknown = field_unknown(partial);
+    let field_unknown = field_unknown();
     let fields_init = fields.iter().map(field_init);
     let fields_match_arms = fields.iter().map(field_match_arm);
     let fields_constructor = fields.iter().map(field_constructor);
@@ -108,18 +100,14 @@ fn field_constructor(field: &StructField) -> TokenStream {
 }
 
 /// Generate unknown field match arm
-fn field_unknown(partial: bool) -> TokenStream {
-    if partial {
-        quote!(continue)
-    } else {
-        quote! {
-            return ::std::result::Result::Err(
-                ::twilight_interactions::error::ParseError::Option(
-                    ::twilight_interactions::error::ParseOptionError {
-                        field: ::std::convert::From::from(other),
-                        kind: ::twilight_interactions::error::ParseOptionErrorType::UnknownField,
-                })
-            )
-        }
+fn field_unknown() -> TokenStream {
+    quote! {
+        return ::std::result::Result::Err(
+            ::twilight_interactions::error::ParseError::Option(
+                ::twilight_interactions::error::ParseOptionError {
+                    field: ::std::convert::From::from(other),
+                    kind: ::twilight_interactions::error::ParseOptionErrorType::UnknownField,
+            })
+        )
     }
 }

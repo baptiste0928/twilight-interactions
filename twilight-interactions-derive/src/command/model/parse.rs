@@ -66,8 +66,6 @@ pub struct TypeAttribute {
     pub name: Option<String>,
     /// Overwrite the field description
     pub desc: Option<String>,
-    /// Whether the type is partial
-    pub partial: bool,
     /// Whether the command should be enabled by default.
     pub default_permission: bool,
 }
@@ -76,15 +74,10 @@ impl TypeAttribute {
     /// Parse a single [`Attribute`]
     pub fn parse(attr: &Attribute) -> Result<Self> {
         let meta = attr.parse_meta()?;
-        let attrs = NamedAttrs::parse(meta, &["name", "desc", "partial", "default_permission"])?;
+        let attrs = NamedAttrs::parse(meta, &["name", "desc", "default_permission"])?;
 
         let name = attrs.get("name").map(parse_name).transpose()?;
         let desc = attrs.get("desc").map(parse_desc).transpose()?;
-        let partial = attrs
-            .get("partial")
-            .map(|v| v.parse_bool())
-            .transpose()?
-            .unwrap_or(false);
         let default_permission = attrs
             .get("default_permission")
             .map(|v| v.parse_bool())
@@ -94,7 +87,6 @@ impl TypeAttribute {
         Ok(Self {
             name,
             desc,
-            partial,
             default_permission,
         })
     }
@@ -107,7 +99,7 @@ pub struct FieldAttribute {
     pub rename: Option<String>,
     /// Overwrite the field description
     pub desc: Option<String>,
-    /// Whether the command supports autocomplete
+    /// Whether the field supports autocomplete
     pub autocomplete: bool,
     /// Limit to specific channel types
     pub channel_types: Vec<ChannelType>,

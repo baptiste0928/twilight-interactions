@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Upgraded to `twilight-model` 0.10.0
 
+### Removed
+- Autocomplete interactions parsing has been removed. See [#9](https://github.com/baptiste0928/twilight-interactions/issues/9).
+
 ## [0.9.1] - 2022-03-09
 ### Changed
 - Implemented `Attachment` command option type. (by @Lyssieth)
