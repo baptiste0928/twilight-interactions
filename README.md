@@ -31,7 +31,7 @@ To install `twilight-interactions`, add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-twilight-interactions = "0.9.1"
+twilight-interactions = "0.10.0"
 ```
 
 The crate major version follow the version of the official twilight crates.
