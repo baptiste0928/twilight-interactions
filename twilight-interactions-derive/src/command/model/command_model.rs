@@ -9,6 +9,8 @@ use super::parse::{FieldType, StructField};
 /// Implementation of CommandModel derive macro
 pub fn impl_command_model(input: DeriveInput, fields: Option<FieldsNamed>) -> Result<TokenStream> {
     let ident = &input.ident;
+    let generics = &input.generics;
+    let where_clause = &generics.where_clause;
     let fields = match fields {
         Some(fields) => StructField::from_fields(fields)?,
         None => Vec::new(),
@@ -20,7 +22,7 @@ pub fn impl_command_model(input: DeriveInput, fields: Option<FieldsNamed>) -> Re
     let fields_constructor = fields.iter().map(field_constructor);
 
     Ok(quote! {
-        impl ::twilight_interactions::command::CommandModel for #ident {
+        impl #generics ::twilight_interactions::command::CommandModel for #ident #generics #where_clause {
             fn from_interaction(
                 data: ::twilight_interactions::command::CommandInputData,
             ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseError> {
