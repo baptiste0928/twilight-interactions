@@ -32,7 +32,7 @@
 //!
 //! | Command option type | Provided implementations               |
 //! |---------------------|----------------------------------------|
-//! | `STRING`            | [`String`]                             |
+//! | `STRING`            | [`String`], [`Cow`]                    |
 //! | `INTEGER`           | [`i64`]                                |
 //! | `NUMBER`            | [`Number`], [`f64`]                    |
 //! | `BOOLEAN`           | [`bool`]                               |
@@ -44,6 +44,7 @@
 //!
 //! [`from_interaction`]: CommandModel::from_interaction
 //!
+//! [`Cow`]: std::borrow::Cow
 //! [`Number`]: twilight_model::application::command::Number
 //! [`User`]: twilight_model::user::User
 //! [`UserId`]: twilight_model::id::UserId
