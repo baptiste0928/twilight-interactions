@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use twilight_model::{
     application::{
         command::{Command, CommandOption, CommandType, Number, OptionsCommandOptionData},
@@ -176,6 +178,12 @@ impl From<ApplicationCommandData> for CommandOption {
 impl CreateOption for String {
     fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::String(data.into_choice(Vec::new()))
+    }
+}
+
+impl<'a> CreateOption for Cow<'a, str> {
+    fn create_option(data: CreateOptionData) -> CommandOption {
+        String::create_option(data)
     }
 }
 

@@ -13,7 +13,7 @@ use twilight_model::{
 };
 
 #[derive(CommandModel, Debug, PartialEq, Eq)]
-struct DemoCommand<T>
+struct DemoCommand<'a, T>
 where
     T: CommandOption,
 {
@@ -22,6 +22,7 @@ where
     text: String,
     number: Option<i64>,
     generic: T,
+    cow: Cow<'a, str>,
 }
 
 #[derive(CommandModel, Debug, PartialEq, Eq)]
@@ -49,6 +50,11 @@ fn test_command_model() {
         CommandDataOption {
             name: "generic".into(),
             value: CommandOptionValue::Integer(0),
+            focused: false,
+        },
+        CommandDataOption {
+            name: "cow".into(),
+            value: CommandOptionValue::String("cow".into()),
             focused: false,
         },
     ];
@@ -107,6 +113,7 @@ fn test_command_model() {
             text: "hello world".into(),
             number: Some(42),
             generic: 0_i64,
+            cow: Cow::Borrowed("cow")
         },
         result
     );

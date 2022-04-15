@@ -346,6 +346,16 @@ impl CommandOption for String {
     }
 }
 
+impl<'a> CommandOption for Cow<'a, str> {
+    fn from_option(
+        value: CommandOptionValue,
+        data: CommandOptionData,
+        resolved: Option<&CommandInteractionDataResolved>,
+    ) -> Result<Self, ParseOptionErrorType> {
+        String::from_option(value, data, resolved).map(Cow::Owned)
+    }
+}
+
 impl CommandOption for i64 {
     fn from_option(
         value: CommandOptionValue,

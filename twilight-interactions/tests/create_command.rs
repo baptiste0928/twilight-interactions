@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use twilight_interactions::command::{
     ApplicationCommandData, CreateCommand, CreateOption, ResolvedUser,
 };
@@ -15,7 +17,7 @@ use twilight_model::{
 /// Demo command for testing purposes
 #[derive(CreateCommand, Debug, PartialEq, Eq)]
 #[command(name = "demo")]
-struct DemoCommand<T>
+struct DemoCommand<'a, T>
 where
     T: CreateOption,
 {
@@ -34,6 +36,8 @@ where
     channel: Option<InteractionChannel>,
     /// Generic field
     generic: Option<T>,
+    /// More text
+    cow: Option<Cow<'a, str>>,
 }
 
 #[derive(CreateCommand, Debug, PartialEq, Eq)]
@@ -78,6 +82,13 @@ fn test_create_command() {
             min_value: None,
             name: "generic".into(),
             required: false,
+        }),
+        CommandOption::String(ChoiceCommandOptionData {
+            autocomplete: false,
+            description: "More text".into(),
+            name: "cow".into(),
+            required: false,
+            choices: vec![],
         }),
     ];
 
