@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.1] - 2022-03-15
+### Added
+- Allow `CommandModel` and `CreateCommand` types to have generics (@MaxOhn)
+- Implement `CommandOption` & `CreateOption` for `Cow<'_, str>` (@MaxOhn)
+
 ## [0.10.0] - 2022-03-13
 ### Changed
 - Upgraded to `twilight-model` 0.10.0
@@ -72,7 +77,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of `twilight-interactions` and `twilight-interactions-derive` crates.
 
-[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.10.0...main
+[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.10.1...main
+[0.10.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.8.1...v0.9.0
