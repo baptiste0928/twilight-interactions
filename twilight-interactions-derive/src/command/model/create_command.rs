@@ -9,6 +9,8 @@ use super::parse::{channel_type, command_option_value, StructField, TypeAttribut
 /// Implementation of CreateCommand derive macro
 pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> Result<TokenStream> {
     let ident = &input.ident;
+    let generics = &input.generics;
+    let where_clause = &generics.where_clause;
     let span = input.span();
     let fields = match fields {
         Some(fields) => StructField::from_fields(fields)?,
@@ -44,7 +46,7 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
         .collect::<Result<Vec<_>>>()?;
 
     Ok(quote! {
-        impl ::twilight_interactions::command::CreateCommand for #ident {
+        impl #generics ::twilight_interactions::command::CreateCommand for #ident #generics #where_clause {
             const NAME: &'static str = #name;
 
             fn create_command() -> ::twilight_interactions::command::ApplicationCommandData {

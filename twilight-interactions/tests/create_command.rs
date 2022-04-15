@@ -1,4 +1,6 @@
-use twilight_interactions::command::{ApplicationCommandData, CreateCommand, ResolvedUser};
+use twilight_interactions::command::{
+    ApplicationCommandData, CreateCommand, CreateOption, ResolvedUser,
+};
 use twilight_model::{
     application::{
         command::{
@@ -13,7 +15,10 @@ use twilight_model::{
 /// Demo command for testing purposes
 #[derive(CreateCommand, Debug, PartialEq, Eq)]
 #[command(name = "demo")]
-struct DemoCommand {
+struct DemoCommand<T>
+where
+    T: CreateOption,
+{
     /// This should be overwritten
     #[command(rename = "member", desc = "A member")]
     user: ResolvedUser,
@@ -27,6 +32,8 @@ struct DemoCommand {
     /// A text channel
     #[command(channel_types = "guild_text private")]
     channel: Option<InteractionChannel>,
+    /// Generic field
+    generic: Option<T>,
 }
 
 #[derive(CreateCommand, Debug, PartialEq, Eq)]
@@ -63,6 +70,15 @@ fn test_create_command() {
             name: "channel".into(),
             required: false,
         }),
+        CommandOption::Integer(NumberCommandOptionData {
+            autocomplete: false,
+            choices: vec![],
+            description: "Generic field".into(),
+            max_value: None,
+            min_value: None,
+            name: "generic".into(),
+            required: false,
+        }),
     ];
 
     let expected = ApplicationCommandData {
@@ -73,8 +89,8 @@ fn test_create_command() {
         group: false,
     };
 
-    assert_eq!(DemoCommand::create_command(), expected);
-    assert_eq!(DemoCommand::NAME, "demo");
+    assert_eq!(DemoCommand::<i64>::create_command(), expected);
+    assert_eq!(DemoCommand::<i64>::NAME, "demo");
 }
 
 #[test]

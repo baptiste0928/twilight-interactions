@@ -12,6 +12,8 @@ pub fn impl_create_command(
     variants: impl IntoIterator<Item = Variant>,
 ) -> Result<TokenStream> {
     let ident = &input.ident;
+    let generics = &input.generics;
+    let where_clause = &generics.where_clause;
     let span = input.span();
 
     let variants = ParsedVariant::from_variants(variants, input.span())?;
@@ -36,7 +38,7 @@ pub fn impl_create_command(
     let variant_options = variants.iter().map(variant_option);
 
     Ok(quote! {
-        impl ::twilight_interactions::command::CreateCommand for #ident {
+        impl #generics ::twilight_interactions::command::CreateCommand for #ident #generics #where_clause {
             const NAME: &'static str = #name;
 
             fn create_command() -> ::twilight_interactions::command::ApplicationCommandData {
