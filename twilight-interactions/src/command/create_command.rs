@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, collections::HashMap};
 
 use twilight_model::{
     application::{
@@ -6,7 +6,7 @@ use twilight_model::{
         interaction::application_command::InteractionChannel,
     },
     channel::Attachment,
-    guild::Role,
+    guild::{Permissions, Role},
     id::{
         marker::{AttachmentMarker, ChannelMarker, GenericMarker, RoleMarker, UserMarker},
         Id,
@@ -133,12 +133,18 @@ pub trait CreateOption: Sized {
 pub struct ApplicationCommandData {
     /// Name of the command. It must be 32 characters or less.
     pub name: String,
-    /// Description of the option. It must be 100 characters or less.
+    /// Localization dictionary for the command name. Keys should be valid locales.
+    pub name_localizations: Option<HashMap<String, String>>,
+    /// Description of the command. It must be 100 characters or less.
     pub description: String,
+    /// Localization dictionary for the command description. Keys should be valid locales.
+    pub description_localizations: Option<HashMap<String, String>>,
     /// List of command options.
     pub options: Vec<CommandOption>,
-    /// Whether the command is enabled by default when the app is added to a guild.
-    pub default_permission: bool,
+    /// Whether the command is available in DMs.
+    pub dm_permission: Option<bool>,
+    /// Default permissions required for a member to run the command.
+    pub default_member_permissions: Option<Permissions>,
     /// Whether the command is a subcommand group.
     pub group: bool,
 }
@@ -149,8 +155,11 @@ impl From<ApplicationCommandData> for Command {
             application_id: None,
             guild_id: None,
             name: item.name,
-            default_permission: Some(item.default_permission),
+            name_localizations: item.name_localizations,
+            default_member_permissions: item.default_member_permissions,
+            dm_permission: item.dm_permission,
             description: item.description,
+            description_localizations: item.description_localizations,
             id: None,
             kind: CommandType::ChatInput,
             options: item.options,
@@ -163,7 +172,9 @@ impl From<ApplicationCommandData> for CommandOption {
     fn from(item: ApplicationCommandData) -> Self {
         let data = OptionsCommandOptionData {
             description: item.description,
+            description_localizations: item.description_localizations,
             name: item.name,
+            name_localizations: item.name_localizations,
             options: item.options,
         };
 

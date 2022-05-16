@@ -10,7 +10,7 @@ homepage = "https://github.com/baptiste0928/twilight-interactions#readme"
 repository = "https://github.com/baptiste0928/twilight-interactions"
 documentation = "https://docs.rs/twilight-interactions"
 edition = "2021"
-rust-version = "1.57"
+rust-version = "1.60"
 license = "ISC"
 include = ["src/**/*", "README.md"]
 
@@ -19,7 +19,7 @@ default = ["derive"]
 derive = ["twilight-interactions-derive"]
 
 [dependencies]
-twilight-model = "0.10"
+twilight-model = "0.11"
 twilight-interactions-derive = { version = "=0.10.1", path = "../twilight-interactions-derive", optional = true }
 
 [dev-dependencies]

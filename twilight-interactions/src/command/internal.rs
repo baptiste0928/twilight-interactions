@@ -5,6 +5,8 @@
 //!
 //! [`command`]: crate::command
 
+use std::collections::HashMap;
+
 use twilight_model::{
     application::command::{
         BaseCommandOptionData, ChannelCommandOptionData, ChoiceCommandOptionData,
@@ -12,6 +14,21 @@ use twilight_model::{
     },
     channel::ChannelType,
 };
+
+/// Convert a type to [`HashMap<String, String>`].
+///
+/// This method is used for the `name_localizations` and
+/// `description_localizations` fields in macros implementations.
+pub fn convert_localizations<I, K, V>(item: I) -> HashMap<String, String>
+where
+    I: IntoIterator<Item = (K, V)>,
+    K: ToString,
+    V: ToString,
+{
+    item.into_iter()
+        .map(|(k, v)| (k.to_string(), v.to_string()))
+        .collect()
+}
 
 /// Data to create a command option.
 ///
@@ -22,8 +39,12 @@ use twilight_model::{
 pub struct CreateOptionData {
     /// Name of the option. It must be 32 characters or less.
     pub name: String,
+    /// Localization dictionary for the option name. Keys should be valid locales.
+    pub name_localizations: Option<HashMap<String, String>>,
     /// Description of the option. It must be 100 characters or less.
     pub description: String,
+    /// Localization dictionary for the option description. Keys should be valid locales.
+    pub description_localizations: Option<HashMap<String, String>>,
     /// Whether the option is required to be completed by a user.
     pub required: bool,
     /// Whether the command supports autocomplete. Only for `STRING`, `INTEGER` and `NUMBER` option type.
@@ -54,7 +75,9 @@ impl CreateOptionData {
     pub fn into_data(self) -> BaseCommandOptionData {
         BaseCommandOptionData {
             description: self.description,
+            description_localizations: self.description_localizations,
             name: self.name,
+            name_localizations: self.name_localizations,
             required: self.required,
         }
     }
@@ -64,7 +87,9 @@ impl CreateOptionData {
         ChannelCommandOptionData {
             channel_types: self.data.channel_types,
             description: self.description,
+            description_localizations: self.description_localizations,
             name: self.name,
+            name_localizations: self.name_localizations,
             required: self.required,
         }
     }
@@ -75,7 +100,9 @@ impl CreateOptionData {
             autocomplete: self.autocomplete,
             choices,
             description: self.description,
+            description_localizations: self.description_localizations,
             name: self.name,
+            name_localizations: self.name_localizations,
             required: self.required,
         }
     }
@@ -86,9 +113,11 @@ impl CreateOptionData {
             autocomplete: self.autocomplete,
             choices,
             description: self.description,
+            description_localizations: self.description_localizations,
             max_value: self.data.max_value,
             min_value: self.data.min_value,
             name: self.name,
+            name_localizations: self.name_localizations,
             required: self.required,
         }
     }

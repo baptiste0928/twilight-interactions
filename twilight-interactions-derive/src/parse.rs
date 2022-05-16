@@ -182,6 +182,13 @@ impl Spanned for AttrValue {
     }
 }
 
+/// Parse function or item path.
+pub fn parse_path(val: &AttrValue) -> Result<syn::Path> {
+    let val = val.parse_string()?;
+
+    syn::parse_str(&val)
+}
+
 /// Parse command or option name
 pub fn parse_name(val: &AttrValue) -> Result<String> {
     let span = val.span();

@@ -1,7 +1,7 @@
 use proc_macro2::{Ident, Span};
 use syn::{spanned::Spanned, Attribute, Error, Fields, Result, Type, TypePath, Variant};
 
-use crate::parse::{find_attr, parse_desc, parse_name, NamedAttrs};
+use crate::parse::{find_attr, parse_desc, parse_name, parse_path, NamedAttrs};
 
 /// Parsed enum variant
 pub struct ParsedVariant {
@@ -99,33 +99,63 @@ impl VariantAttribute {
 pub struct TypeAttribute {
     /// Name of the command
     pub name: String,
+    /// Localization dictionary for the command name.
+    pub name_localizations: Option<syn::Path>,
     /// Description of the command
     pub desc: Option<String>,
-    /// Whether the command should be enabled by default.
-    pub default_permission: bool,
+    /// Localization dictionary for the command description.
+    pub desc_localizations: Option<syn::Path>,
+    /// Default permissions required for a member to run the command.
+    pub default_permissions: Option<syn::Path>,
+    /// Whether the command is available in DMs.
+    pub dm_permission: Option<bool>,
 }
 
 impl TypeAttribute {
     /// Parse a single [`Attribute`]
     pub fn parse(attr: &Attribute) -> Result<Self> {
         let meta = attr.parse_meta()?;
-        let attrs = NamedAttrs::parse(meta, &["name", "desc", "default_permission"])?;
+        let attrs = NamedAttrs::parse(
+            meta,
+            &[
+                "name",
+                "name_localizations",
+                "desc",
+                "desc_localizations",
+                "default_permissions",
+                "dm_permission",
+            ],
+        )?;
 
         let name = match attrs.get("name") {
             Some(val) => parse_name(val)?,
             None => return Err(Error::new(attr.span(), "Missing required attribute `name`")),
         };
+        let name_localizations = attrs
+            .get("name_localizations")
+            .map(parse_path)
+            .transpose()?;
         let desc = attrs.get("desc").map(parse_desc).transpose()?;
-        let default_permission = attrs
-            .get("default_permission")
+        let desc_localizations = attrs
+            .get("desc_localizations")
+            .map(parse_path)
+            .transpose()?;
+        let default_permissions = attrs
+            .get("default_permissions")
+            .map(parse_path)
+            .transpose()?;
+        let dm_permission = attrs
+            .get("dm_permission")
             .map(|v| v.parse_bool())
-            .transpose()?
-            .unwrap_or(true);
+            .transpose()?;
 
         Ok(Self {
             name,
+            name_localizations,
             desc,
-            default_permission,
+            desc_localizations,
+            default_permissions,
+            dm_permission,
         })
     }
 }

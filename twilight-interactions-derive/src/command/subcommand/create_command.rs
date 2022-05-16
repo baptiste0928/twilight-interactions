@@ -29,10 +29,19 @@ pub fn impl_create_command(
 
     let capacity = variants.len();
     let name = &attribute.name;
-    let default_permission = attribute.default_permission;
+    let name_localizations = localization_field(&attribute.name_localizations);
+    let description_localizations = localization_field(&attribute.desc_localizations);
     let description = match attribute.desc {
         Some(desc) => desc,
         None => parse_doc(&input.attrs, span)?,
+    };
+    let default_permissions = match &attribute.default_permissions {
+        Some(path) => quote! { ::std::option::Option::Some(#path())},
+        None => quote! { ::std::option::Option::None },
+    };
+    let dm_permission = match &attribute.dm_permission {
+        Some(dm_permission) => quote! { ::std::option::Option::Some(#dm_permission)},
+        None => quote! { ::std::option::Option::None },
     };
 
     let variant_options = variants.iter().map(variant_option);
@@ -48,14 +57,30 @@ pub fn impl_create_command(
 
                 ::twilight_interactions::command::ApplicationCommandData {
                     name: ::std::convert::From::from(#name),
+                    name_localizations: #name_localizations,
                     description: ::std::convert::From::from(#description),
+                    description_localizations: #description_localizations,
                     options: command_options,
-                    default_permission: #default_permission,
+                    default_member_permissions: #default_permissions,
+                    dm_permission: #dm_permission,
                     group: true,
                 }
             }
         }
     })
+}
+
+fn localization_field(path: &Option<syn::Path>) -> TokenStream {
+    match path {
+        Some(path) => {
+            quote! {
+                ::std::option::Option::Some(
+                    ::twilight_interactions::command::internal::convert_localizations(#path())
+                )
+            }
+        }
+        None => quote! { ::std::option::Option::None },
+    }
 }
 
 /// Generate variant option code

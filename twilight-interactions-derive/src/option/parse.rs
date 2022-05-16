@@ -1,7 +1,7 @@
 use proc_macro2::{Ident, Span};
 use syn::{spanned::Spanned, Attribute, Error, Fields, Result, Variant};
 
-use crate::parse::{find_attr, AttrValue, NamedAttrs};
+use crate::parse::{find_attr, parse_path, AttrValue, NamedAttrs};
 
 /// Parsed enum variants.
 pub struct ParsedVariant {
@@ -74,6 +74,8 @@ impl ParsedVariant {
 pub struct VariantAttribute {
     /// Name of the choice (shown to users)
     pub name: String,
+    /// Localizations dictionary for the choice name
+    pub name_localizations: Option<syn::Path>,
     /// Value of the choice
     pub value: ChoiceValue,
 }
@@ -84,13 +86,16 @@ impl VariantAttribute {
     /// If no [`ChoiceKind`] is provided, the type is inferred from value.
     pub fn parse(attr: &Attribute, kind: Option<ChoiceKind>) -> Result<Self> {
         let meta = attr.parse_meta()?;
-        let attrs = NamedAttrs::parse(meta, &["name", "value"])?;
+        let attrs = NamedAttrs::parse(meta, &["name", "name_localizations", "value"])?;
 
         let name = match attrs.get("name") {
             Some(val) => parse_name(val)?,
             None => return Err(Error::new(attr.span(), "Missing required attribute `name`")),
         };
-
+        let name_localizations = attrs
+            .get("name_localizations")
+            .map(parse_path)
+            .transpose()?;
         let value = match attrs.get("value") {
             Some(val) => ChoiceValue::parse(val, kind)?,
             None => {
@@ -101,7 +106,11 @@ impl VariantAttribute {
             }
         };
 
-        Ok(Self { name, value })
+        Ok(Self {
+            name,
+            name_localizations,
+            value,
+        })
     }
 }
 

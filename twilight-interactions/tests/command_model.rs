@@ -6,10 +6,10 @@ use twilight_model::{
     application::interaction::application_command::{
         CommandDataOption, CommandInteractionDataResolved, CommandOptionValue, InteractionMember,
     },
-    datetime::Timestamp,
     guild::Permissions,
     id::Id,
     user::User,
+    util::Timestamp,
 };
 
 #[derive(CommandModel, Debug, PartialEq, Eq)]

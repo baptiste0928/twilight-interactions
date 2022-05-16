@@ -4,7 +4,9 @@ use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
 use syn::{spanned::Spanned, Attribute, Error, Lit, Result, Type};
 
-use crate::parse::{extract_option, find_attr, parse_desc, parse_name, AttrValue, NamedAttrs};
+use crate::parse::{
+    extract_option, find_attr, parse_desc, parse_name, parse_path, AttrValue, NamedAttrs,
+};
 
 /// Parsed struct field
 pub struct StructField {
@@ -62,32 +64,62 @@ impl FieldType {
 
 /// Parsed type attribute
 pub struct TypeAttribute {
-    /// Rename the field to the given name
+    /// Command name.
     pub name: Option<String>,
-    /// Overwrite the field description
+    /// Localization dictionary for the command name.
+    pub name_localizations: Option<syn::Path>,
+    /// Command description.
     pub desc: Option<String>,
-    /// Whether the command should be enabled by default.
-    pub default_permission: bool,
+    /// Localization dictionary for the command description.
+    pub desc_localizations: Option<syn::Path>,
+    /// Default permissions required for a member to run the command.
+    pub default_permissions: Option<syn::Path>,
+    /// Whether the command is available in DMs.
+    pub dm_permission: Option<bool>,
 }
 
 impl TypeAttribute {
     /// Parse a single [`Attribute`]
     pub fn parse(attr: &Attribute) -> Result<Self> {
         let meta = attr.parse_meta()?;
-        let attrs = NamedAttrs::parse(meta, &["name", "desc", "default_permission"])?;
+        let attrs = NamedAttrs::parse(
+            meta,
+            &[
+                "name",
+                "name_localizations",
+                "desc",
+                "desc_localizations",
+                "default_permissions",
+                "dm_permission",
+            ],
+        )?;
 
         let name = attrs.get("name").map(parse_name).transpose()?;
+        let name_localizations = attrs
+            .get("name_localizations")
+            .map(parse_path)
+            .transpose()?;
         let desc = attrs.get("desc").map(parse_desc).transpose()?;
-        let default_permission = attrs
-            .get("default_permission")
+        let desc_localizations = attrs
+            .get("desc_localizations")
+            .map(parse_path)
+            .transpose()?;
+        let default_permissions = attrs
+            .get("default_permissions")
+            .map(parse_path)
+            .transpose()?;
+        let dm_permission = attrs
+            .get("dm_permission")
             .map(|v| v.parse_bool())
-            .transpose()?
-            .unwrap_or(true);
+            .transpose()?;
 
         Ok(Self {
             name,
+            name_localizations,
             desc,
-            default_permission,
+            desc_localizations,
+            default_permissions,
+            dm_permission,
         })
     }
 }
@@ -97,8 +129,12 @@ impl TypeAttribute {
 pub struct FieldAttribute {
     /// Rename the field to the given name
     pub rename: Option<String>,
+    /// Localization dictionary for the field name.
+    pub name_localizations: Option<syn::Path>,
     /// Overwrite the field description
     pub desc: Option<String>,
+    /// Localization dictionary for the command description.
+    pub desc_localizations: Option<syn::Path>,
     /// Whether the field supports autocomplete
     pub autocomplete: bool,
     /// Limit to specific channel types
@@ -117,7 +153,9 @@ impl FieldAttribute {
             meta,
             &[
                 "rename",
+                "name_localizations",
                 "desc",
+                "desc_localizations",
                 "autocomplete",
                 "channel_types",
                 "max_value",
@@ -126,7 +164,15 @@ impl FieldAttribute {
         )?;
 
         let rename = attrs.get("rename").map(parse_name).transpose()?;
+        let name_localizations = attrs
+            .get("name_localizations")
+            .map(parse_path)
+            .transpose()?;
         let desc = attrs.get("desc").map(parse_desc).transpose()?;
+        let desc_localizations = attrs
+            .get("desc_localizations")
+            .map(parse_path)
+            .transpose()?;
         let autocomplete = attrs
             .get("autocomplete")
             .map(|val| val.parse_bool())
@@ -148,7 +194,9 @@ impl FieldAttribute {
 
         Ok(Self {
             rename,
+            name_localizations,
             desc,
+            desc_localizations,
             autocomplete,
             channel_types,
             max_value,

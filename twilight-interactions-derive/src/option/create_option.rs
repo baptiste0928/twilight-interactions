@@ -58,6 +58,16 @@ pub fn dummy_create_option(ident: Ident, error: Error) -> TokenStream {
 /// Generate push instruction for a given variant
 fn choice_variant(variant: &ParsedVariant) -> TokenStream {
     let name = &variant.attribute.name;
+    let name_localizations = match &variant.attribute.name_localizations {
+        Some(path) => {
+            quote! {
+                ::std::option::Option::Some(
+                    ::twilight_interactions::command::internal::convert_localizations(#path())
+                )
+            }
+        }
+        None => quote! { ::std::option::Option::None },
+    };
     let value = match &variant.attribute.value {
         ChoiceValue::String(val) => quote! { ::std::convert::From::from(#val) },
         ChoiceValue::Int(val) => val.to_token_stream(),
@@ -72,6 +82,7 @@ fn choice_variant(variant: &ParsedVariant) -> TokenStream {
     quote! {
         choices.push(::twilight_model::application::command::CommandOptionChoice::#type_path {
             name: ::std::convert::From::from(#name),
+            name_localizations: #name_localizations,
             value: #value,
         });
     }

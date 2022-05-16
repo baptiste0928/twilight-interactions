@@ -1,9 +1,14 @@
+use std::collections::HashMap;
+
 use twilight_interactions::command::{
     ApplicationCommandData, CommandInputData, CommandModel, CreateCommand,
 };
-use twilight_model::application::{
-    command::{ChoiceCommandOptionData, CommandOption, OptionsCommandOptionData},
-    interaction::application_command::{CommandDataOption, CommandOptionValue},
+use twilight_model::{
+    application::{
+        command::{ChoiceCommandOptionData, CommandOption, OptionsCommandOptionData},
+        interaction::application_command::{CommandDataOption, CommandOptionValue},
+    },
+    guild::Permissions,
 };
 
 #[derive(CommandModel, CreateCommand, Debug, PartialEq, Eq)]
@@ -37,12 +42,25 @@ enum SubCommandGroup {
 }
 
 #[derive(CommandModel, CreateCommand, Debug, PartialEq, Eq)]
-#[command(name = "command", desc = "Command")]
+#[command(
+    name = "command",
+    desc = "Command",
+    desc_localizations = "subcommand_desc",
+    default_permissions = "subcommand_permissions"
+)]
 enum SubCommand {
     #[command(name = "one")]
     One(CommandOne),
     #[command(name = "group")]
     Group(SubCommandGroup),
+}
+
+fn subcommand_desc() -> [(&'static str, &'static str); 1] {
+    [("en", "Command")]
+}
+
+fn subcommand_permissions() -> Permissions {
+    Permissions::empty()
 }
 
 #[test]
@@ -115,19 +133,25 @@ fn test_create_subcommand() {
         autocomplete: false,
         choices: vec![],
         description: "An option".into(),
+        description_localizations: None,
         name: "option".into(),
+        name_localizations: None,
         required: true,
     })];
 
     let subcommand_group = vec![
         CommandOption::SubCommand(OptionsCommandOptionData {
             description: "Command two".into(),
+            description_localizations: None,
             name: "two".into(),
+            name_localizations: None,
             options: command_options.clone(),
         }),
         CommandOption::SubCommand(OptionsCommandOptionData {
             description: "Command three".into(),
+            description_localizations: None,
             name: "three".into(),
+            name_localizations: None,
             options: command_options.clone(),
         }),
     ];
@@ -135,21 +159,28 @@ fn test_create_subcommand() {
     let subcommand = vec![
         CommandOption::SubCommand(OptionsCommandOptionData {
             description: "Command one".into(),
+            description_localizations: None,
             name: "one".into(),
+            name_localizations: None,
             options: command_options,
         }),
         CommandOption::SubCommandGroup(OptionsCommandOptionData {
             description: "Command group".into(),
+            description_localizations: None,
             name: "group".into(),
+            name_localizations: None,
             options: subcommand_group,
         }),
     ];
 
     let expected = ApplicationCommandData {
         name: "command".into(),
+        name_localizations: None,
         description: "Command".into(),
+        description_localizations: Some(HashMap::from([("en".into(), "Command".into())])),
         options: subcommand,
-        default_permission: true,
+        default_member_permissions: Some(Permissions::empty()),
+        dm_permission: None,
         group: true,
     };
 

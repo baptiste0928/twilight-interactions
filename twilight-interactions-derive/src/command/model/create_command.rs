@@ -34,11 +34,20 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
         Some(name) => name,
         None => return Err(Error::new(attr_span, "Missing required attribute `name`")),
     };
+    let name_localizations = localization_field(&attributes.name_localizations);
     let description = match &attributes.desc {
         Some(desc) => desc.clone(),
         None => parse_doc(&input.attrs, span)?,
     };
-    let default_permission = attributes.default_permission;
+    let description_localizations = localization_field(&attributes.desc_localizations);
+    let default_permissions = match &attributes.default_permissions {
+        Some(path) => quote! { ::std::option::Option::Some(#path())},
+        None => quote! { ::std::option::Option::None },
+    };
+    let dm_permission = match &attributes.dm_permission {
+        Some(dm_permission) => quote! { ::std::option::Option::Some(#dm_permission)},
+        None => quote! { ::std::option::Option::None },
+    };
 
     let field_options = fields
         .iter()
@@ -56,9 +65,12 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
 
                 ::twilight_interactions::command::ApplicationCommandData {
                     name: ::std::convert::From::from(#name),
+                    name_localizations: #name_localizations,
                     description: ::std::convert::From::from(#description),
+                    description_localizations: #description_localizations,
                     options: command_options,
-                    default_permission: #default_permission,
+                    default_member_permissions: #default_permissions,
+                    dm_permission: #dm_permission,
                     group: false,
                 }
             }
@@ -72,10 +84,12 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
     let span = field.span;
 
     let name = field.attributes.name_default(field.ident.to_string());
+    let name_localizations = localization_field(&field.attributes.name_localizations);
     let description = match &field.attributes.desc {
         Some(desc) => desc.clone(),
         None => parse_doc(&field.raw_attrs, field.span)?,
     };
+    let description_localizations = localization_field(&field.attributes.desc_localizations);
     let required = field.kind.required();
     let autocomplete = field.attributes.autocomplete;
     let channel_types = field.attributes.channel_types.iter().map(channel_type);
@@ -86,7 +100,9 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
         command_options.push(<#ty as ::twilight_interactions::command::CreateOption>::create_option(
             ::twilight_interactions::command::internal::CreateOptionData {
                 name: ::std::convert::From::from(#name),
+                name_localizations: #name_localizations,
                 description: ::std::convert::From::from(#description),
+                description_localizations: #description_localizations,
                 required: #required,
                 autocomplete: #autocomplete,
                 data: ::twilight_interactions::command::internal::CommandOptionData {
@@ -97,6 +113,19 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
             }
         ));
     })
+}
+
+fn localization_field(path: &Option<syn::Path>) -> TokenStream {
+    match path {
+        Some(path) => {
+            quote! {
+                ::std::option::Option::Some(
+                    ::twilight_interactions::command::internal::convert_localizations(#path())
+                )
+            }
+        }
+        None => quote! { ::std::option::Option::None },
+    }
 }
 
 /// Ensure optional options are after required ones
