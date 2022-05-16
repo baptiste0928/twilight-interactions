@@ -33,47 +33,47 @@ use super::{internal::CreateOptionData, ResolvedUser};
 ///
 /// ## Example
 /// ```
+/// # use twilight_model::guild::Permissions;
 /// use twilight_interactions::command::{CreateCommand, ResolvedUser};
 ///
 /// #[derive(CreateCommand)]
-/// #[command(name = "hello", desc = "Say hello")]
+/// #[command(name = "hello", desc = "Say hello", default_permissions = "hello_permissions")]
 /// struct HelloCommand {
 ///     /// The message to send.
 ///     message: String,
 ///     /// The user to send the message to.
 ///     user: Option<ResolvedUser>,
+/// }
+///
+/// fn hello_permissions() -> Permissions {
+///     Permissions::SEND_MESSAGES
 /// }
 /// ```
 ///
 /// ## Macro attributes
 /// The macro provide a `#[command]` attribute to provide additional information.
 ///
-/// | Attribute                | Type           | Location               | Description                                                     |
-/// |--------------------------|----------------|------------------------|-----------------------------------------------------------------|
-/// | `name`                   | `str`          | Type                   | Name of the command (required).                                 |
-/// | `desc`                   | `str`          | Type / Field / Variant | Set the subcommand name (required).                             |
-/// | `default_permission`     | `bool`         | Type                   | Whether the command should be enabled by default.               |
-/// | `rename`                 | `str`          | Field                  | Use a different option name than the field name.                |
-/// | `autocomplete`           | `bool`         | Field                  | Enable autocomplete on this field.                              |
-/// | `channel_types`          | `str`          | Field                  | Restricts the channel choice to specific types.[^channel_types] |
-/// | `max_value`, `min_value` | `i64` or `f64` | Field                  | Set the maximum and/or minimum value permitted.                 |
+/// | Attribute                | Type                | Location               | Description                                                     |
+/// |--------------------------|---------------------|------------------------|-----------------------------------------------------------------|
+/// | `name`                   | `str`               | Type                   | Name of the command (required).                                 |
+/// | `desc`                   | `str`               | Type / Field / Variant | Description of the command (required).                          |
+/// | `default_permissions`    | `fn`[^perms]      | Type                   | Default permissions required by members to run the command.     |
+/// | `dm_permission`          | `bool`              | Type                   | Whether the command can be run in DMs.                          |
+/// | `rename`                 | `str`               | Field                  | Use a different option name than the field name.                |
+/// | `name_localizations`     | `fn`[^localization] | Type / Field / Variant | Localized name of the command (optional).                       |
+/// | `desc_localizations`     | `fn`[^localization] | Type / Field / Variant | Localized description of the command (optional).                |
+/// | `autocomplete`           | `bool`              | Field                  | Enable autocomplete on this field.                              |
+/// | `channel_types`          | `str`               | Field                  | Restricts the channel choice to specific types.[^channel_types] |
+/// | `max_value`, `min_value` | `i64` or `f64`      | Field                  | Set the maximum and/or minimum value permitted.                 |
 ///
-/// ## Example
-/// ```
-/// use twilight_interactions::command::{CreateCommand, ResolvedUser};
+/// [^perms]: Path to a function that returns [`Permissions`].
 ///
-/// #[derive(CreateCommand)]
-/// #[command(name = "hello", desc = "Say hello")]
-/// struct HelloCommand {
-///     /// The message to send.
-///     message: String,
-///     /// The user to send the message to.
-///     user: Option<ResolvedUser>,
-/// }
-/// ```
+/// [^localization]: Path to a function that returns a type that implement
+/// `IntoIterator<Item = (ToString, ToString)>`. See the module documentation to
+/// learn more.
 ///
 /// [^channel_types]: List [`ChannelType`] names in snake_case separated by spaces
-///                   like `guild_text private`.
+/// like `guild_text private`.
 ///
 /// [`CommandModel`]: super::CommandModel
 /// [`ChannelType`]: twilight_model::channel::ChannelType
@@ -90,7 +90,6 @@ pub trait CreateCommand: Sized {
 /// This trait is used by the implementation of [`CreateCommand`] generated
 /// by the derive macro. See the [module documentation](crate::command) for
 /// a list of implemented types.
-///
 ///
 /// ## Option choices
 /// This trait can be derived on enums to represent command options with
@@ -115,10 +114,15 @@ pub trait CreateCommand: Sized {
 /// ### Macro attributes
 /// The macro provide a `#[option]` attribute to configure the generated code.
 ///
-/// | Attribute | Type                  | Location | Description                                |
-/// |-----------|-----------------------|----------|--------------------------------------------|
-/// | `name`    | `str`                 | Variant  | Set the name of the command option choice. |
-/// | `value`   | `str`, `i64` or `f64` | Variant  | Value of the command option choice.        |
+/// | Attribute            | Type                  | Location | Description                                  |
+/// |----------------------|-----------------------|----------|----------------------------------------------|
+/// | `name`               | `str`                 | Variant  | Set the name of the command option choice.   |
+/// | `name_localizations` | `fn`[^localization]   | Variant  | Localized name of the command option choice. |
+/// | `value`              | `str`, `i64` or `f64` | Variant  | Value of the command option choice.          |
+///
+/// [^localization]: Path to a function that returns a type that implement
+///                  `IntoIterator<Item = (ToString, ToString)>`. See the
+///                  [module documentation](crate::command) to learn more.
 
 pub trait CreateOption: Sized {
     /// Create a [`CommandOption`] from this type.

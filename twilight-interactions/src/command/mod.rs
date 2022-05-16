@@ -27,6 +27,30 @@
 //! }
 //! ```
 //!
+//! ## Localization
+//! Localization of names and description of slash command names is supported
+//! using the `name_localizations` and `desc_localizations` attributes on
+//! applicable structs.
+//!
+//! The attribute takes a function that return any type that implement
+//! `IntoIterator<Item = (ToString, ToString)>`, where the first tuple element
+//! is a valid [locale](https://discord.com/developers/docs/reference#locales),
+//! and the second tuple element is the localized value.
+//!
+//! ```
+//! use twilight_interactions::command::{CommandModel, CreateCommand, ResolvedUser};
+//!
+//! #[derive(CommandModel, CreateCommand)]
+//! #[command(name = "hello", desc = "Say hello", desc_localizations = "hello_desc")]
+//! struct HelloCommand;
+//!
+//! pub fn hello_desc() -> [(&'static str, &'static str); 2] {
+//!     [("fr", "Dis bonjour"), ("de", "Sag Hallo")]
+//! }
+//! ```
+//!
+//! See the traits documentation to see where these attributes can be used.
+//!
 //! ## Supported types
 //! The [`CommandOption`] and [`CreateOption`] traits are implemented for the following types:
 //!
