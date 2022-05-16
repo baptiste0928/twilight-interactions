@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2022-05-16
+### Added
+- Support command localization with `name_localizations` and `desc_localizations` attributes.
+- Command permissions v2 with `default_permissions` and `dm_permission` attributes.
+
+### Changed
+- Upgraded to `twilight-model` 0.11.0
+- MSRV updated to 1.60
+
 ## [0.10.1] - 2022-03-15
 ### Added
 - Allow `CommandModel` and `CreateCommand` types to have generics (@MaxOhn)
@@ -77,7 +86,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of `twilight-interactions` and `twilight-interactions-derive` crates.
 
-[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.10.1...main
+[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.11.0...main
+[0.11.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.10.1...v0.11.0
 [0.10.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.9.0...v0.9.1
