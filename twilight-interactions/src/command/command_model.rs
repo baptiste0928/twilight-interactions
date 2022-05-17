@@ -17,9 +17,8 @@ use twilight_model::{
     user::User,
 };
 
-use crate::error::{ParseError, ParseOptionError, ParseOptionErrorType};
-
 use super::internal::CommandOptionData;
+use crate::error::{ParseError, ParseOptionError, ParseOptionErrorType};
 
 /// Parse command data into a concrete type.
 ///
@@ -39,36 +38,37 @@ use super::internal::CommandOptionData;
 /// #[derive(CommandModel)]
 /// struct HelloCommand {
 ///     message: String,
-///     user: Option<ResolvedUser>
+///     user: Option<ResolvedUser>,
 /// }
 /// ```
 ///
 /// ### Validating options
-/// The [`CommandModel`] trait only focus on parsing received interaction data
+/// The [`CommandModel`] trait only focuses on parsing received interaction data
 /// and does not directly support additional validation. However, it will ensure
-/// that received data matches with the provided model. If you specify a `max_value`
-/// for a field, this requirement will be checked when parsing command data.
+/// that received data matches with the provided model. If you specify a
+/// `max_value` for a field, this requirement will be checked when parsing
+/// command data.
 ///
-/// Not supporting additional validation is a design choice. This allow to clearly
-/// split between validations that are ensured by Discord, and those you perform
-/// on top of that. If an error occurs during parsing, it is always a bug, not
+/// Not supporting additional validation is a design choice. This allows
+/// splitting validations that are ensured by Discord and those you perform
+/// on top of them. If an error occurs during parsing, it is always a bug, not
 /// a user mistake.
 ///
 /// If you need to perform additional validation, consider creating another type
 /// that can be initialized from the command model.
 ///
 /// ### Autocomplete interactions
-/// Autocomplete interactions are no longer supported since 0.10, as the previous
-/// implementation was incorrect. See [#9](https://github.com/baptiste0928/twilight-interactions/issues/9)
+/// Autocomplete interactions are no longer supported since 0.10, as the
+/// previous implementation was incorrect. See [#9](https://github.com/baptiste0928/twilight-interactions/issues/9)
 /// for more information.
 ///
 /// ## Subcommands and subcommands groups
-/// This trait also support parsing subcommands and subcommands group when
+/// This trait also supports parsing subcommands and subcommand groups when
 /// implemented on enums with all variants containing types that implement
 /// [`CommandModel`]. Each variant must have an attribute with the subcommand
 /// name.
 ///
-/// Subcommand groups works in the same way as regular subcommands, except the
+/// Subcommand groups work the same way as regular subcommands, except the
 /// variant type is another enum implementing [`CommandModel`].
 ///
 /// ```
@@ -89,13 +89,13 @@ use super::internal::CommandOptionData;
 ///     #[command(name = "user")]
 ///     User(HelloUser),
 ///     #[command(name = "config")]
-///     Config(HelloConfig)
+///     Config(HelloConfig),
 /// }
 /// ```
 ///
 ///
 /// ## Macro attributes
-/// The macro provide a `#[command]` attribute to configure generated code.
+/// The macro provides a `#[command]` attribute to configure generated code.
 ///
 /// | Attribute                | Type           | Location             | Description                                                     |
 /// |--------------------------|----------------|----------------------|-----------------------------------------------------------------|
@@ -113,7 +113,7 @@ use super::internal::CommandOptionData;
 ///     #[command(rename = "text")]
 ///     message: String,
 ///     #[command(max_value = 60)]
-///     delay: i64
+///     delay: i64,
 /// }
 /// ```
 ///
@@ -123,7 +123,7 @@ use super::internal::CommandOptionData;
 /// [`CreateCommand`]: super::CreateCommand
 /// [`ChannelType`]: twilight_model::channel::ChannelType
 pub trait CommandModel: Sized {
-    /// Construct this type from a [`CommandInputData`].
+    /// Construct this type from [`CommandInputData`].
     fn from_interaction(data: CommandInputData) -> Result<Self, ParseError>;
 }
 
@@ -144,7 +144,7 @@ impl CommandModel for Vec<CommandDataOption> {
 /// predefined choices. The `#[option]` attribute must be present on each
 /// variant.
 ///
-/// The corresponding slash command types is automatically inferred from
+/// The corresponding slash command types are automatically inferred from
 /// the `value` attribute. In the example below, the inferred type would
 /// be `INTEGER`.
 ///
@@ -163,14 +163,14 @@ impl CommandModel for Vec<CommandDataOption> {
 ///     #[option(name = "Hour", value = 3600)]
 ///     Hour,
 ///     #[option(name = "Day", value = 86400)]
-///     Day
+///     Day,
 /// }
 ///
 /// assert_eq!(TimeUnit::Minute.value(), 60);
 /// ```
 ///
 /// ### Macro attributes
-/// The macro provide a `#[option]` attribute to configure the generated code.
+/// The macro provides an `#[option]` attribute to configure the generated code.
 ///
 /// | Attribute | Type                  | Location | Description                                |
 /// |-----------|-----------------------|----------|--------------------------------------------|
@@ -189,7 +189,7 @@ pub trait CommandOption: Sized {
 /// Data sent by Discord when receiving a command.
 ///
 /// This type is used in the [`CommandModel`] trait. It can be initialized
-/// from a [`CommandData`] using the [From] trait.
+/// from [`CommandData`] using the [From] trait.
 ///
 /// [`CommandModel`]: super::CommandModel
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -203,7 +203,7 @@ impl<'a> CommandInputData<'a> {
     ///
     /// This method can be used to manually parse a field from
     /// raw data, for example with guild custom commands. The
-    /// method return [`None`] if the field is not present instead
+    /// method returns [`None`] if the field is not present instead
     /// of returning an error.
     ///
     /// ### Example
@@ -272,10 +272,11 @@ impl<'a> CommandInputData<'a> {
             .map(|option| &*option.name)
     }
 
-    /// Parse a subcommand [`CommandOptionValue`].
+    /// Parse a subcommand's [`CommandOptionValue`].
     ///
-    /// This method signature is the same as the [`CommandOption`] trait,
-    /// except the explicit `'a` lifetime. It is used when parsing subcommands.
+    /// This method's signature is the same as the [`CommandOption`] trait,
+    /// except for the explicit `'a` lifetime. It is used when parsing
+    /// subcommands.
     pub fn from_option(
         value: CommandOptionValue,
         resolved: Option<&'a CommandInteractionDataResolved>,
@@ -304,8 +305,8 @@ impl From<CommandData> for CommandInputData<'_> {
 
 /// A resolved Discord user.
 ///
-/// This struct implement [`CommandOption`] and can be used to
-/// obtain resolved data for a given user id. The struct holds
+/// This struct implements [`CommandOption`] and can be used to
+/// obtain resolved data for a given user ID. The struct holds
 /// a [`User`] and maybe an [`InteractionMember`].
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ResolvedUser {

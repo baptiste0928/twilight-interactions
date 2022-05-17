@@ -4,7 +4,7 @@ use syn::{spanned::Spanned, DeriveInput, Result, Variant};
 
 use super::parse::ParsedVariant;
 
-/// Implementation of CommandModel derive macro
+/// Implementation of `CommandModel` derive macro
 pub fn impl_command_model(
     input: DeriveInput,
     variants: impl IntoIterator<Item = Variant>,

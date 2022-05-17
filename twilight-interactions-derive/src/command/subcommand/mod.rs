@@ -1,4 +1,5 @@
-//! Implementation of `CommandModel` and `CreateCommand` macros for enums (subcommands).
+//! Implementation of `CommandModel` and `CreateCommand` macros for enums
+//! (subcommands).
 
 mod command_model;
 mod create_command;

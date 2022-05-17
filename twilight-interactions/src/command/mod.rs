@@ -2,14 +2,15 @@
 //!
 //!
 //! # Slash commands
-//! This crate provide parsing slash command data as typed structs. It also provide a convenient
-//! way to register commands from these structs. Derive macros are provided to automatically
-//! implement related traits.
+//! This crate provides parsing slash command data as typed structs. It also
+//! provides a convenient way to register commands from these structs. Derive
+//! macros are provided to automatically implement related traits.
 //!
 //! - Command parsing with the [`CommandModel`] trait.
 //! - Command creation with the [`CreateCommand`] trait.
 //! - Support for subcommands and subcommand groups.
-//! - Command option choices with the [`CommandOption`] and [`CreateOption`] traits.
+//! - Command option choices with the [`CommandOption`] and [`CreateOption`]
+//!   traits.
 //!
 //! Read the documentation of these traits for usage examples.
 //!
@@ -28,13 +29,13 @@
 //! ```
 //!
 //! ## Localization
-//! Localization of names and description of slash command names is supported
+//! Localization of names and descriptions of slash commands is supported
 //! using the `name_localizations` and `desc_localizations` attributes on
 //! applicable structs.
 //!
-//! The attribute takes a function that return any type that implement
+//! The attribute takes a function that returns any type that implements
 //! `IntoIterator<Item = (ToString, ToString)>`, where the first tuple element
-//! is a valid [locale](https://discord.com/developers/docs/reference#locales),
+//! is a valid [locale](https://discord.com/developers/docs/reference#locales)
 //! and the second tuple element is the localized value.
 //!
 //! ```
@@ -49,10 +50,12 @@
 //! }
 //! ```
 //!
-//! See the traits documentation to see where these attributes can be used.
+//! See the documentation of the traits to see where these attributes can be
+//! used.
 //!
 //! ## Supported types
-//! The [`CommandOption`] and [`CreateOption`] traits are implemented for the following types:
+//! The [`CommandOption`] and [`CreateOption`] traits are implemented for the
+//! following types:
 //!
 //! | Command option type | Provided implementations               |
 //! |---------------------|----------------------------------------|
@@ -88,7 +91,6 @@ pub mod internal;
 
 pub use command_model::{CommandInputData, CommandModel, CommandOption, ResolvedUser};
 pub use create_command::{ApplicationCommandData, CreateCommand, CreateOption};
-
 #[cfg(feature = "derive")]
 #[cfg_attr(docsrs, doc(cfg(feature = "derive")))]
 pub use twilight_interactions_derive::{CommandModel, CommandOption, CreateCommand, CreateOption};

@@ -2,7 +2,7 @@ use proc_macro2::{Ident, TokenStream};
 use quote::quote;
 use syn::{spanned::Spanned, Data, DeriveInput, Error, Fields, Result};
 
-/// Implementation of the CommandModel derive macro
+/// Implementation of the `CommandModel` derive macro
 pub fn impl_command_model(input: DeriveInput) -> Result<TokenStream> {
     let span = input.span();
 

@@ -1,4 +1,5 @@
-//! Implementation of `CommandModel` and `CreateCommand` macros for structs with named fields.
+//! Implementation of `CommandModel` and `CreateCommand` macros for structs with
+//! named fields.
 
 mod command_model;
 mod create_command;

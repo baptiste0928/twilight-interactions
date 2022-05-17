@@ -8,7 +8,7 @@ use syn::{spanned::Spanned, Attribute, Error, Lit, Meta, MetaNameValue, Result};
 /// Extracts type from an [`Option<T>`]
 ///
 /// This function extracts the type in an [`Option<T>`]. It currently only works
-/// with the `Option` syntax (not the `std::option::Option` or similar).
+/// with the `Option` syntax (not `std::option::Option` or similar).
 pub fn extract_option(ty: &syn::Type) -> Option<syn::Type> {
     fn check_name(path: &syn::Path) -> bool {
         path.leading_colon.is_none()
@@ -51,8 +51,8 @@ pub fn find_attr<'a>(attrs: &'a [Attribute], name: &str) -> Option<&'a Attribute
 
 /// Parse description from #[doc] attributes.
 ///
-/// Only fist attribute is parsed (corresponding to the first line of documentation)
-/// https://doc.rust-lang.org/rustdoc/the-doc-attribute.html
+/// Only the first attribute is parsed (corresponding to the first line of
+/// documentation) https://doc.rust-lang.org/rustdoc/the-doc-attribute.html
 pub fn parse_doc(attrs: &[Attribute], span: Span) -> Result<String> {
     let attr = match find_attr(attrs, "doc") {
         Some(attr) => attr,
