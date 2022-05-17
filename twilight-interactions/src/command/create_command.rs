@@ -22,14 +22,14 @@ use super::{internal::CreateOptionData, ResolvedUser};
 /// macro is provided to automatically implement the traits.
 ///
 /// ## Types and fields documentation
-/// The trait can be derived structs where all fields implement [`CreateOption`]
-/// (see the [module documentation](crate::command) for a list of supported types)
-/// or enums where variants implements [`CreateCommand`].
+/// The trait can be derived on structs whose fields implement [`CreateOption`]
+/// (see the [module documentation](crate::command) for a list of supported
+/// types) or enums whose variants implement [`CreateCommand`].
 ///
-/// Unlike the [`CommandModel`] trait, the type its field or variants must have
-/// a description. The description correspond either to the first line of the
-/// documentation comment, or the value of the `desc` attribute. The type must
-/// also be named with the `name` attribute.
+/// Unlike the [`CommandModel`] trait, all fields or variants of the type it's
+/// implemented on must have a description. The description corresponds either
+/// to the first line of the documentation comment or the value of the `desc`
+/// attribute. The type must also be named with the `name` attribute.
 ///
 /// ## Example
 /// ```
@@ -37,7 +37,11 @@ use super::{internal::CreateOptionData, ResolvedUser};
 /// use twilight_interactions::command::{CreateCommand, ResolvedUser};
 ///
 /// #[derive(CreateCommand)]
-/// #[command(name = "hello", desc = "Say hello", default_permissions = "hello_permissions")]
+/// #[command(
+///     name = "hello",
+///     desc = "Say hello",
+///     default_permissions = "hello_permissions"
+/// )]
 /// struct HelloCommand {
 ///     /// The message to send.
 ///     message: String,
@@ -51,13 +55,14 @@ use super::{internal::CreateOptionData, ResolvedUser};
 /// ```
 ///
 /// ## Macro attributes
-/// The macro provide a `#[command]` attribute to provide additional information.
+/// The macro provides a `#[command]` attribute to provide additional
+/// information.
 ///
 /// | Attribute                | Type                | Location               | Description                                                     |
 /// |--------------------------|---------------------|------------------------|-----------------------------------------------------------------|
 /// | `name`                   | `str`               | Type                   | Name of the command (required).                                 |
 /// | `desc`                   | `str`               | Type / Field / Variant | Description of the command (required).                          |
-/// | `default_permissions`    | `fn`[^perms]      | Type                   | Default permissions required by members to run the command.     |
+/// | `default_permissions`    | `fn`[^perms]        | Type                   | Default permissions required by members to run the command.     |
 /// | `dm_permission`          | `bool`              | Type                   | Whether the command can be run in DMs.                          |
 /// | `rename`                 | `str`               | Field                  | Use a different option name than the field name.                |
 /// | `name_localizations`     | `fn`[^localization] | Type / Field / Variant | Localized name of the command (optional).                       |
@@ -68,11 +73,11 @@ use super::{internal::CreateOptionData, ResolvedUser};
 ///
 /// [^perms]: Path to a function that returns [`Permissions`].
 ///
-/// [^localization]: Path to a function that returns a type that implement
+/// [^localization]: Path to a function that returns a type that implements
 /// `IntoIterator<Item = (ToString, ToString)>`. See the module documentation to
 /// learn more.
 ///
-/// [^channel_types]: List [`ChannelType`] names in snake_case separated by spaces
+/// [^channel_types]: List of [`ChannelType`] names in snake_case separated by spaces
 /// like `guild_text private`.
 ///
 /// [`CommandModel`]: super::CommandModel
@@ -107,12 +112,12 @@ pub trait CreateCommand: Sized {
 ///     #[option(name = "Hour", value = 3600)]
 ///     Hour,
 ///     #[option(name = "Day", value = 86400)]
-///     Day
+///     Day,
 /// }
 /// ```
 ///
 /// ### Macro attributes
-/// The macro provide a `#[option]` attribute to configure the generated code.
+/// The macro provides an `#[option]` attribute to configure the generated code.
 ///
 /// | Attribute            | Type                  | Location | Description                                  |
 /// |----------------------|-----------------------|----------|----------------------------------------------|
@@ -120,7 +125,7 @@ pub trait CreateCommand: Sized {
 /// | `name_localizations` | `fn`[^localization]   | Variant  | Localized name of the command option choice. |
 /// | `value`              | `str`, `i64` or `f64` | Variant  | Value of the command option choice.          |
 ///
-/// [^localization]: Path to a function that returns a type that implement
+/// [^localization]: Path to a function that returns a type that implements
 ///                  `IntoIterator<Item = (ToString, ToString)>`. See the
 ///                  [module documentation](crate::command) to learn more.
 
@@ -129,7 +134,7 @@ pub trait CreateOption: Sized {
     fn create_option(data: CreateOptionData) -> CommandOption;
 }
 
-/// Data sent to discord to create a command.
+/// Data sent to Discord to create a command.
 ///
 /// This type is used in the [`CreateCommand`] trait.
 /// To convert it into a [`Command`], use the [From] (or [Into]) trait.
@@ -137,11 +142,13 @@ pub trait CreateOption: Sized {
 pub struct ApplicationCommandData {
     /// Name of the command. It must be 32 characters or less.
     pub name: String,
-    /// Localization dictionary for the command name. Keys should be valid locales.
+    /// Localization dictionary for the command name. Keys must be valid
+    /// locales.
     pub name_localizations: Option<HashMap<String, String>>,
     /// Description of the command. It must be 100 characters or less.
     pub description: String,
-    /// Localization dictionary for the command description. Keys should be valid locales.
+    /// Localization dictionary for the command description. Keys must be valid
+    /// locales.
     pub description_localizations: Option<HashMap<String, String>>,
     /// List of command options.
     pub options: Vec<CommandOption>,

@@ -1,8 +1,9 @@
 //! # twilight-interactions-derive
 //!
-//! This crate provide derive macros for the `twilight-interactions` crate.
+//! This crate provides derive macros for the `twilight-interactions` crate.
 //!
-//! Please refer to the `twilight-interactions` documentation for further information.
+//! Please refer to the `twilight-interactions` documentation for further
+//! information.
 
 mod command;
 mod option;
@@ -11,9 +12,10 @@ mod parse;
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput};
 
-/// Derive macro for the the `CommandModel` trait.
+/// Derive macro for the `CommandModel` trait.
 ///
-/// See the documentation of the trait for more information about usage of this macro.
+/// See the documentation of the trait for more information about usage of this
+/// macro.
 #[proc_macro_derive(CommandModel, attributes(command))]
 pub fn command_model(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -25,9 +27,10 @@ pub fn command_model(input: TokenStream) -> TokenStream {
     }
 }
 
-/// Derive macro for the the `CreateCommand` trait.
+/// Derive macro for the `CreateCommand` trait.
 ///
-/// See the documentation of the trait for more information about usage of this macro.
+/// See the documentation of the trait for more information about usage of this
+/// macro.
 #[proc_macro_derive(CreateCommand, attributes(command))]
 pub fn create_command(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -39,9 +42,10 @@ pub fn create_command(input: TokenStream) -> TokenStream {
     }
 }
 
-/// Derive macro for the the `CommandOption` trait.
+/// Derive macro for the `CommandOption` trait.
 ///
-/// See the documentation of the trait for more information about usage of this macro.
+/// See the documentation of the trait for more information about usage of this
+/// macro.
 #[proc_macro_derive(CommandOption, attributes(option))]
 pub fn command_option(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -53,9 +57,10 @@ pub fn command_option(input: TokenStream) -> TokenStream {
     }
 }
 
-/// Derive macro for the the `CreateOption` trait.
+/// Derive macro for the `CreateOption` trait.
 ///
-/// See the documentation of the trait for more information about usage of this macro.
+/// See the documentation of the trait for more information about usage of this
+/// macro.
 #[proc_macro_derive(CreateOption, attributes(option))]
 pub fn create_option(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);

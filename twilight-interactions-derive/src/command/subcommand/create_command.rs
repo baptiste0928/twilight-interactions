@@ -2,11 +2,10 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::{spanned::Spanned, DeriveInput, Error, Result, Variant};
 
+use super::parse::{ParsedVariant, TypeAttribute};
 use crate::parse::{find_attr, parse_doc};
 
-use super::parse::{ParsedVariant, TypeAttribute};
-
-/// Implementation of CreateCommand derive macro
+/// Implementation of `CreateCommand` derive macro
 pub fn impl_create_command(
     input: DeriveInput,
     variants: impl IntoIterator<Item = Variant>,

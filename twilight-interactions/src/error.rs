@@ -12,7 +12,8 @@ use twilight_model::{
 
 /// Error when parsing a command.
 ///
-/// This error type is returned by the [`CommandModel::from_interaction`] method.
+/// This error type is returned by the [`CommandModel::from_interaction`]
+/// method.
 ///
 /// [`CommandModel::from_interaction`]: crate::command::CommandModel::from_interaction
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -21,7 +22,7 @@ pub enum ParseError {
     ///
     /// This error is only returned when parsing subcommands.
     EmptyOptions,
-    /// Error parsing a command option.
+    /// Error when parsing a command option.
     Option(ParseOptionError),
 }
 
@@ -82,11 +83,11 @@ pub enum ParseOptionErrorType {
     InvalidType(CommandOptionType),
     /// Received an invalid value on choice option type.
     InvalidChoice(String),
-    /// Received an out of range integer
+    /// Received an out of range integer.
     IntegerOutOfRange(i64),
-    /// Received an out of range floating point number
+    /// Received an out of range floating point number.
     NumberOutOfRange(Number),
-    /// Received an invalid channel type
+    /// Received an invalid channel type.
     InvalidChannelType(ChannelType),
     /// Failed to resolve data associated with an ID.
     LookupFailed(u64),

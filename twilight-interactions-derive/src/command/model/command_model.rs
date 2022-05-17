@@ -2,11 +2,10 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::{DeriveInput, FieldsNamed, Result};
 
+use super::parse::{FieldType, StructField};
 use crate::command::model::parse::{channel_type, command_option_value};
 
-use super::parse::{FieldType, StructField};
-
-/// Implementation of CommandModel derive macro
+/// Implementation of `CommandModel` derive macro
 pub fn impl_command_model(input: DeriveInput, fields: Option<FieldsNamed>) -> Result<TokenStream> {
     let ident = &input.ident;
     let generics = &input.generics;
