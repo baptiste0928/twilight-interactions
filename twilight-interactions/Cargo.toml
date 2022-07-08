@@ -19,7 +19,7 @@ default = ["derive"]
 derive = ["twilight-interactions-derive"]
 
 [dependencies]
-twilight-model = "0.11"
+twilight-model = { git = "https://github.com/twilight-rs/twilight", rev = "aa28b87a1ddbfffb3daefeb406a2325e0785c891"}
 twilight-interactions-derive = { version = "=0.11.0", path = "../twilight-interactions-derive", optional = true }
 
 [dev-dependencies]

@@ -35,27 +35,22 @@ fn test_command_model() {
         CommandDataOption {
             name: "member".to_string(),
             value: CommandOptionValue::User(user_id),
-            focused: false,
         },
         CommandDataOption {
             name: "text".into(),
             value: CommandOptionValue::String("hello world".into()),
-            focused: false,
         },
         CommandDataOption {
             name: "number".into(),
             value: CommandOptionValue::Integer(42),
-            focused: false,
         },
         CommandDataOption {
             name: "generic".into(),
             value: CommandOptionValue::Integer(0),
-            focused: false,
         },
         CommandDataOption {
             name: "cow".into(),
             value: CommandOptionValue::String("cow".into()),
-            focused: false,
         },
     ];
 

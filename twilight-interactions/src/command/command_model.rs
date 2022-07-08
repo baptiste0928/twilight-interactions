@@ -211,7 +211,7 @@ impl<'a> CommandInputData<'a> {
     /// use twilight_interactions::command::CommandInputData;
     /// # use twilight_model::application::interaction::application_command::{CommandDataOption, CommandOptionValue};
     /// #
-    /// # let options = vec![CommandDataOption { name: "message".into(), value: CommandOptionValue::String("Hello world".into()), focused: false }];
+    /// # let options = vec![CommandDataOption { name: "message".into(), value: CommandOptionValue::String("Hello world".into()) }];
     ///
     /// // `options` is a Vec<CommandDataOption>
     /// let data = CommandInputData { options, resolved: None };
@@ -256,9 +256,12 @@ impl<'a> CommandInputData<'a> {
     /// ### Example
     /// ```
     /// use twilight_interactions::command::CommandInputData;
-    /// # use twilight_model::application::interaction::application_command::{CommandDataOption, CommandOptionValue};
+    /// # use twilight_model::application::{
+    /// #   interaction::application_command::{CommandDataOption, CommandOptionValue},
+    /// #   command::CommandOptionType,
+    /// # };
     /// #
-    /// # let options = vec![CommandDataOption { name: "message".into(), value: CommandOptionValue::String("Hello world".into()), focused: true }];
+    /// # let options = vec![CommandDataOption { name: "message".into(), value: CommandOptionValue::Focused("Hello world".into(), CommandOptionType::String) }];
     ///
     /// // `options` is a Vec<CommandDataOption>
     /// let data = CommandInputData { options, resolved: None };
@@ -268,7 +271,7 @@ impl<'a> CommandInputData<'a> {
     pub fn focused(&self) -> Option<&str> {
         self.options
             .iter()
-            .find(|option| option.focused)
+            .find(|option| matches!(option.value, CommandOptionValue::Focused(_, _)))
             .map(|option| &*option.name)
     }
 

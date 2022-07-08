@@ -66,13 +66,11 @@ fn subcommand_permissions() -> Permissions {
 #[test]
 fn test_subcommand_model() {
     let subcommand_options = vec![CommandDataOption {
-        focused: false,
         name: "option".into(),
         value: CommandOptionValue::String("test".into()),
     }];
 
     let command_options = vec![CommandDataOption {
-        focused: false,
         name: "one".into(),
         value: CommandOptionValue::SubCommand(subcommand_options),
     }];
@@ -95,19 +93,16 @@ fn test_subcommand_model() {
 #[test]
 fn test_subcommand_group_model() {
     let subcommand_options = vec![CommandDataOption {
-        focused: false,
         name: "option".into(),
         value: CommandOptionValue::String("test".into()),
     }];
 
     let subcommand_group_options = vec![CommandDataOption {
-        focused: false,
         name: "three".into(),
         value: CommandOptionValue::SubCommand(subcommand_options),
     }];
 
     let command_options = vec![CommandDataOption {
-        focused: false,
         name: "group".into(),
         value: CommandOptionValue::SubCommandGroup(subcommand_group_options),
     }];
