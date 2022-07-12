@@ -10,11 +10,15 @@ use syn::{spanned::Spanned, Attribute, Error, Lit, Meta, MetaNameValue, Result};
 /// This function extracts the type in an [`Option<T>`]. It currently only works
 /// with the `Option` syntax (not `std::option::Option` or similar).
 pub fn extract_option(ty: &syn::Type) -> Option<syn::Type> {
-    fn check_name(path: &syn::Path) -> bool {
+    extract_type(ty, "Option")
+}
+
+pub fn extract_type(ty: &syn::Type, name: &str) -> Option<syn::Type> {
+    let check_name = |path: &syn::Path| {
         path.leading_colon.is_none()
             && path.segments.len() == 1
-            && path.segments.first().unwrap().ident == "Option"
-    }
+            && path.segments.first().unwrap().ident == name
+    };
 
     match ty {
         syn::Type::Path(path) if path.qself.is_none() && check_name(&path.path) => {

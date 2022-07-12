@@ -1,9 +1,12 @@
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
-use syn::{DeriveInput, FieldsNamed, Result};
+use syn::{DeriveInput, Error, FieldsNamed, Result};
 
-use super::parse::{FieldType, StructField};
-use crate::command::model::parse::{channel_type, command_option_value};
+use super::parse::{FieldType, StructField, TypeAttribute};
+use crate::{
+    command::model::parse::{channel_type, command_option_value},
+    parse::find_attr,
+};
 
 /// Implementation of `CommandModel` derive macro
 pub fn impl_command_model(input: DeriveInput, fields: Option<FieldsNamed>) -> Result<TokenStream> {
@@ -15,7 +18,30 @@ pub fn impl_command_model(input: DeriveInput, fields: Option<FieldsNamed>) -> Re
         None => Vec::new(),
     };
 
-    let field_unknown = field_unknown();
+    let autocomplete = match find_attr(&input.attrs, "command") {
+        Some(attr) => TypeAttribute::parse(attr)?.autocomplete.unwrap_or(false),
+        None => false,
+    };
+
+    for field in &fields {
+        // Ensure all fields are either `AutocompleteValue` or `Option`s
+        if autocomplete && ![FieldType::Autocomplete, FieldType::Optional].contains(&field.kind) {
+            return Err(Error::new(
+                field.span,
+                "Autocomplete models only supports `Option` or `AutocompleteValue` field type",
+            ));
+        }
+
+        // `AutocompleteValue` is only allowed in autocomplete models
+        if !autocomplete && field.kind == FieldType::Autocomplete {
+            return Err(Error::new(
+                field.span,
+                "`AutocompleteValue` is only available in autocomplete models. Add the `#[command(autocomplete = true)]` attribute to the type."
+            ));
+        }
+    }
+
+    let field_unknown = field_unknown(autocomplete);
     let fields_init = fields.iter().map(field_init);
     let fields_match_arms = fields.iter().map(field_match_arm);
     let fields_constructor = fields.iter().map(field_constructor);
@@ -97,18 +123,28 @@ fn field_constructor(field: &StructField) -> TokenStream {
             }
         },
         FieldType::Optional => quote!(#ident),
+        FieldType::Autocomplete => quote! {
+            #ident: match #ident {
+                Some(value) => value,
+                None => ::twilight_interactions::command::AutocompleteValue::None,
+            }
+        },
     }
 }
 
 /// Generate unknown field match arm
-fn field_unknown() -> TokenStream {
-    quote! {
-        return ::std::result::Result::Err(
-            ::twilight_interactions::error::ParseError::Option(
-                ::twilight_interactions::error::ParseOptionError {
-                    field: ::std::convert::From::from(other),
-                    kind: ::twilight_interactions::error::ParseOptionErrorType::UnknownField,
-            })
-        )
+fn field_unknown(autocomplete: bool) -> TokenStream {
+    if autocomplete {
+        quote!(continue)
+    } else {
+        quote! {
+            return ::std::result::Result::Err(
+                ::twilight_interactions::error::ParseError::Option(
+                    ::twilight_interactions::error::ParseOptionError {
+                        field: ::std::convert::From::from(other),
+                        kind: ::twilight_interactions::error::ParseOptionErrorType::UnknownField,
+                })
+            )
+        }
     }
 }

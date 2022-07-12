@@ -1,6 +1,5 @@
 use std::{borrow::Cow, collections::HashMap};
 
-use maplit::hashmap;
 use twilight_interactions::command::{CommandInputData, CommandModel, CommandOption, ResolvedUser};
 use twilight_model::{
     application::interaction::application_command::{
@@ -85,9 +84,9 @@ fn test_command_model() {
 
     let resolved = CommandInteractionDataResolved {
         channels: HashMap::new(),
-        members: hashmap! { user_id => member.clone() },
+        members: HashMap::from([(user_id, member.clone())]),
         roles: HashMap::new(),
-        users: hashmap! { user_id => user.clone() },
+        users: HashMap::from([(user_id, user.clone())]),
         messages: HashMap::new(),
         attachments: HashMap::new(),
     };

@@ -5,7 +5,8 @@ use quote::quote;
 use syn::{spanned::Spanned, Attribute, Error, Lit, Result, Type};
 
 use crate::parse::{
-    extract_option, find_attr, parse_desc, parse_name, parse_path, AttrValue, NamedAttrs,
+    extract_option, extract_type, find_attr, parse_desc, parse_name, parse_path, AttrValue,
+    NamedAttrs,
 };
 
 /// Parsed struct field
@@ -19,17 +20,30 @@ pub struct StructField {
 }
 
 /// Type of a parsed struct field
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FieldType {
-    Required,
+    Autocomplete,
     Optional,
+    Required,
 }
 
 impl StructField {
     /// Parse a [`syn::Field`] as a [`StructField`]
     pub fn from_field(field: syn::Field) -> Result<Self> {
         let (kind, ty) = match extract_option(&field.ty) {
-            Some(ty) => (FieldType::Optional, ty),
-            None => (FieldType::Required, field.ty.clone()),
+            Some(ty) => match extract_type(&ty, "AutocompleteValue") {
+                Some(_) => {
+                    return Err(Error::new(
+                        ty.span(),
+                        "AutocompleteValue cannot be wrapped in `Option<T>`",
+                    ))
+                }
+                None => (FieldType::Optional, ty),
+            },
+            None => match extract_type(&field.ty, "AutocompleteValue") {
+                Some(ty) => (FieldType::Autocomplete, ty),
+                None => (FieldType::Required, field.ty.clone()),
+            },
         };
 
         let attributes = match find_attr(&field.attrs, "command") {
@@ -56,14 +70,16 @@ impl StructField {
 impl FieldType {
     pub fn required(&self) -> bool {
         match self {
-            FieldType::Required => true,
-            FieldType::Optional => false,
+            Self::Required => true,
+            Self::Autocomplete | Self::Optional => false,
         }
     }
 }
 
 /// Parsed type attribute
 pub struct TypeAttribute {
+    /// Whether the model is an autocomplete interaction model.
+    pub autocomplete: Option<bool>,
     /// Command name.
     pub name: Option<String>,
     /// Localization dictionary for the command name.
@@ -85,6 +101,7 @@ impl TypeAttribute {
         let attrs = NamedAttrs::parse(
             meta,
             &[
+                "autocomplete",
                 "name",
                 "name_localizations",
                 "desc",
@@ -94,6 +111,10 @@ impl TypeAttribute {
             ],
         )?;
 
+        let autocomplete = attrs
+            .get("autocomplete")
+            .map(|v| v.parse_bool())
+            .transpose()?;
         let name = attrs.get("name").map(parse_name).transpose()?;
         let name_localizations = attrs
             .get("name_localizations")
@@ -114,6 +135,7 @@ impl TypeAttribute {
             .transpose()?;
 
         Ok(Self {
+            autocomplete,
             name,
             name_localizations,
             desc,

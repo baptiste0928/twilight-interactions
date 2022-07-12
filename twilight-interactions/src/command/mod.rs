@@ -89,7 +89,9 @@ mod create_command;
 #[doc(hidden)]
 pub mod internal;
 
-pub use command_model::{CommandInputData, CommandModel, CommandOption, ResolvedUser};
+pub use command_model::{
+    AutocompleteValue, CommandInputData, CommandModel, CommandOption, ResolvedUser,
+};
 pub use create_command::{ApplicationCommandData, CreateCommand, CreateOption};
 #[cfg(feature = "derive")]
 #[cfg_attr(docsrs, doc(cfg(feature = "derive")))]

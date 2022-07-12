@@ -58,9 +58,34 @@ use crate::error::{ParseError, ParseOptionError, ParseOptionErrorType};
 /// that can be initialized from the command model.
 ///
 /// ### Autocomplete interactions
-/// Autocomplete interactions are no longer supported since 0.10, as the
-/// previous implementation was incorrect. See [#9](https://github.com/baptiste0928/twilight-interactions/issues/9)
-/// for more information.
+/// Autocomplete interactions are supported with the `#[command(autocomplete = true)]`
+/// attribute. Only autocomplete command models are able to use the [`AutocompleteValue`]
+/// type in command fields.
+///
+/// Since autocomplete interactions are partial interactions, models must meet
+/// the following requirements:
+/// - Every field should be an [`Option<T>`] or [`AutocompleteValue<T>`], since
+///   there is no guarantee that a specific field has been filled before the
+///   interaction is submitted.
+/// - If a field has autocomplete enabled, its type must be [`AutocompleteValue`]
+///   or the parsing will fail, since focused fields are sent as [`String`].
+/// - Autocomplete models are **partial**, which means that unknown fields
+///   will not make the parsing fail.
+/// - It is not possible to derive [`CreateCommand`] on autocomplete models.
+///
+/// Autocomplete models are not meant to be used alone: you should use a regular
+/// model to handle interactions submit, and another for autocomplete interactions.
+///
+/// ```
+/// use twilight_interactions::command::{AutocompleteValue, CommandModel, ResolvedUser};
+///
+/// #[derive(CommandModel)]
+/// #[command(autocomplete = true)]
+/// struct HelloCommand {
+///     message: AutocompleteValue<String>,
+///     user: Option<ResolvedUser>,
+/// }
+/// ```
 ///
 /// ## Subcommands and subcommands groups
 /// This trait also supports parsing subcommands and subcommand groups when
@@ -319,6 +344,22 @@ pub struct ResolvedUser {
     pub member: Option<InteractionMember>,
 }
 
+/// An autocomplete command field.
+///
+/// This type represent a value parsed from an autocomplete field. See "Autocomplete interactions"
+/// in [`CommandModel` documentation] for more information.
+///
+/// [`CommandModel` documentation]: CommandModel
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AutocompleteValue<T> {
+    /// The field has not been completed yet.
+    None,
+    /// The field is focused by the user and being completed.
+    Focused(String),
+    /// The field has been completed by the user.
+    Completed(T),
+}
+
 macro_rules! lookup {
     ($resolved:ident.$cat:ident, $id:expr) => {
         $resolved
@@ -334,6 +375,26 @@ impl CommandOption for CommandOptionValue {
         _resolved: Option<&CommandInteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         Ok(value)
+    }
+}
+
+impl<T> CommandOption for AutocompleteValue<T>
+where
+    T: CommandOption,
+{
+    fn from_option(
+        value: CommandOptionValue,
+        data: CommandOptionData,
+        resolved: Option<&CommandInteractionDataResolved>,
+    ) -> Result<Self, ParseOptionErrorType> {
+        match value {
+            CommandOptionValue::Focused(value, _) => Ok(Self::Focused(value)),
+            other => {
+                let parsed = T::from_option(other, data, resolved)?;
+
+                Ok(Self::Completed(parsed))
+            }
+        }
     }
 }
 
