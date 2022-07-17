@@ -1,6 +1,6 @@
 //! Utility functions to parse macro input.
 
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display, str::FromStr};
 
 use proc_macro2::Span;
 use syn::{spanned::Spanned, Attribute, Error, Lit, Meta, MetaNameValue, Result};
@@ -175,6 +175,20 @@ impl AttrValue {
             _ => Err(Error::new(
                 self.0.span(),
                 "Invalid attribute type, expected boolean",
+            )),
+        }
+    }
+
+    pub fn parse_int<N>(&self) -> Result<N>
+    where
+        N: FromStr,
+        N::Err: Display,
+    {
+        match self.inner() {
+            Lit::Int(inner) => inner.base10_parse(),
+            _ => Err(Error::new(
+                self.0.span(),
+                "Invalid attribute type, expected integer",
             )),
         }
     }

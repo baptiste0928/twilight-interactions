@@ -62,6 +62,8 @@ fn test_command_option_string() {
         channel_types: Vec::new(),
         max_value: None,
         min_value: None,
+        max_length: None,
+        min_length: None,
     };
     let create_data = CreateOptionData {
         name: "name".to_string(),
@@ -94,6 +96,8 @@ fn test_command_option_string() {
         ],
         description: "description".to_string(),
         description_localizations: None,
+        min_length: None,
+        max_length: None,
         name: "name".to_string(),
         name_localizations: None,
         required: false,
@@ -118,6 +122,8 @@ fn test_command_option_integer() {
         channel_types: Vec::new(),
         max_value: None,
         min_value: None,
+        min_length: None,
+        max_length: None,
     };
     let create_data = CreateOptionData {
         name: "name".to_string(),
@@ -176,6 +182,8 @@ fn test_command_option_number() {
         channel_types: Vec::new(),
         max_value: None,
         min_value: None,
+        max_length: None,
+        min_length: None,
     };
     let create_data = CreateOptionData {
         name: "name".to_string(),

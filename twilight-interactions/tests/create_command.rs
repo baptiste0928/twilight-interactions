@@ -33,6 +33,7 @@ where
     /// Some text
     ///
     /// This documentation comment is ignored
+    #[command(min_length = 5)]
     text: String,
     /// A number
     #[command(autocomplete = true, max_value = 50.0)]
@@ -72,6 +73,8 @@ fn test_create_command() {
             autocomplete: false,
             description: "Some text".into(),
             description_localizations: None,
+            max_length: None,
+            min_length: Some(5),
             name: "text".into(),
             name_localizations: None,
             required: true,
@@ -111,6 +114,8 @@ fn test_create_command() {
             autocomplete: false,
             description: "More text".into(),
             description_localizations: None,
+            max_length: None,
+            min_length: None,
             name: "cow".into(),
             name_localizations: None,
             required: false,

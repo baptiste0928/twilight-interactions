@@ -71,6 +71,10 @@ pub struct CommandOptionData {
     pub max_value: Option<CommandOptionValue>,
     /// Minimum value permitted. Only for `INTEGER` and `NUMBER` option types.
     pub min_value: Option<CommandOptionValue>,
+    /// Minimum value length. Only for `STRING` option type.
+    pub max_length: Option<u16>,
+    /// Maximum value length. Only for `STRING` option type.
+    pub min_length: Option<u16>,
 }
 
 impl CreateOptionData {
@@ -104,6 +108,8 @@ impl CreateOptionData {
             choices,
             description: self.description,
             description_localizations: self.description_localizations,
+            max_length: self.data.max_length,
+            min_length: self.data.min_length,
             name: self.name,
             name_localizations: self.name_localizations,
             required: self.required,

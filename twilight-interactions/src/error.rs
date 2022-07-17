@@ -65,6 +65,9 @@ impl Display for ParseOptionError {
             ParseOptionErrorType::NumberOutOfRange(val) => {
                 write!(f, "out of range number, received `{}`", val.0)
             }
+            ParseOptionErrorType::StringLengthOutOfRange(val) => {
+                write!(f, "out of range string length, received `{}`", val)
+            }
             ParseOptionErrorType::InvalidChannelType(kind) => {
                 write!(f, "invalid channel type, received `{}`", kind.name())
             }
@@ -87,6 +90,8 @@ pub enum ParseOptionErrorType {
     IntegerOutOfRange(i64),
     /// Received an out of range floating point number.
     NumberOutOfRange(Number),
+    /// Received an out of range string.
+    StringLengthOutOfRange(String),
     /// Received an invalid channel type.
     InvalidChannelType(ChannelType),
     /// Failed to resolve data associated with an ID.

@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::{spanned::Spanned, DeriveInput, Error, FieldsNamed, Result};
 
-use super::parse::{channel_type, command_option_value, StructField, TypeAttribute};
+use super::parse::{channel_type, command_option_value, optional, StructField, TypeAttribute};
 use crate::parse::{find_attr, parse_doc};
 
 /// Implementation of `CreateCommand` derive macro
@@ -101,6 +101,8 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
     let channel_types = field.attributes.channel_types.iter().map(channel_type);
     let max_value = command_option_value(field.attributes.max_value);
     let min_value = command_option_value(field.attributes.min_value);
+    let max_length = optional(field.attributes.max_length);
+    let min_length = optional(field.attributes.min_length);
 
     Ok(quote_spanned! {span=>
         command_options.push(<#ty as ::twilight_interactions::command::CreateOption>::create_option(
@@ -115,6 +117,8 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
                     channel_types: ::std::vec![#(#channel_types),*],
                     max_value: #max_value,
                     min_value: #min_value,
+                    max_length: #max_length,
+                    min_length: #min_length,
                 },
             }
         ));

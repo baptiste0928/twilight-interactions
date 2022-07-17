@@ -58,18 +58,19 @@ use super::{internal::CreateOptionData, ResolvedUser};
 /// The macro provides a `#[command]` attribute to provide additional
 /// information.
 ///
-/// | Attribute                | Type                | Location               | Description                                                     |
-/// |--------------------------|---------------------|------------------------|-----------------------------------------------------------------|
-/// | `name`                   | `str`               | Type                   | Name of the command (required).                                 |
-/// | `desc`                   | `str`               | Type / Field / Variant | Description of the command (required).                          |
-/// | `default_permissions`    | `fn`[^perms]        | Type                   | Default permissions required by members to run the command.     |
-/// | `dm_permission`          | `bool`              | Type                   | Whether the command can be run in DMs.                          |
-/// | `rename`                 | `str`               | Field                  | Use a different option name than the field name.                |
-/// | `name_localizations`     | `fn`[^localization] | Type / Field / Variant | Localized name of the command (optional).                       |
-/// | `desc_localizations`     | `fn`[^localization] | Type / Field / Variant | Localized description of the command (optional).                |
-/// | `autocomplete`           | `bool`              | Field                  | Enable autocomplete on this field.                              |
-/// | `channel_types`          | `str`               | Field                  | Restricts the channel choice to specific types.[^channel_types] |
-/// | `max_value`, `min_value` | `i64` or `f64`      | Field                  | Set the maximum and/or minimum value permitted.                 |
+/// | Attribute                  | Type                | Location               | Description                                                     |
+/// |----------------------------|---------------------|------------------------|-----------------------------------------------------------------|
+/// | `name`                     | `str`               | Type                   | Name of the command (required).                                 |
+/// | `desc`                     | `str`               | Type / Field / Variant | Description of the command (required).                          |
+/// | `default_permissions`      | `fn`[^perms]        | Type                   | Default permissions required by members to run the command.     |
+/// | `dm_permission`            | `bool`              | Type                   | Whether the command can be run in DMs.                          |
+/// | `rename`                   | `str`               | Field                  | Use a different option name than the field name.                |
+/// | `name_localizations`       | `fn`[^localization] | Type / Field / Variant | Localized name of the command (optional).                       |
+/// | `desc_localizations`       | `fn`[^localization] | Type / Field / Variant | Localized description of the command (optional).                |
+/// | `autocomplete`             | `bool`              | Field                  | Enable autocomplete on this field.                              |
+/// | `channel_types`            | `str`               | Field                  | Restricts the channel choice to specific types.[^channel_types] |
+/// | `max_value`, `min_value`   | `i64` or `f64`      | Field                  | Set the maximum and/or minimum value permitted.                 |
+/// | `max_length`, `min_length` | `u16`               | Field                  |   Maximum and/or minimum string length permitted.               |
 ///
 /// [^perms]: Path to a function that returns [`Permissions`].
 ///

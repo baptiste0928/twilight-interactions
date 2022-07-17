@@ -1,7 +1,7 @@
 //! Parsing of struct fields and attributes
 
 use proc_macro2::{Ident, Span, TokenStream};
-use quote::quote;
+use quote::{quote, ToTokens};
 use syn::{spanned::Spanned, Attribute, Error, Lit, Result, Type};
 
 use crate::parse::{
@@ -165,6 +165,10 @@ pub struct FieldAttribute {
     pub max_value: Option<CommandOptionValue>,
     /// Minimum value permitted
     pub min_value: Option<CommandOptionValue>,
+    /// Maximum string length
+    pub max_length: Option<u16>,
+    /// Minimum string length
+    pub min_length: Option<u16>,
 }
 
 impl FieldAttribute {
@@ -182,6 +186,8 @@ impl FieldAttribute {
                 "channel_types",
                 "max_value",
                 "min_value",
+                "max_length",
+                "min_length",
             ],
         )?;
 
@@ -213,6 +219,14 @@ impl FieldAttribute {
             .get("min_value")
             .map(CommandOptionValue::parse_attr)
             .transpose()?;
+        let max_length = attrs
+            .get("max_length")
+            .map(|val| val.parse_int())
+            .transpose()?;
+        let min_length = attrs
+            .get("min_length")
+            .map(|val| val.parse_int())
+            .transpose()?;
 
         Ok(Self {
             rename,
@@ -223,6 +237,8 @@ impl FieldAttribute {
             channel_types,
             max_value,
             min_value,
+            max_length,
+            min_length,
         })
     }
 
@@ -331,14 +347,25 @@ pub fn channel_type(kind: &ChannelType) -> TokenStream {
 /// Convert a [`Option<CommandOptionValue>`] into a [`TokenStream`]
 pub fn command_option_value(value: Option<CommandOptionValue>) -> TokenStream {
     match value {
-        None => quote!(None),
+        None => quote!(::std::option::Option::None),
         Some(CommandOptionValue::Integer(inner)) => {
-            quote!(Some(::twilight_model::application::command::CommandOptionValue::Integer(#inner)))
+            quote!(::std::option::Option::Some(::twilight_model::application::command::CommandOptionValue::Integer(#inner)))
         }
         Some(CommandOptionValue::Number(inner)) => quote! {
-            Some(::twilight_model::application::command::CommandOptionValue::Number(
+            ::std::option::Option::Some(::twilight_model::application::command::CommandOptionValue::Number(
                 ::twilight_model::application::command::Number(#inner)
             ))
         },
+    }
+}
+
+/// Convert an [`Option<T>`] into a [`TokenStream`]
+pub fn optional<T>(value: Option<T>) -> TokenStream
+where
+    T: ToTokens,
+{
+    match value {
+        Some(value) => quote!(::std::option::Option::Some(#value)),
+        None => quote!(::std::option::Option::None),
     }
 }

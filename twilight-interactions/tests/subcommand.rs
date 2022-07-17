@@ -129,6 +129,8 @@ fn test_create_subcommand() {
         choices: vec![],
         description: "An option".into(),
         description_localizations: None,
+        max_length: None,
+        min_length: None,
         name: "option".into(),
         name_localizations: None,
         required: true,

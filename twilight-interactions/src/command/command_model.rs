@@ -122,12 +122,13 @@ use crate::error::{ParseError, ParseOptionError, ParseOptionErrorType};
 /// ## Macro attributes
 /// The macro provides a `#[command]` attribute to configure generated code.
 ///
-/// | Attribute                | Type           | Location             | Description                                                     |
-/// |--------------------------|----------------|----------------------|-----------------------------------------------------------------|
-/// | `name`                   | `str`          | Variant (subcommand) | Subcommand name (required).                                     |
-/// | `rename`                 | `str`          | Field                | Use a different name for the field when parsing.                |
-/// | `channel_types`          | `str`          | Field                | Restricts the channel choice to specific types.[^channel_types] |
-/// | `max_value`, `min_value` | `i64` or `f64` | Field                | Maximum and/or minimum value permitted.                         |
+/// | Attribute                  | Type           | Location             | Description                                                     |
+/// |----------------------------|----------------|----------------------|-----------------------------------------------------------------|
+/// | `name`                     | `str`          | Variant (subcommand) | Subcommand name (required).                                     |
+/// | `rename`                   | `str`          | Field                | Use a different name for the field when parsing.                |
+/// | `channel_types`            | `str`          | Field                | Restricts the channel choice to specific types.[^channel_types] |
+/// | `max_value`, `min_value`   | `i64` or `f64` | Field                | Maximum and/or minimum value permitted.                         |
+/// | `max_length`, `min_length` | `u16`          | Field                | Maximum and/or minimum string length permitted.                 |
 ///
 /// ### Example
 /// ```
@@ -401,13 +402,27 @@ where
 impl CommandOption for String {
     fn from_option(
         value: CommandOptionValue,
-        _data: CommandOptionData,
+        data: CommandOptionData,
         _resolved: Option<&CommandInteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        match value {
-            CommandOptionValue::String(value) => Ok(value),
-            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
+        let value = match value {
+            CommandOptionValue::String(value) => value,
+            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
+        };
+
+        if let Some(min) = data.min_length {
+            if value.len() < min.into() {
+                todo!()
+            }
         }
+
+        if let Some(max) = data.max_length {
+            if value.len() > max.into() {
+                todo!()
+            }
+        }
+
+        Ok(value)
     }
 }
 
