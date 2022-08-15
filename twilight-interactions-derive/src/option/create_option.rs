@@ -71,7 +71,7 @@ fn choice_variant(variant: &ParsedVariant) -> TokenStream {
     let value = match &variant.attribute.value {
         ChoiceValue::String(val) => quote! { ::std::convert::From::from(#val) },
         ChoiceValue::Int(val) => val.to_token_stream(),
-        ChoiceValue::Number(val) => quote! { twilight_model::application::command::Number(#val) },
+        ChoiceValue::Number(val) => val.to_token_stream(),
     };
     let type_path = match variant.kind {
         ChoiceKind::String => quote! { String },

@@ -5,10 +5,7 @@ use std::{
     fmt::{Display, Formatter, Result as FmtResult},
 };
 
-use twilight_model::{
-    application::command::{CommandOptionType, Number},
-    channel::ChannelType,
-};
+use twilight_model::{application::command::CommandOptionType, channel::ChannelType};
 
 /// Error when parsing a command.
 ///
@@ -16,7 +13,7 @@ use twilight_model::{
 /// method.
 ///
 /// [`CommandModel::from_interaction`]: crate::command::CommandModel::from_interaction
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ParseError {
     /// Received empty option list.
     ///
@@ -40,7 +37,7 @@ impl Display for ParseError {
 /// Error when parsing a command option.
 ///
 /// This type is used by [`ParseError`].
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ParseOptionError {
     /// The name of the option field that caused the error.
     pub field: String,
@@ -63,7 +60,7 @@ impl Display for ParseOptionError {
                 write!(f, "out of range integer, received `{}`", val)
             }
             ParseOptionErrorType::NumberOutOfRange(val) => {
-                write!(f, "out of range number, received `{}`", val.0)
+                write!(f, "out of range number, received `{}`", val)
             }
             ParseOptionErrorType::StringLengthOutOfRange(val) => {
                 write!(f, "out of range string length, received `{}`", val)
@@ -80,7 +77,7 @@ impl Display for ParseOptionError {
 }
 
 /// Type of [`ParseOptionError`] that occurred.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ParseOptionErrorType {
     /// Received an invalid option type.
     InvalidType(CommandOptionType),
@@ -89,7 +86,7 @@ pub enum ParseOptionErrorType {
     /// Received an out of range integer.
     IntegerOutOfRange(i64),
     /// Received an out of range floating point number.
-    NumberOutOfRange(Number),
+    NumberOutOfRange(f64),
     /// Received an out of range string.
     StringLengthOutOfRange(String),
     /// Received an invalid channel type.

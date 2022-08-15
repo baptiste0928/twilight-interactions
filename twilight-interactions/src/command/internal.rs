@@ -35,7 +35,7 @@ where
 /// This type is used in the [`CreateOption`] trait.
 ///
 /// [`CreateOption`]: super::CreateOption
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CreateOptionData {
     /// Name of the option. It must be 32 characters or less.
     pub name: String,
@@ -62,7 +62,7 @@ pub struct CreateOptionData {
 /// trait.
 ///
 /// [`CommandOption`]: super::CommandOption
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct CommandOptionData {
     /// Restricts the channel choice to specific types. Only for `CHANNEL`
     /// option type.

@@ -7,7 +7,7 @@ use twilight_model::{
     application::{
         command::{
             BaseCommandOptionData, ChannelCommandOptionData, ChoiceCommandOptionData,
-            CommandOption, CommandOptionValue, Number, NumberCommandOptionData,
+            CommandOption, CommandOptionValue, NumberCommandOptionData,
         },
         interaction::application_command::InteractionChannel,
     },
@@ -16,7 +16,7 @@ use twilight_model::{
 };
 
 /// Demo command for testing purposes
-#[derive(CreateCommand, Debug, PartialEq, Eq)]
+#[derive(CreateCommand, Debug, PartialEq)]
 #[command(
     name = "demo",
     name_localizations = "demo_name",
@@ -37,7 +37,7 @@ where
     text: String,
     /// A number
     #[command(autocomplete = true, max_value = 50.0)]
-    number: Number,
+    number: f64,
     /// A text channel
     #[command(channel_types = "guild_text private")]
     channel: Option<InteractionChannel>,
@@ -85,7 +85,7 @@ fn test_create_command() {
             choices: vec![],
             description: "A number".into(),
             description_localizations: None,
-            max_value: Some(CommandOptionValue::Number(Number(50.0))),
+            max_value: Some(CommandOptionValue::Number(50.0)),
             min_value: None,
             name: "number".into(),
             name_localizations: None,

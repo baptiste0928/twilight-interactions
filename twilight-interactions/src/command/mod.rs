@@ -57,31 +57,30 @@
 //! The [`CommandOption`] and [`CreateOption`] traits are implemented for the
 //! following types:
 //!
-//! | Command option type | Provided implementations               |
-//! |---------------------|----------------------------------------|
-//! | `STRING`            | [`String`], [`Cow`]                    |
-//! | `INTEGER`           | [`i64`]                                |
-//! | `NUMBER`            | [`Number`], [`f64`]                    |
-//! | `BOOLEAN`           | [`bool`]                               |
-//! | `USER`              | [`ResolvedUser`], [`User`], [`UserId`] |
-//! | `CHANNEL`           | [`InteractionChannel`], [`ChannelId`]  |
-//! | `ROLE`              | [`Role`], [`RoleId`]                   |
-//! | `MENTIONABLE`       | [`GenericId`]                          |
-//! | `ATTACHMENT`        | [`Attachment`], [`AttachmentId`]       |
+//! | Command option type | Provided implementations                       |
+//! |---------------------|------------------------------------------------|
+//! | `STRING`            | [`String`], [`Cow`]                            |
+//! | `INTEGER`           | [`i64`]                                        |
+//! | `NUMBER`            | [`f64`]                                        |
+//! | `BOOLEAN`           | [`bool`]                                       |
+//! | `USER`              | [`ResolvedUser`], [`User`], [`Id<UserMarker>`] |
+//! | `CHANNEL`           | [`InteractionChannel`], [`Id<ChannelMarker>`]  |
+//! | `ROLE`              | [`Role`], [`Id<RoleMarker>`]                   |
+//! | `MENTIONABLE`       | [`Id<GenericMarker>`]                          |
+//! | `ATTACHMENT`        | [`Attachment`], [`Id<AttachmentMarker>`]       |
 //!
 //! [`from_interaction`]: CommandModel::from_interaction
 //!
 //! [`Cow`]: std::borrow::Cow
-//! [`Number`]: twilight_model::application::command::Number
 //! [`User`]: twilight_model::user::User
-//! [`UserId`]: twilight_model::id::UserId
+//! [`Id<UserMarker>`]: twilight_model::id::Id
 //! [`InteractionChannel`]: twilight_model::application::interaction::application_command::InteractionChannel
-//! [`ChannelId`]: twilight_model::id::ChannelId
+//! [`Id<ChannelMarker>`]: twilight_model::id::Id
 //! [`Role`]: twilight_model::guild::Role
-//! [`RoleId`]: twilight_model::id::RoleId
-//! [`GenericId`]: twilight_model::id::GenericId
+//! [`Id<RoleMarker>`]: twilight_model::id::Id
+//! [`Id<GenericMarker>`]: twilight_model::id::Id
 //! [`Attachment`]: twilight_model::channel::Attachment
-//! [`AttachmentId`]: twilight_model::id::AttachmentId
+//! [`Id<AttachmentMarker>`]: twilight_model::id::Id
 
 mod command_model;
 mod create_command;

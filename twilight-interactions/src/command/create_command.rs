@@ -2,7 +2,7 @@ use std::{borrow::Cow, collections::HashMap};
 
 use twilight_model::{
     application::{
-        command::{Command, CommandOption, CommandType, Number, OptionsCommandOptionData},
+        command::{Command, CommandOption, CommandType, OptionsCommandOptionData},
         interaction::application_command::InteractionChannel,
     },
     channel::Attachment,
@@ -139,7 +139,7 @@ pub trait CreateOption: Sized {
 ///
 /// This type is used in the [`CreateCommand`] trait.
 /// To convert it into a [`Command`], use the [From] (or [Into]) trait.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ApplicationCommandData {
     /// Name of the command. It must be 32 characters or less.
     pub name: String,
@@ -213,12 +213,6 @@ impl<'a> CreateOption for Cow<'a, str> {
 impl CreateOption for i64 {
     fn create_option(data: CreateOptionData) -> CommandOption {
         CommandOption::Integer(data.into_number(Vec::new()))
-    }
-}
-
-impl CreateOption for Number {
-    fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::Number(data.into_number(Vec::new()))
     }
 }
 

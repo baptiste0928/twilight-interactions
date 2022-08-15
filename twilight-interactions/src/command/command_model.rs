@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use twilight_model::{
     application::{
-        command::{CommandOptionValue as NumberCommandOptionValue, Number},
+        command::CommandOptionValue as NumberCommandOptionValue,
         interaction::application_command::{
             CommandData, CommandDataOption, CommandInteractionDataResolved, CommandOptionValue,
             InteractionChannel, InteractionMember,
@@ -218,7 +218,7 @@ pub trait CommandOption: Sized {
 /// from [`CommandData`] using the [From] trait.
 ///
 /// [`CommandModel`]: super::CommandModel
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CommandInputData<'a> {
     pub options: Vec<CommandDataOption>,
     pub resolved: Option<Cow<'a, CommandInteractionDataResolved>>,
@@ -463,7 +463,7 @@ impl CommandOption for i64 {
     }
 }
 
-impl CommandOption for Number {
+impl CommandOption for f64 {
     fn from_option(
         value: CommandOptionValue,
         data: CommandOptionData,
@@ -475,28 +475,18 @@ impl CommandOption for Number {
         };
 
         if let Some(NumberCommandOptionValue::Number(min)) = data.min_value {
-            if value.0 < min.0 {
+            if value < min {
                 return Err(ParseOptionErrorType::NumberOutOfRange(value));
             }
         }
 
         if let Some(NumberCommandOptionValue::Number(max)) = data.max_value {
-            if value.0 > max.0 {
+            if value > max {
                 return Err(ParseOptionErrorType::NumberOutOfRange(value));
             }
         }
 
         Ok(value)
-    }
-}
-
-impl CommandOption for f64 {
-    fn from_option(
-        value: CommandOptionValue,
-        data: CommandOptionData,
-        resolved: Option<&CommandInteractionDataResolved>,
-    ) -> Result<Self, ParseOptionErrorType> {
-        Number::from_option(value, data, resolved).map(|val| val.0)
     }
 }
 

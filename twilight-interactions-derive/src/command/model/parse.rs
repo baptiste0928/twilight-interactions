@@ -351,11 +351,9 @@ pub fn command_option_value(value: Option<CommandOptionValue>) -> TokenStream {
         Some(CommandOptionValue::Integer(inner)) => {
             quote!(::std::option::Option::Some(::twilight_model::application::command::CommandOptionValue::Integer(#inner)))
         }
-        Some(CommandOptionValue::Number(inner)) => quote! {
-            ::std::option::Option::Some(::twilight_model::application::command::CommandOptionValue::Number(
-                ::twilight_model::application::command::Number(#inner)
-            ))
-        },
+        Some(CommandOptionValue::Number(inner)) => {
+            quote!(::std::option::Option::Some(::twilight_model::application::command::CommandOptionValue::Number(#inner)))
+        }
     }
 }
 
