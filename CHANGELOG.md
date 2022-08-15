@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.13.0] - 2022-08-15
 ### Changed
 - Upgraded to `twilight-model` 0.13.
 - Most types exported by this crate do not longer implement `Eq`.
@@ -100,7 +102,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of `twilight-interactions` and `twilight-interactions-derive` crates.
 
-[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.12.0...main
+[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.13.0...main
+[0.13.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.10.1...v0.11.0
 [0.10.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.10.0...v0.10.1
