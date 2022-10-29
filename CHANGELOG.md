@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Upgraded to `twilight-model` 0.14.
+- MSRV bumped to 1.64.
 
 ## [0.13.0] - 2022-08-15
 ### Changed
