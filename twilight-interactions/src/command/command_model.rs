@@ -627,8 +627,10 @@ impl CommandOption for InteractionChannel {
             other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
         };
 
-        if !data.channel_types.is_empty() && !data.channel_types.contains(&resolved.kind) {
-            return Err(ParseOptionErrorType::InvalidChannelType(resolved.kind));
+        if let Some(channel_types) = data.channel_types {
+            if !channel_types.contains(&resolved.kind) {
+                return Err(ParseOptionErrorType::InvalidChannelType(resolved.kind));
+            }
         }
 
         Ok(resolved)

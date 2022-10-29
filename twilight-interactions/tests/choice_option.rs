@@ -6,8 +6,8 @@ use twilight_interactions::command::{
 };
 use twilight_model::application::{
     command::{
-        ChoiceCommandOptionData, CommandOption as TwilightCommandOption, CommandOptionChoice,
-        NumberCommandOptionData,
+        CommandOption as TwilightCommandOption, CommandOptionChoice, CommandOptionChoiceData,
+        CommandOptionType,
     },
     interaction::application_command::CommandOptionValue,
 };
@@ -59,7 +59,7 @@ fn test_command_option_string() {
     assert_eq!(ChoiceString::Crab.value(), "crab");
 
     let data = CommandOptionData {
-        channel_types: Vec::new(),
+        channel_types: None,
         max_value: None,
         min_value: None,
         max_length: None,
@@ -75,33 +75,38 @@ fn test_command_option_string() {
         data,
     };
 
-    let command_option = TwilightCommandOption::String(ChoiceCommandOptionData {
-        autocomplete: false,
-        choices: vec![
-            CommandOptionChoice::String {
+    let command_option = TwilightCommandOption {
+        autocomplete: Some(false),
+        channel_types: None,
+        choices: Some(vec![
+            CommandOptionChoice::String(CommandOptionChoiceData {
                 name: "Dog".to_string(),
-                name_localizations: Some(HashMap::from([("en".into(), "Dog".into())])),
+                name_localizations: Some(HashMap::from([("en".to_string(), "Dog".to_string())])),
                 value: "dog".to_string(),
-            },
-            CommandOptionChoice::String {
+            }),
+            CommandOptionChoice::String(CommandOptionChoiceData {
                 name: "Cat".to_string(),
                 name_localizations: None,
                 value: "cat".to_string(),
-            },
-            CommandOptionChoice::String {
+            }),
+            CommandOptionChoice::String(CommandOptionChoiceData {
                 name: "Crab".to_string(),
                 name_localizations: None,
                 value: "crab".to_string(),
-            },
-        ],
+            }),
+        ]),
         description: "description".to_string(),
         description_localizations: None,
-        min_length: None,
+        kind: CommandOptionType::String,
         max_length: None,
+        max_value: None,
+        min_length: None,
+        min_value: None,
         name: "name".to_string(),
         name_localizations: None,
-        required: false,
-    });
+        options: None,
+        required: Some(false),
+    };
 
     assert_eq!(command_option, ChoiceString::create_option(create_data))
 }
@@ -119,7 +124,7 @@ fn test_command_option_integer() {
     assert_eq!(ChoiceInt::Three.value(), 3);
 
     let data = CommandOptionData {
-        channel_types: Vec::new(),
+        channel_types: None,
         max_value: None,
         min_value: None,
         min_length: None,
@@ -135,33 +140,38 @@ fn test_command_option_integer() {
         data,
     };
 
-    let command_option = TwilightCommandOption::Integer(NumberCommandOptionData {
-        autocomplete: false,
-        choices: vec![
-            CommandOptionChoice::Int {
+    let command_option = TwilightCommandOption {
+        autocomplete: Some(false),
+        channel_types: None,
+        choices: Some(vec![
+            CommandOptionChoice::Integer(CommandOptionChoiceData {
                 name: "One".to_string(),
                 name_localizations: None,
                 value: 1,
-            },
-            CommandOptionChoice::Int {
+            }),
+            CommandOptionChoice::Integer(CommandOptionChoiceData {
                 name: "Two".to_string(),
                 name_localizations: None,
                 value: 2,
-            },
-            CommandOptionChoice::Int {
+            }),
+            CommandOptionChoice::Integer(CommandOptionChoiceData {
                 name: "Three".to_string(),
                 name_localizations: None,
                 value: 3,
-            },
-        ],
+            }),
+        ]),
         description: "description".to_string(),
         description_localizations: None,
+        kind: CommandOptionType::Integer,
+        max_length: None,
         max_value: None,
+        min_length: None,
         min_value: None,
         name: "name".to_string(),
         name_localizations: None,
-        required: false,
-    });
+        options: None,
+        required: Some(false),
+    };
 
     assert_eq!(command_option, ChoiceInt::create_option(create_data));
 }
@@ -179,7 +189,7 @@ fn test_command_option_number() {
     assert_eq!(ChoiceNumber::Quarter.value(), 0.25);
 
     let data = CommandOptionData {
-        channel_types: Vec::new(),
+        channel_types: None,
         max_value: None,
         min_value: None,
         max_length: None,
@@ -195,33 +205,38 @@ fn test_command_option_number() {
         data,
     };
 
-    let command_option = TwilightCommandOption::Number(NumberCommandOptionData {
-        autocomplete: false,
-        choices: vec![
-            CommandOptionChoice::Number {
+    let command_option = TwilightCommandOption {
+        autocomplete: Some(false),
+        channel_types: None,
+        choices: Some(vec![
+            CommandOptionChoice::Number(CommandOptionChoiceData {
                 name: "One".to_string(),
                 name_localizations: None,
                 value: 1.0,
-            },
-            CommandOptionChoice::Number {
+            }),
+            CommandOptionChoice::Number(CommandOptionChoiceData {
                 name: "Half".to_string(),
                 name_localizations: None,
                 value: 0.5,
-            },
-            CommandOptionChoice::Number {
+            }),
+            CommandOptionChoice::Number(CommandOptionChoiceData {
                 name: "Quarter".to_string(),
                 name_localizations: None,
                 value: 0.25,
-            },
-        ],
+            }),
+        ]),
         description: "description".to_string(),
         description_localizations: None,
+        kind: CommandOptionType::Number,
+        max_length: None,
         max_value: None,
+        min_length: None,
         min_value: None,
         name: "name".to_string(),
         name_localizations: None,
-        required: false,
-    });
+        options: None,
+        required: Some(false),
+    };
 
     assert_eq!(command_option, ChoiceNumber::create_option(create_data));
 }

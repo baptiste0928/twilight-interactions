@@ -5,7 +5,7 @@ use twilight_interactions::command::{
 };
 use twilight_model::{
     application::{
-        command::{ChoiceCommandOptionData, CommandOption, OptionsCommandOptionData},
+        command::{CommandOption, CommandOptionType},
         interaction::application_command::{CommandDataOption, CommandOptionValue},
     },
     guild::Permissions,
@@ -124,50 +124,91 @@ fn test_subcommand_group_model() {
 
 #[test]
 fn test_create_subcommand() {
-    let command_options = vec![CommandOption::String(ChoiceCommandOptionData {
-        autocomplete: false,
-        choices: vec![],
+    let command_options = vec![CommandOption {
+        autocomplete: Some(false),
+        channel_types: None,
+        choices: None,
         description: "An option".into(),
         description_localizations: None,
+        kind: CommandOptionType::String,
         max_length: None,
+        max_value: None,
         min_length: None,
+        min_value: None,
         name: "option".into(),
         name_localizations: None,
-        required: true,
-    })];
+        options: None,
+        required: Some(true),
+    }];
 
     let subcommand_group = vec![
-        CommandOption::SubCommand(OptionsCommandOptionData {
+        CommandOption {
+            autocomplete: Some(false),
+            channel_types: None,
+            choices: None,
             description: "Command two".into(),
             description_localizations: None,
+            kind: CommandOptionType::SubCommand,
+            max_length: None,
+            max_value: None,
+            min_length: None,
+            min_value: None,
             name: "two".into(),
             name_localizations: None,
-            options: command_options.clone(),
-        }),
-        CommandOption::SubCommand(OptionsCommandOptionData {
+            options: Some(command_options.clone()),
+            required: Some(true),
+        },
+        CommandOption {
+            autocomplete: Some(false),
+            channel_types: None,
+            choices: None,
             description: "Command three".into(),
             description_localizations: None,
+            kind: CommandOptionType::SubCommand,
+            max_length: None,
+            max_value: None,
+            min_length: None,
+            min_value: None,
             name: "three".into(),
             name_localizations: None,
-            options: command_options.clone(),
-        }),
+            options: Some(command_options.clone()),
+            required: Some(true),
+        },
     ];
 
     let subcommand = vec![
-        CommandOption::SubCommand(OptionsCommandOptionData {
+        CommandOption {
+            autocomplete: Some(false),
+            channel_types: None,
+            choices: None,
             description: "Command one".into(),
             description_localizations: None,
+            kind: CommandOptionType::SubCommand,
+            max_length: None,
+            max_value: None,
+            min_length: None,
+            min_value: None,
             name: "one".into(),
             name_localizations: None,
-            options: command_options,
-        }),
-        CommandOption::SubCommandGroup(OptionsCommandOptionData {
+            options: Some(command_options.clone()),
+            required: Some(true),
+        },
+        CommandOption {
+            autocomplete: Some(false),
+            channel_types: None,
+            choices: None,
             description: "Command group".into(),
             description_localizations: None,
+            kind: CommandOptionType::SubCommandGroup,
+            max_length: None,
+            max_value: None,
+            min_length: None,
+            min_value: None,
             name: "group".into(),
             name_localizations: None,
-            options: subcommand_group,
-        }),
+            options: Some(subcommand_group),
+            required: Some(true),
+        },
     ];
 
     let expected = ApplicationCommandData {

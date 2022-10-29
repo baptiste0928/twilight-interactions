@@ -78,16 +78,22 @@ fn field_match_arm(field: &StructField) -> TokenStream {
     let span = field.span;
 
     let name = field.attributes.name_default(ident.to_string());
-    let channel_types = field.attributes.channel_types.iter().map(channel_type);
     let max_value = command_option_value(field.attributes.max_value);
     let min_value = command_option_value(field.attributes.min_value);
     let max_length = optional(field.attributes.max_length);
     let min_length = optional(field.attributes.min_length);
 
+    let channel_types = if field.attributes.channel_types.is_empty() {
+        quote! { ::std::option::Option::None }
+    } else {
+        let items = field.attributes.channel_types.iter().map(channel_type);
+        quote! { ::std::option::Option::Some(::std::vec![#(#items),*]) }
+    };
+
     quote_spanned! {span=>
         #name => {
             let option_data = ::twilight_interactions::command::internal::CommandOptionData {
-                channel_types: ::std::vec![#(#channel_types),*],
+                channel_types: #channel_types,
                 max_value: #max_value,
                 min_value: #min_value,
                 max_length: #max_length,

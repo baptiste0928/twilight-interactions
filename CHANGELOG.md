@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Upgraded to `twilight-model` 0.14.
 
 ## [0.13.0] - 2022-08-15
 ### Changed
@@ -66,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved validation of command names.
 
 ### Fixed
-- `ParseError::EmptyOption` is only returned when parsing subcommands.  
+- `ParseError::EmptyOption` is only returned when parsing subcommands.
    This fixes command models without options or with only optional options.
 
 ## [0.8.0] - 2021-12-12

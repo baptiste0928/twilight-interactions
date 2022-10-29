@@ -75,26 +75,33 @@ fn choice_variant(variant: &ParsedVariant) -> TokenStream {
     };
     let type_path = match variant.kind {
         ChoiceKind::String => quote! { String },
-        ChoiceKind::Integer => quote! { Int },
+        ChoiceKind::Integer => quote! { Integer },
         ChoiceKind::Number => quote! { Number },
     };
 
     quote! {
-        choices.push(::twilight_model::application::command::CommandOptionChoice::#type_path {
-            name: ::std::convert::From::from(#name),
-            name_localizations: #name_localizations,
-            value: #value,
-        });
+        choices.push(::twilight_model::application::command::CommandOptionChoice::#type_path(
+            ::twilight_model::application::command::CommandOptionChoiceData {
+                name: ::std::convert::From::from(#name),
+                name_localizations: #name_localizations,
+                value: #value,
+            }
+        ));
     }
 }
 
 /// Generate command option
 fn command_option(kind: ChoiceKind) -> TokenStream {
-    let path = match kind {
-        ChoiceKind::String => quote!(String(data.into_choice(choices))),
-        ChoiceKind::Integer => quote!(Integer(data.into_number(choices))),
-        ChoiceKind::Number => quote!(Number(data.into_number(choices))),
+    let opt_kind = match kind {
+        ChoiceKind::String => quote! { String },
+        ChoiceKind::Integer => quote! { Integer },
+        ChoiceKind::Number => quote! { Number },
     };
 
-    quote!(::twilight_model::application::command::CommandOption::#path)
+    quote! {
+        data
+            .builder(::twilight_model::application::command::CommandOptionType::#opt_kind)
+            .choices(choices)
+            .build()
+    }
 }

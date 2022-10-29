@@ -2,7 +2,7 @@ use std::{borrow::Cow, collections::HashMap};
 
 use twilight_model::{
     application::{
-        command::{Command, CommandOption, CommandType, OptionsCommandOptionData},
+        command::{Command, CommandOption, CommandOptionType, CommandType},
         interaction::application_command::InteractionChannel,
     },
     channel::Attachment,
@@ -182,108 +182,114 @@ impl From<ApplicationCommandData> for Command {
 
 impl From<ApplicationCommandData> for CommandOption {
     fn from(item: ApplicationCommandData) -> Self {
-        let data = OptionsCommandOptionData {
-            description: item.description,
-            description_localizations: item.description_localizations,
+        let data = CreateOptionData {
             name: item.name,
             name_localizations: item.name_localizations,
-            options: item.options,
+            description: item.description,
+            description_localizations: item.description_localizations,
+            required: true,
+            autocomplete: false,
+            data: Default::default(),
         };
 
         if item.group {
-            CommandOption::SubCommandGroup(data)
+            data.builder(CommandOptionType::SubCommandGroup)
+                .options(item.options)
+                .build()
         } else {
-            CommandOption::SubCommand(data)
+            data.builder(CommandOptionType::SubCommand)
+                .options(item.options)
+                .build()
         }
     }
 }
 
 impl CreateOption for String {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::String(data.into_choice(Vec::new()))
+        data.into_option(CommandOptionType::String)
     }
 }
 
 impl<'a> CreateOption for Cow<'a, str> {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        String::create_option(data)
+        data.into_option(CommandOptionType::String)
     }
 }
 
 impl CreateOption for i64 {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::Integer(data.into_number(Vec::new()))
+        data.into_option(CommandOptionType::Integer)
     }
 }
 
 impl CreateOption for f64 {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::Number(data.into_number(Vec::new()))
+        data.into_option(CommandOptionType::Number)
     }
 }
 
 impl CreateOption for bool {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::Boolean(data.into_data())
+        data.into_option(CommandOptionType::Boolean)
     }
 }
 
 impl CreateOption for Id<UserMarker> {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::User(data.into_data())
+        data.into_option(CommandOptionType::User)
     }
 }
 
 impl CreateOption for Id<ChannelMarker> {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::Channel(data.into_channel())
+        data.into_option(CommandOptionType::Channel)
     }
 }
 
 impl CreateOption for Id<RoleMarker> {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::Role(data.into_data())
+        data.into_option(CommandOptionType::Role)
     }
 }
 
 impl CreateOption for Id<GenericMarker> {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::Mentionable(data.into_data())
+        data.into_option(CommandOptionType::Mentionable)
     }
 }
 
 impl CreateOption for Id<AttachmentMarker> {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::Attachment(data.into_data())
+        data.into_option(CommandOptionType::Attachment)
     }
 }
 
 impl CreateOption for Attachment {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::Attachment(data.into_data())
+        data.into_option(CommandOptionType::Attachment)
     }
 }
 
 impl CreateOption for User {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::User(data.into_data())
+        data.into_option(CommandOptionType::User)
     }
 }
 
 impl CreateOption for ResolvedUser {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::User(data.into_data())
+        data.into_option(CommandOptionType::User)
     }
 }
 
 impl CreateOption for InteractionChannel {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::Channel(data.into_channel())
+        data.into_option(CommandOptionType::Channel)
     }
 }
 
 impl CreateOption for Role {
     fn create_option(data: CreateOptionData) -> CommandOption {
-        CommandOption::Role(data.into_data())
+        data.into_option(CommandOptionType::Role)
     }
 }
