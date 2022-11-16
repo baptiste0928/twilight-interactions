@@ -129,7 +129,7 @@ impl NamedAttrs {
             };
 
             // Ensure the parsed parameter is expected
-            if !expected.contains(&&*key) {
+            if !expected.contains(&*key) {
                 return Err(Error::new(
                     inner.path.span(),
                     format!("Invalid parameter name (expected {})", expected),
