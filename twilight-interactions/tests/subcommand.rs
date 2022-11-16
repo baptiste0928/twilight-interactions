@@ -190,7 +190,7 @@ fn test_create_subcommand() {
             min_value: None,
             name: "one".into(),
             name_localizations: None,
-            options: Some(command_options.clone()),
+            options: Some(command_options),
             required: Some(true),
         },
         CommandOption {

@@ -1,6 +1,6 @@
 [package]
 name = "twilight-interactions-derive"
-version = "0.13.0"
+version = "0.14.0"
 description = "Macros and utilities to make Discord Interactions easy to use with Twilight."
 categories = ["parsing", "config", "asynchronous"]
 keywords = ["twilight", "discord", "slash-command"]
