@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.1] - 2022-11-21
+### Fixed
+- Set `required` to `None` on subcommand and subcommand group options.
+
 ## [0.14.0] - 2022-11-16
 ### Changed
 - Upgraded to `twilight-model` 0.14.
@@ -107,7 +111,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of `twilight-interactions` and `twilight-interactions-derive` crates.
 
-[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.0...main
+[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.1...main
+[0.14.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.11.0...v0.12.0
