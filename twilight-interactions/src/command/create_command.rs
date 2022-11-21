@@ -187,7 +187,7 @@ impl From<ApplicationCommandData> for CommandOption {
             name_localizations: item.name_localizations,
             description: item.description,
             description_localizations: item.description_localizations,
-            required: true,
+            required: None,
             autocomplete: false,
             data: Default::default(),
         };

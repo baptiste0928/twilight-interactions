@@ -156,7 +156,7 @@ fn test_create_subcommand() {
             name: "two".into(),
             name_localizations: None,
             options: Some(command_options.clone()),
-            required: Some(true),
+            required: None,
         },
         CommandOption {
             autocomplete: Some(false),
@@ -172,7 +172,7 @@ fn test_create_subcommand() {
             name: "three".into(),
             name_localizations: None,
             options: Some(command_options.clone()),
-            required: Some(true),
+            required: None,
         },
     ];
 
@@ -191,7 +191,7 @@ fn test_create_subcommand() {
             name: "one".into(),
             name_localizations: None,
             options: Some(command_options),
-            required: Some(true),
+            required: None,
         },
         CommandOption {
             autocomplete: Some(false),
@@ -207,7 +207,7 @@ fn test_create_subcommand() {
             name: "group".into(),
             name_localizations: None,
             options: Some(subcommand_group),
-            required: Some(true),
+            required: None,
         },
     ];
 

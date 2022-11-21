@@ -70,7 +70,7 @@ fn test_command_option_string() {
         name_localizations: None,
         description: "description".to_string(),
         description_localizations: None,
-        required: false,
+        required: Some(false),
         autocomplete: false,
         data,
     };
@@ -135,7 +135,7 @@ fn test_command_option_integer() {
         name_localizations: None,
         description: "description".to_string(),
         description_localizations: None,
-        required: false,
+        required: Some(false),
         autocomplete: false,
         data,
     };
@@ -200,7 +200,7 @@ fn test_command_option_number() {
         name_localizations: None,
         description: "description".to_string(),
         description_localizations: None,
-        required: false,
+        required: Some(false),
         autocomplete: false,
         data,
     };

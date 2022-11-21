@@ -47,7 +47,7 @@ pub struct CreateOptionData {
     /// locales.
     pub description_localizations: Option<HashMap<String, String>>,
     /// Whether the option is required to be completed by a user.
-    pub required: bool,
+    pub required: Option<bool>,
     /// Whether the command supports autocomplete. Only for `STRING`, `INTEGER`
     /// and `NUMBER` option types.
     pub autocomplete: bool,
@@ -126,7 +126,7 @@ impl CreateOptionBuilder {
             name: self.option.name,
             name_localizations: self.option.name_localizations,
             options: self.options,
-            required: Some(self.option.required),
+            required: self.option.required,
         }
     }
 }

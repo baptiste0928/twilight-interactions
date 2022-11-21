@@ -117,7 +117,7 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
                 name_localizations: #name_localizations,
                 description: ::std::convert::From::from(#description),
                 description_localizations: #description_localizations,
-                required: #required,
+                required: ::std::option::Option::Some(#required),
                 autocomplete: #autocomplete,
                 data: ::twilight_interactions::command::internal::CommandOptionData {
                     channel_types: #channel_types,
