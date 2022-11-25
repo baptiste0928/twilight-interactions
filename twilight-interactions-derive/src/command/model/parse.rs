@@ -327,7 +327,9 @@ pub fn channel_type(kind: &ChannelType) -> TokenStream {
         ChannelType::GuildVoice => quote!(::twilight_model::channel::ChannelType::GuildVoice),
         ChannelType::Group => quote!(::twilight_model::channel::ChannelType::Group),
         ChannelType::GuildCategory => quote!(::twilight_model::channel::ChannelType::GuildCategory),
-        ChannelType::GuildAnnouncement => quote!(::twilight_model::channel::ChannelType::GuildAnnouncement),
+        ChannelType::GuildAnnouncement => {
+            quote!(::twilight_model::channel::ChannelType::GuildAnnouncement)
+        }
         ChannelType::GuildStore => quote!(::twilight_model::channel::ChannelType::GuildStore),
         ChannelType::GuildAnnouncementThread => {
             quote!(::twilight_model::channel::ChannelType::GuildAnnouncementThread)
