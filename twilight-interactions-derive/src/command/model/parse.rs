@@ -257,11 +257,11 @@ pub enum ChannelType {
     GuildVoice,
     Group,
     GuildCategory,
-    GuildNews,
+    GuildAnnouncement,
     GuildStore,
-    GuildNewsThread,
-    GuildPublicThread,
-    GuildPrivateThread,
+    GuildAnnouncementThread,
+    PublicThread,
+    PrivateThread,
     GuildStageVoice,
 }
 
@@ -284,11 +284,11 @@ impl ChannelType {
             "guild_voice" => Ok(Self::GuildVoice),
             "group" => Ok(Self::Group),
             "guild_category" => Ok(Self::GuildCategory),
-            "guild_news" => Ok(Self::GuildNews),
+            "guild_announcement" => Ok(Self::GuildAnnouncement),
             "guild_store" => Ok(Self::GuildStore),
-            "guild_news_thread" => Ok(Self::GuildNewsThread),
-            "guild_public_thread" => Ok(Self::GuildPublicThread),
-            "guild_private_thread" => Ok(Self::GuildPrivateThread),
+            "guild_announcement_thread" => Ok(Self::GuildAnnouncementThread),
+            "public_thread" => Ok(Self::PublicThread),
+            "private_thread" => Ok(Self::PrivateThread),
             "guild_stage_voice" => Ok(Self::GuildStageVoice),
             invalid => Err(Error::new(
                 span,
@@ -327,16 +327,16 @@ pub fn channel_type(kind: &ChannelType) -> TokenStream {
         ChannelType::GuildVoice => quote!(::twilight_model::channel::ChannelType::GuildVoice),
         ChannelType::Group => quote!(::twilight_model::channel::ChannelType::Group),
         ChannelType::GuildCategory => quote!(::twilight_model::channel::ChannelType::GuildCategory),
-        ChannelType::GuildNews => quote!(::twilight_model::channel::ChannelType::GuildNews),
+        ChannelType::GuildAnnouncement => quote!(::twilight_model::channel::ChannelType::GuildAnnouncement),
         ChannelType::GuildStore => quote!(::twilight_model::channel::ChannelType::GuildStore),
-        ChannelType::GuildNewsThread => {
-            quote!(::twilight_model::channel::ChannelType::GuildNewsThread)
+        ChannelType::GuildAnnouncementThread => {
+            quote!(::twilight_model::channel::ChannelType::GuildAnnouncementThread)
         }
-        ChannelType::GuildPublicThread => {
-            quote!(::twilight_model::channel::ChannelType::GuildPublicThread)
+        ChannelType::PublicThread => {
+            quote!(::twilight_model::channel::ChannelType::PublicThread)
         }
-        ChannelType::GuildPrivateThread => {
-            quote!(::twilight_model::channel::ChannelType::GuildPrivateThread)
+        ChannelType::PrivateThread => {
+            quote!(::twilight_model::channel::ChannelType::PrivateThread)
         }
         ChannelType::GuildStageVoice => {
             quote!(::twilight_model::channel::ChannelType::GuildStageVoice)
