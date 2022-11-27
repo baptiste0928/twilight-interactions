@@ -259,7 +259,7 @@ pub enum ChannelType {
     GuildCategory,
     GuildAnnouncement,
     GuildStore,
-    GuildAnnouncementThread,
+    AnnouncementThread,
     PublicThread,
     PrivateThread,
     GuildStageVoice,
@@ -286,7 +286,7 @@ impl ChannelType {
             "guild_category" => Ok(Self::GuildCategory),
             "guild_announcement" | "guild_news" => Ok(Self::GuildAnnouncement),
             "guild_store" => Ok(Self::GuildStore),
-            "announcement_thread" | "guild_news_thread" => Ok(Self::GuildAnnouncementThread),
+            "announcement_thread" | "guild_news_thread" => Ok(Self::AnnouncementThread),
             "public_thread" | "guild_public_thread" => Ok(Self::PublicThread),
             "private_thread"| "guild_private_thread" => Ok(Self::PrivateThread),
             "guild_stage_voice" => Ok(Self::GuildStageVoice),
@@ -331,8 +331,8 @@ pub fn channel_type(kind: &ChannelType) -> TokenStream {
             quote!(::twilight_model::channel::ChannelType::GuildAnnouncement)
         }
         ChannelType::GuildStore => quote!(::twilight_model::channel::ChannelType::GuildStore),
-        ChannelType::GuildAnnouncementThread => {
-            quote!(::twilight_model::channel::ChannelType::GuildAnnouncementThread)
+        ChannelType::AnnouncementThread => {
+            quote!(::twilight_model::channel::ChannelType::AnnouncementThread)
         }
         ChannelType::PublicThread => {
             quote!(::twilight_model::channel::ChannelType::PublicThread)
