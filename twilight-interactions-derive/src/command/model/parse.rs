@@ -288,7 +288,7 @@ impl ChannelType {
             "guild_store" => Ok(Self::GuildStore),
             "announcement_thread" | "guild_news_thread" => Ok(Self::AnnouncementThread),
             "public_thread" | "guild_public_thread" => Ok(Self::PublicThread),
-            "private_thread"| "guild_private_thread" => Ok(Self::PrivateThread),
+            "private_thread" | "guild_private_thread" => Ok(Self::PrivateThread),
             "guild_stage_voice" => Ok(Self::GuildStageVoice),
             invalid => Err(Error::new(
                 span,
