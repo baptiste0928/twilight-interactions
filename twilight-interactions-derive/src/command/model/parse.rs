@@ -284,7 +284,7 @@ impl ChannelType {
             "guild_voice" => Ok(Self::GuildVoice),
             "group" => Ok(Self::Group),
             "guild_category" => Ok(Self::GuildCategory),
-            "guild_announcement" => Ok(Self::GuildAnnouncement),
+            "guild_announcement" | "guild_news" => Ok(Self::GuildAnnouncement),
             "guild_store" => Ok(Self::GuildStore),
             "announcement_thread" | "guild_news_thread" => Ok(Self::GuildAnnouncementThread),
             "public_thread" | "guild_public_thread" => Ok(Self::PublicThread),
