@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.2] - 2022-11-27
+### Fixed
+- Use new `ChannelType` variant names.
+
 ## [0.14.1] - 2022-11-21
 ### Fixed
 - Set `required` to `None` on subcommand and subcommand group options.
@@ -111,7 +115,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of `twilight-interactions` and `twilight-interactions-derive` crates.
 
-[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.1...main
+[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.2...main
+[0.14.2]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.1...v0.14.2
 [0.14.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.12.0...v0.13.0
