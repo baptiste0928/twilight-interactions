@@ -110,7 +110,7 @@ impl TypeAttribute {
                 "desc_localizations",
                 "default_permissions",
                 "dm_permission",
-                "nsfw"
+                "nsfw",
             ],
         )?;
 
@@ -136,10 +136,7 @@ impl TypeAttribute {
             .get("dm_permission")
             .map(|v| v.parse_bool())
             .transpose()?;
-        let nsfw = attrs
-            .get("nsfw")
-            .map(|v| v.parse_bool())
-            .transpose()?;
+        let nsfw = attrs.get("nsfw").map(|v| v.parse_bool()).transpose()?;
 
         Ok(Self {
             autocomplete,

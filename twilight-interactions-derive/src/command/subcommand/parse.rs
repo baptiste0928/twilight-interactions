@@ -151,10 +151,7 @@ impl TypeAttribute {
             .get("dm_permission")
             .map(|v| v.parse_bool())
             .transpose()?;
-        let nsfw = attrs
-            .get("nsfw")
-            .map(|v| v.parse_bool())
-            .transpose()?;
+        let nsfw = attrs.get("nsfw").map(|v| v.parse_bool()).transpose()?;
 
         Ok(Self {
             name,
