@@ -18,7 +18,8 @@ use twilight_model::{
     name = "demo",
     name_localizations = "demo_name",
     default_permissions = "demo_permissions",
-    dm_permission = false
+    dm_permission = false,
+    nsfw = true
 )]
 struct DemoCommand<'a, T>
 where
@@ -168,6 +169,7 @@ fn test_create_command() {
         default_member_permissions: Some(Permissions::SEND_MESSAGES),
         dm_permission: Some(false),
         group: false,
+        nsfw: Some(true),
     };
 
     assert_eq!(DemoCommand::<i64>::create_command(), expected);
@@ -185,6 +187,7 @@ fn test_unit_create_command() {
         default_member_permissions: None,
         dm_permission: None,
         group: false,
+        nsfw: None,
     };
 
     assert_eq!(UnitCommand::create_command(), expected);

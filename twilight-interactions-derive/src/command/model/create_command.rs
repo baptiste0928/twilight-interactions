@@ -54,6 +54,10 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
         Some(dm_permission) => quote! { ::std::option::Option::Some(#dm_permission)},
         None => quote! { ::std::option::Option::None },
     };
+    let nsfw = match &attributes.nsfw {
+        Some(nsfw) => quote! { ::std::option::Option::Some(#nsfw) },
+        None => quote! { ::std::option::Option::None },
+    };
 
     let field_options = fields
         .iter()
@@ -77,6 +81,7 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
                     options: command_options,
                     default_member_permissions: #default_permissions,
                     dm_permission: #dm_permission,
+                    nsfw: #nsfw,
                     group: false,
                 }
             }

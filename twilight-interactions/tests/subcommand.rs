@@ -220,6 +220,7 @@ fn test_create_subcommand() {
         default_member_permissions: Some(Permissions::empty()),
         dm_permission: None,
         group: true,
+        nsfw: None,
     };
 
     assert_eq!(SubCommand::create_command(), expected);

@@ -109,6 +109,8 @@ pub struct TypeAttribute {
     pub default_permissions: Option<syn::Path>,
     /// Whether the command is available in DMs.
     pub dm_permission: Option<bool>,
+    /// Whether the command is nsfw.
+    pub nsfw: Option<bool>,
 }
 
 impl TypeAttribute {
@@ -124,6 +126,7 @@ impl TypeAttribute {
                 "desc_localizations",
                 "default_permissions",
                 "dm_permission",
+                "nsfw",
             ],
         )?;
 
@@ -148,6 +151,10 @@ impl TypeAttribute {
             .get("dm_permission")
             .map(|v| v.parse_bool())
             .transpose()?;
+        let nsfw = attrs
+            .get("nsfw")
+            .map(|v| v.parse_bool())
+            .transpose()?;
 
         Ok(Self {
             name,
@@ -156,6 +163,7 @@ impl TypeAttribute {
             desc_localizations,
             default_permissions,
             dm_permission,
+            nsfw,
         })
     }
 }

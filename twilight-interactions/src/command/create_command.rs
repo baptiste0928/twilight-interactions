@@ -64,6 +64,7 @@ use super::{internal::CreateOptionData, ResolvedUser};
 /// | `desc`                     | `str`               | Type / Field / Variant | Description of the command (required).                          |
 /// | `default_permissions`      | `fn`[^perms]        | Type                   | Default permissions required by members to run the command.     |
 /// | `dm_permission`            | `bool`              | Type                   | Whether the command can be run in DMs.                          |
+/// | `nsfw`                     | `bool`              | Type                   | Whether the command is age-restricted.
 /// | `rename`                   | `str`               | Field                  | Use a different option name than the field name.                |
 /// | `name_localizations`       | `fn`[^localization] | Type / Field / Variant | Localized name of the command (optional).                       |
 /// | `desc_localizations`       | `fn`[^localization] | Type / Field / Variant | Localized description of the command (optional).                |
@@ -159,6 +160,8 @@ pub struct ApplicationCommandData {
     pub default_member_permissions: Option<Permissions>,
     /// Whether the command is a subcommand group.
     pub group: bool,
+    /// Whether the command is nsfw.
+    pub nsfw: Option<bool>,
 }
 
 impl From<ApplicationCommandData> for Command {
@@ -174,6 +177,7 @@ impl From<ApplicationCommandData> for Command {
             description_localizations: item.description_localizations,
             id: None,
             kind: CommandType::ChatInput,
+            nsfw: item.nsfw,
             options: item.options,
             version: Id::new(1),
         }
