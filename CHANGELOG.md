@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.3] - 2023-01-08
+### Added
+- Support age-restricted commands with the `nsfw` attribute.
+
+### Fixed
+- Fixed compilation errors with `twilight-model` 0.14.1 and above.
+
 ## [0.14.2] - 2022-11-27
 ### Fixed
 - Use new `ChannelType` variant names.
@@ -115,7 +122,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of `twilight-interactions` and `twilight-interactions-derive` crates.
 
-[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.2...main
+[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.3...main
+[0.14.3]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.2...v0.14.3
 [0.14.2]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.1...v0.14.2
 [0.14.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.13.0...v0.14.0
