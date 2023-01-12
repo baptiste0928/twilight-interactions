@@ -268,6 +268,8 @@ pub enum ChannelType {
     PublicThread,
     PrivateThread,
     GuildStageVoice,
+    GuildDirectory,
+    GuildForum,
 }
 
 impl ChannelType {
@@ -295,6 +297,8 @@ impl ChannelType {
             "public_thread" | "guild_public_thread" => Ok(Self::PublicThread),
             "private_thread" | "guild_private_thread" => Ok(Self::PrivateThread),
             "guild_stage_voice" => Ok(Self::GuildStageVoice),
+            "guild_directory" => Ok(Self::GuildDirectory),
+            "guild_forum" => Ok(Self::GuildForum),
             invalid => Err(Error::new(
                 span,
                 format!("`{}` is not a valid channel type", invalid),
@@ -348,6 +352,10 @@ pub fn channel_type(kind: &ChannelType) -> TokenStream {
         ChannelType::GuildStageVoice => {
             quote!(::twilight_model::channel::ChannelType::GuildStageVoice)
         }
+        ChannelType::GuildDirectory => {
+            quote!(::twilight_model::channel::ChannelType::GuildDirectory)
+        }
+        ChannelType::GuildForum => quote!(::twilight_model::channel::ChannelType::GuildForum),
     }
 }
 
