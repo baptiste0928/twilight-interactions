@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.4] - 2023-01-14
+### Added
+- `GuildDirectory` and `GuildForum` channel types. (@CircuitSacul)
+
 ## [0.14.3] - 2023-01-08
 ### Added
 - Support age-restricted commands with the `nsfw` attribute.
@@ -122,7 +126,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of `twilight-interactions` and `twilight-interactions-derive` crates.
 
-[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.3...main
+[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.4...main
+[0.14.4]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.3...v0.14.4
 [0.14.3]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.2...v0.14.3
 [0.14.2]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.1...v0.14.2
 [0.14.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.0...v0.14.1
