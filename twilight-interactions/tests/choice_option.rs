@@ -6,8 +6,8 @@ use twilight_interactions::command::{
 };
 use twilight_model::application::{
     command::{
-        CommandOption as TwilightCommandOption, CommandOptionChoice, CommandOptionChoiceData,
-        CommandOptionType,
+        CommandOption as TwilightCommandOption, CommandOptionChoice,
+        CommandOptionType, CommandOptionChoiceValue,
     },
     interaction::application_command::CommandOptionValue,
 };
@@ -79,21 +79,21 @@ fn test_command_option_string() {
         autocomplete: Some(false),
         channel_types: None,
         choices: Some(vec![
-            CommandOptionChoice::String(CommandOptionChoiceData {
+            CommandOptionChoice {
                 name: "Dog".to_string(),
                 name_localizations: Some(HashMap::from([("en".to_string(), "Dog".to_string())])),
-                value: "dog".to_string(),
-            }),
-            CommandOptionChoice::String(CommandOptionChoiceData {
+                value: CommandOptionChoiceValue::String("dog".to_string()),
+            },
+            CommandOptionChoice {
                 name: "Cat".to_string(),
                 name_localizations: None,
-                value: "cat".to_string(),
-            }),
-            CommandOptionChoice::String(CommandOptionChoiceData {
+                value: CommandOptionChoiceValue::String("cat".to_string()),
+            },
+            CommandOptionChoice {
                 name: "Crab".to_string(),
                 name_localizations: None,
-                value: "crab".to_string(),
-            }),
+                value: CommandOptionChoiceValue::String("crab".to_string()),
+            },
         ]),
         description: "description".to_string(),
         description_localizations: None,
@@ -144,21 +144,21 @@ fn test_command_option_integer() {
         autocomplete: Some(false),
         channel_types: None,
         choices: Some(vec![
-            CommandOptionChoice::Integer(CommandOptionChoiceData {
+            CommandOptionChoice {
                 name: "One".to_string(),
                 name_localizations: None,
-                value: 1,
-            }),
-            CommandOptionChoice::Integer(CommandOptionChoiceData {
+                value: CommandOptionChoiceValue::Integer(1),
+            },
+            CommandOptionChoice {
                 name: "Two".to_string(),
                 name_localizations: None,
-                value: 2,
-            }),
-            CommandOptionChoice::Integer(CommandOptionChoiceData {
+                value: CommandOptionChoiceValue::Integer(2),
+            },
+            CommandOptionChoice {
                 name: "Three".to_string(),
                 name_localizations: None,
-                value: 3,
-            }),
+                value: CommandOptionChoiceValue::Integer(3),
+            },
         ]),
         description: "description".to_string(),
         description_localizations: None,
@@ -209,21 +209,21 @@ fn test_command_option_number() {
         autocomplete: Some(false),
         channel_types: None,
         choices: Some(vec![
-            CommandOptionChoice::Number(CommandOptionChoiceData {
+            CommandOptionChoice {
                 name: "One".to_string(),
                 name_localizations: None,
-                value: 1.0,
-            }),
-            CommandOptionChoice::Number(CommandOptionChoiceData {
+                value: CommandOptionChoiceValue::Number(1.0),
+            },
+            CommandOptionChoice {
                 name: "Half".to_string(),
                 name_localizations: None,
-                value: 0.5,
-            }),
-            CommandOptionChoice::Number(CommandOptionChoiceData {
+                value: CommandOptionChoiceValue::Number(0.5),
+            },
+            CommandOptionChoice {
                 name: "Quarter".to_string(),
                 name_localizations: None,
-                value: 0.25,
-            }),
+                value: CommandOptionChoiceValue::Number(0.25),
+            },
         ]),
         description: "description".to_string(),
         description_localizations: None,

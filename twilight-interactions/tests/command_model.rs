@@ -5,7 +5,7 @@ use twilight_model::{
     application::interaction::application_command::{
         CommandDataOption, CommandInteractionDataResolved, CommandOptionValue, InteractionMember,
     },
-    guild::Permissions,
+    guild::{Permissions, MemberFlags},
     id::Id,
     user::User,
     util::Timestamp,
@@ -62,6 +62,7 @@ fn test_command_model() {
         communication_disabled_until: None,
         pending: false,
         permissions: Permissions::empty(),
+        flags: MemberFlags::empty(),
     };
 
     let user = User {
