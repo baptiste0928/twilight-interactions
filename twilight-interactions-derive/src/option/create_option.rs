@@ -80,13 +80,12 @@ fn choice_variant(variant: &ParsedVariant) -> TokenStream {
     };
 
     quote! {
-        choices.push(::twilight_model::application::command::CommandOptionChoice::#type_path(
-            ::twilight_model::application::command::CommandOptionChoiceData {
+        choices.push(
+            ::twilight_model::application::command::CommandOptionChoice {
                 name: ::std::convert::From::from(#name),
                 name_localizations: #name_localizations,
-                value: #value,
-            }
-        ));
+                value: ::twilight_model::application::command::CommandOptionChoiceValue::#type_path(#value),
+            });
     }
 }
 
