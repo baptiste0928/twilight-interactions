@@ -123,7 +123,7 @@ impl NamedAttrs {
                 None => {
                     return Err(Error::new(
                         inner.path.span(),
-                        format!("Invalid parameter name (expected {})", expected),
+                        format!("Invalid parameter name (expected {expected})"),
                     ))
                 }
             };
@@ -132,7 +132,7 @@ impl NamedAttrs {
             if !expected.contains(&*key) {
                 return Err(Error::new(
                     inner.path.span(),
-                    format!("Invalid parameter name (expected {})", expected),
+                    format!("Invalid parameter name (expected {expected})"),
                 ));
             }
 
@@ -228,20 +228,14 @@ pub fn parse_name(val: &AttrValue) -> Result<String> {
         if !char.is_alphanumeric() && char != '-' && char != '_' {
             return Err(Error::new(
                 span,
-                format!(
-                    "Name must only contain word characters, found invalid character `{}`",
-                    char
-                ),
+                format!("Name must only contain word characters, found invalid character `{char}`"),
             ));
         }
 
         if char.to_lowercase().to_string() != char.to_string() {
             return Err(Error::new(
                 span,
-                format!(
-                    "Name must be in lowercase, found invalid character `{}`",
-                    char
-                ),
+                format!("Name must be in lowercase, found invalid character `{char}`"),
             ));
         }
     }

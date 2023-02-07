@@ -54,21 +54,21 @@ impl Display for ParseOptionError {
         match &self.kind {
             ParseOptionErrorType::InvalidType(ty) => write!(f, "invalid type, found {}", ty.kind()),
             ParseOptionErrorType::InvalidChoice(choice) => {
-                write!(f, "invalid choice value, found `{}`", choice)
+                write!(f, "invalid choice value, found `{choice}`")
             }
             ParseOptionErrorType::IntegerOutOfRange(val) => {
-                write!(f, "out of range integer, received `{}`", val)
+                write!(f, "out of range integer, received `{val}`")
             }
             ParseOptionErrorType::NumberOutOfRange(val) => {
-                write!(f, "out of range number, received `{}`", val)
+                write!(f, "out of range number, received `{val}`")
             }
             ParseOptionErrorType::StringLengthOutOfRange(val) => {
-                write!(f, "out of range string length, received `{}`", val)
+                write!(f, "out of range string length, received `{val}`")
             }
             ParseOptionErrorType::InvalidChannelType(kind) => {
                 write!(f, "invalid channel type, received `{}`", kind.name())
             }
-            ParseOptionErrorType::LookupFailed(id) => write!(f, "failed to resolve `{}`", id),
+            ParseOptionErrorType::LookupFailed(id) => write!(f, "failed to resolve `{id}`"),
             ParseOptionErrorType::UnknownField => write!(f, "unknown field"),
             ParseOptionErrorType::UnknownSubcommand => write!(f, "unknown subcommand"),
             ParseOptionErrorType::RequiredField => write!(f, "missing required field"),

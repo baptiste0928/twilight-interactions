@@ -301,7 +301,7 @@ impl ChannelType {
             "guild_forum" => Ok(Self::GuildForum),
             invalid => Err(Error::new(
                 span,
-                format!("`{}` is not a valid channel type", invalid),
+                format!("`{invalid}` is not a valid channel type"),
             )),
         }
     }
