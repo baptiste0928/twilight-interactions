@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2023-02-07
+### Changed
+- Updated to `twilight-model` 0.15.0. (@randomairborne)
+
 ## [0.14.4] - 2023-01-14
 ### Added
 - `GuildDirectory` and `GuildForum` channel types. (@CircuitSacul)
@@ -39,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Number` type has been removed in twilight-model, use `f64` instead.
 
 ## [0.12.0] - 2022-07-17
-## Added
+### Added
 - Support for autocomplete interactions with `AutocompleteValue`.
 - Added `max_length` and `max_length` attributes for `String` fields.
 
@@ -126,7 +130,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of `twilight-interactions` and `twilight-interactions-derive` crates.
 
-[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.4...main
+[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.15.0...main
+[0.15.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.4...v0.15.0
 [0.14.4]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.3...v0.14.4
 [0.14.3]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.2...v0.14.3
 [0.14.2]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.1...v0.14.2
