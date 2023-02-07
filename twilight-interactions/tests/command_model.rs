@@ -5,7 +5,7 @@ use twilight_model::{
     application::interaction::application_command::{
         CommandDataOption, CommandInteractionDataResolved, CommandOptionValue, InteractionMember,
     },
-    guild::{Permissions, MemberFlags},
+    guild::{MemberFlags, Permissions},
     id::Id,
     user::User,
     util::Timestamp,

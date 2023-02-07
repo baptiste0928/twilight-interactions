@@ -6,8 +6,8 @@ use twilight_interactions::command::{
 };
 use twilight_model::application::{
     command::{
-        CommandOption as TwilightCommandOption, CommandOptionChoice,
-        CommandOptionType, CommandOptionChoiceValue,
+        CommandOption as TwilightCommandOption, CommandOptionChoice, CommandOptionChoiceValue,
+        CommandOptionType,
     },
     interaction::application_command::CommandOptionValue,
 };
