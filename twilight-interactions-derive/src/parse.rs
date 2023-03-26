@@ -3,7 +3,10 @@
 use std::{collections::HashMap, fmt::Display, str::FromStr};
 
 use proc_macro2::Span;
-use syn::{spanned::Spanned, Attribute, Error, Lit, Meta, MetaNameValue, Result};
+use syn::{
+    meta::ParseNestedMeta, spanned::Spanned, Attribute, Error, Expr, ExprLit, Lit, Meta,
+    MetaNameValue, Result,
+};
 
 /// Extracts type from an [`Option<T>`]
 ///
@@ -43,7 +46,7 @@ pub fn extract_type(ty: &syn::Type, name: &str) -> Option<syn::Type> {
 /// Returns the first match
 pub fn find_attr<'a>(attrs: &'a [Attribute], name: &str) -> Option<&'a Attribute> {
     for attr in attrs {
-        if let Some(ident) = attr.path.get_ident() {
+        if let Some(ident) = attr.path().get_ident() {
             if *ident == name {
                 return Some(attr);
             }
@@ -68,11 +71,20 @@ pub fn parse_doc(attrs: &[Attribute], span: Span) -> Result<String> {
         }
     };
 
-    let doc = match attr.parse_meta()? {
-        Meta::NameValue(MetaNameValue {
-            lit: Lit::Str(inner),
-            ..
-        }) => inner.value().trim().to_owned(),
+    let value = match &attr.meta {
+        Meta::NameValue(MetaNameValue { value, .. }) => value,
+        _ => {
+            return Err(Error::new(
+                attr.span(),
+                "Failed to parse documentation attribute",
+            ))
+        }
+    };
+
+    let doc = match value {
+        Expr::Lit(ExprLit {
+            lit: Lit::Str(lit), ..
+        }) => lit.value().trim().to_string(),
         _ => {
             return Err(Error::new(
                 attr.span(),
@@ -93,58 +105,49 @@ pub fn parse_doc(attrs: &[Attribute], span: Span) -> Result<String> {
 /// Parsed list of named attributes like `#[command(rename = "name")]`.
 ///
 /// Attributes are stored as a HashMap with String keys for fast lookups.
-pub struct NamedAttrs(HashMap<String, AttrValue>);
+pub struct NamedAttrs<'a> {
+    values: HashMap<String, AttrValue>,
+    valid: &'a [&'a str],
+}
 
-impl NamedAttrs {
-    /// Parse a [`Meta`] into [`NamedAttrs`]
+impl<'a> NamedAttrs<'a> {
+    /// Initialize a new [`NamedAttrs`] parser.
     ///
-    /// A list of expected parameters must be provided.
-    pub fn parse(meta: Meta, expected: &[&str]) -> Result<Self> {
-        // Ensure there is a list of parameters like `#[command(...)]`
-        let list = match meta {
-            Meta::List(list) => list,
-            _ => return Err(Error::new(meta.span(), "Expected named parameters list")),
+    /// A list of valid attribute names must be provided.
+    pub fn new(valid: &'a [&'a str]) -> Self {
+        Self {
+            values: HashMap::new(),
+            valid,
+        }
+    }
+
+    /// Parse an [`Attribute`] into [`NamedAttrs`]
+    ///
+    /// This method should be used as an argument of [`Attribute::parse_nested_meta`]
+    pub fn parse(&mut self, meta: ParseNestedMeta<'_>) -> Result<()> {
+        let expected = || self.valid.join(", ");
+
+        // Get name of the parameter as a String.
+        let key = match meta.path.get_ident() {
+            Some(ident) => ident.to_string(),
+            None => {
+                return Err(meta.error(format!("Invalid parameter name (expected {}", expected())))
+            }
         };
 
-        let expected = expected.join(", ");
-        let mut values = HashMap::new();
-
-        // Parse each item in parameters list
-        for nested in list.nested {
-            // Ensure each attribute is a name-value attribute like `rename = "name"`
-            let inner = match nested {
-                syn::NestedMeta::Meta(Meta::NameValue(item)) => item,
-                _ => return Err(Error::new(nested.span(), "Expected named parameter")),
-            };
-
-            // Extract name of each attribute as String. It must be a single segment path.
-            let key = match inner.path.get_ident() {
-                Some(ident) => ident.to_string(),
-                None => {
-                    return Err(Error::new(
-                        inner.path.span(),
-                        format!("Invalid parameter name (expected {expected})"),
-                    ))
-                }
-            };
-
-            // Ensure the parsed parameter is expected
-            if !expected.contains(&*key) {
-                return Err(Error::new(
-                    inner.path.span(),
-                    format!("Invalid parameter name (expected {expected})"),
-                ));
-            }
-
-            values.insert(key, AttrValue(inner.lit));
+        // Ensure the parsed parameter is valid
+        if !self.valid.contains(&&*key) {
+            return Err(meta.error(format!("Invalid parameter name (expected {})", expected())));
         }
 
-        Ok(Self(values))
+        self.values.insert(key, AttrValue(meta.value()?.parse()?));
+
+        Ok(())
     }
 
     /// Get a parsed parameter by name
     pub fn get(&self, name: &str) -> Option<&AttrValue> {
-        self.0.get(name)
+        self.values.get(name)
     }
 }
 
@@ -194,12 +197,6 @@ impl AttrValue {
     }
 }
 
-impl Spanned for AttrValue {
-    fn span(&self) -> Span {
-        self.0.span()
-    }
-}
-
 /// Parse function or item path.
 pub fn parse_path(val: &AttrValue) -> Result<syn::Path> {
     let val = val.parse_string()?;
@@ -209,7 +206,7 @@ pub fn parse_path(val: &AttrValue) -> Result<syn::Path> {
 
 /// Parse command or option name
 pub fn parse_name(val: &AttrValue) -> Result<String> {
-    let span = val.span();
+    let span = val.inner().span();
     let val = val.parse_string()?;
 
     // Command or option names must meet the following requirements:
@@ -245,7 +242,7 @@ pub fn parse_name(val: &AttrValue) -> Result<String> {
 
 /// Parse command or option description
 pub fn parse_desc(val: &AttrValue) -> Result<String> {
-    let span = val.span();
+    let span = val.inner().span();
     let val = val.parse_string()?;
 
     match val.chars().count() {
