@@ -99,44 +99,42 @@ pub struct TypeAttribute {
 impl TypeAttribute {
     /// Parse a single [`Attribute`]
     pub fn parse(attr: &Attribute) -> Result<Self> {
-        let meta = attr.parse_meta()?;
-        let attrs = NamedAttrs::parse(
-            meta,
-            &[
-                "autocomplete",
-                "name",
-                "name_localizations",
-                "desc",
-                "desc_localizations",
-                "default_permissions",
-                "dm_permission",
-                "nsfw",
-            ],
-        )?;
+        let mut parser = NamedAttrs::new(&[
+            "autocomplete",
+            "name",
+            "name_localizations",
+            "desc",
+            "desc_localizations",
+            "default_permissions",
+            "dm_permission",
+            "nsfw",
+        ]);
 
-        let autocomplete = attrs
+        attr.parse_nested_meta(|meta| parser.parse(meta))?;
+
+        let autocomplete = parser
             .get("autocomplete")
             .map(|v| v.parse_bool())
             .transpose()?;
-        let name = attrs.get("name").map(parse_name).transpose()?;
-        let name_localizations = attrs
+        let name = parser.get("name").map(parse_name).transpose()?;
+        let name_localizations = parser
             .get("name_localizations")
             .map(parse_path)
             .transpose()?;
-        let desc = attrs.get("desc").map(parse_desc).transpose()?;
-        let desc_localizations = attrs
+        let desc = parser.get("desc").map(parse_desc).transpose()?;
+        let desc_localizations = parser
             .get("desc_localizations")
             .map(parse_path)
             .transpose()?;
-        let default_permissions = attrs
+        let default_permissions = parser
             .get("default_permissions")
             .map(parse_path)
             .transpose()?;
-        let dm_permission = attrs
+        let dm_permission = parser
             .get("dm_permission")
             .map(|v| v.parse_bool())
             .transpose()?;
-        let nsfw = attrs.get("nsfw").map(|v| v.parse_bool()).transpose()?;
+        let nsfw = parser.get("nsfw").map(|v| v.parse_bool()).transpose()?;
 
         Ok(Self {
             autocomplete,
@@ -179,56 +177,54 @@ pub struct FieldAttribute {
 impl FieldAttribute {
     /// Parse a single [`Attribute`]
     pub fn parse(attr: &Attribute) -> Result<Self> {
-        let meta = attr.parse_meta()?;
-        let attrs = NamedAttrs::parse(
-            meta,
-            &[
-                "rename",
-                "name_localizations",
-                "desc",
-                "desc_localizations",
-                "autocomplete",
-                "channel_types",
-                "max_value",
-                "min_value",
-                "max_length",
-                "min_length",
-            ],
-        )?;
+        let mut parser = NamedAttrs::new(&[
+            "rename",
+            "name_localizations",
+            "desc",
+            "desc_localizations",
+            "autocomplete",
+            "channel_types",
+            "max_value",
+            "min_value",
+            "max_length",
+            "min_length",
+        ]);
 
-        let rename = attrs.get("rename").map(parse_name).transpose()?;
-        let name_localizations = attrs
+        attr.parse_nested_meta(|meta| parser.parse(meta))?;
+
+        let rename = parser.get("rename").map(parse_name).transpose()?;
+        let name_localizations = parser
             .get("name_localizations")
             .map(parse_path)
             .transpose()?;
-        let desc = attrs.get("desc").map(parse_desc).transpose()?;
-        let desc_localizations = attrs
+        let desc = parser.get("desc").map(parse_desc).transpose()?;
+        let desc_localizations = parser
             .get("desc_localizations")
             .map(parse_path)
             .transpose()?;
-        let autocomplete = attrs
+        let autocomplete = parser
             .get("autocomplete")
             .map(|val| val.parse_bool())
             .transpose()?
             .unwrap_or_default();
-        let channel_types = attrs
+        let channel_types = parser
             .get("channel_types")
             .map(ChannelType::parse_attr)
             .transpose()?
             .unwrap_or_default();
-        let max_value = attrs
+        let max_value = parser
             .get("max_value")
             .map(CommandOptionValue::parse_attr)
             .transpose()?;
-        let min_value = attrs
+        let min_value = parser
             .get("min_value")
             .map(CommandOptionValue::parse_attr)
             .transpose()?;
-        let max_length = attrs
+        let max_length = parser
             .get("max_length")
             .map(|val| val.parse_int())
             .transpose()?;
-        let min_length = attrs
+        let min_length = parser
             .get("min_length")
             .map(|val| val.parse_int())
             .transpose()?;
@@ -275,7 +271,7 @@ pub enum ChannelType {
 impl ChannelType {
     /// Parse an [`AttrValue`] string as a [`ChannelType`]
     fn parse_attr(attr: &AttrValue) -> Result<Vec<Self>> {
-        let span = attr.span();
+        let span = attr.inner().span();
         let val = attr.parse_string()?;
 
         val.split_whitespace()
@@ -321,7 +317,7 @@ impl CommandOptionValue {
             Lit::Int(inner) => Ok(Self::Integer(inner.base10_parse()?)),
             Lit::Float(inner) => Ok(Self::Number(inner.base10_parse()?)),
             _ => Err(Error::new(
-                attr.span(),
+                attr.inner().span(),
                 "Invalid attribute type, expected integer or float",
             )),
         }

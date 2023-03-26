@@ -85,18 +85,19 @@ impl VariantAttribute {
     ///
     /// If no [`ChoiceKind`] is provided, the type is inferred from value.
     pub fn parse(attr: &Attribute, kind: Option<ChoiceKind>) -> Result<Self> {
-        let meta = attr.parse_meta()?;
-        let attrs = NamedAttrs::parse(meta, &["name", "name_localizations", "value"])?;
+        let mut parser = NamedAttrs::new(&["name", "name_localizations", "value"]);
 
-        let name = match attrs.get("name") {
+        attr.parse_nested_meta(|meta| parser.parse(meta))?;
+
+        let name = match parser.get("name") {
             Some(val) => parse_name(val)?,
             None => return Err(Error::new(attr.span(), "Missing required attribute `name`")),
         };
-        let name_localizations = attrs
+        let name_localizations = parser
             .get("name_localizations")
             .map(parse_path)
             .transpose()?;
-        let value = match attrs.get("value") {
+        let value = match parser.get("value") {
             Some(val) => ChoiceValue::parse(val, kind)?,
             None => {
                 return Err(Error::new(
@@ -131,7 +132,7 @@ impl ChoiceValue {
             syn::Lit::Float(inner) => Self::Number(inner.base10_parse()?),
             _ => {
                 return Err(Error::new(
-                    val.span(),
+                    val.inner().span(),
                     "Invalid attribute type, expected string, integer or float",
                 ))
             }
@@ -141,7 +142,7 @@ impl ChoiceValue {
         if let Some(kind) = kind {
             if parsed.kind() != kind {
                 return Err(Error::new(
-                    val.span(),
+                    val.inner().span(),
                     format!("Invalid attribute type, expected {}", kind.name()),
                 ));
             }
@@ -181,7 +182,7 @@ impl ChoiceKind {
 
 /// Parse choice name
 fn parse_name(val: &AttrValue) -> Result<String> {
-    let span = val.span();
+    let span = val.inner().span();
     let val = val.parse_string()?;
 
     // https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-choice-structure

@@ -83,10 +83,11 @@ pub struct VariantAttribute {
 impl VariantAttribute {
     /// Parse a single [`Attribute`].
     pub fn parse(attr: &Attribute) -> Result<Self> {
-        let meta = attr.parse_meta()?;
-        let attrs = NamedAttrs::parse(meta, &["name"])?;
+        let mut parser = NamedAttrs::new(&["name"]);
 
-        let name = match attrs.get("name") {
+        attr.parse_nested_meta(|meta| parser.parse(meta))?;
+
+        let name = match parser.get("name") {
             Some(val) => parse_name(val)?,
             None => return Err(Error::new(attr.span(), "Missing required attribute `name`")),
         };
@@ -116,42 +117,40 @@ pub struct TypeAttribute {
 impl TypeAttribute {
     /// Parse a single [`Attribute`]
     pub fn parse(attr: &Attribute) -> Result<Self> {
-        let meta = attr.parse_meta()?;
-        let attrs = NamedAttrs::parse(
-            meta,
-            &[
-                "name",
-                "name_localizations",
-                "desc",
-                "desc_localizations",
-                "default_permissions",
-                "dm_permission",
-                "nsfw",
-            ],
-        )?;
+        let mut parser = NamedAttrs::new(&[
+            "name",
+            "name_localizations",
+            "desc",
+            "desc_localizations",
+            "default_permissions",
+            "dm_permission",
+            "nsfw",
+        ]);
 
-        let name = match attrs.get("name") {
+        attr.parse_nested_meta(|meta| parser.parse(meta))?;
+
+        let name = match parser.get("name") {
             Some(val) => parse_name(val)?,
             None => return Err(Error::new(attr.span(), "Missing required attribute `name`")),
         };
-        let name_localizations = attrs
+        let name_localizations = parser
             .get("name_localizations")
             .map(parse_path)
             .transpose()?;
-        let desc = attrs.get("desc").map(parse_desc).transpose()?;
-        let desc_localizations = attrs
+        let desc = parser.get("desc").map(parse_desc).transpose()?;
+        let desc_localizations = parser
             .get("desc_localizations")
             .map(parse_path)
             .transpose()?;
-        let default_permissions = attrs
+        let default_permissions = parser
             .get("default_permissions")
             .map(parse_path)
             .transpose()?;
-        let dm_permission = attrs
+        let dm_permission = parser
             .get("dm_permission")
             .map(|v| v.parse_bool())
             .transpose()?;
-        let nsfw = attrs.get("nsfw").map(|v| v.parse_bool()).transpose()?;
+        let nsfw = parser.get("nsfw").map(|v| v.parse_bool()).transpose()?;
 
         Ok(Self {
             name,
