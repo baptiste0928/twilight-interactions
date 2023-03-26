@@ -22,7 +22,7 @@ impl ParsedVariant {
         if variants.is_empty() {
             return Err(Error::new(
                 input_span,
-                "Enum must have at least one variant",
+                "enum must have at least one variant",
             ));
         }
 
@@ -34,13 +34,13 @@ impl ParsedVariant {
         let span = variant.span();
         let fields = match variant.fields {
             Fields::Unnamed(fields) => fields,
-            _ => return Err(Error::new(span, "Variant must be an unnamed variant")),
+            _ => return Err(Error::new(span, "variant must be an unnamed variant")),
         };
 
         if fields.unnamed.len() != 1 {
             return Err(Error::new(
                 span,
-                "Variant must have exactly one unnamed field",
+                "variant must have exactly one unnamed field",
             ));
         }
 
@@ -50,7 +50,7 @@ impl ParsedVariant {
             other => {
                 return Err(Error::new(
                     other.span(),
-                    "Unsupported type, expected a type path",
+                    "unsupported type, expected a type path",
                 ))
             }
         };
@@ -60,7 +60,7 @@ impl ParsedVariant {
             None => {
                 return Err(Error::new(
                     span,
-                    "Missing required #[command(..)] attribute",
+                    "missing required #[command(..)] attribute",
                 ))
             }
         };
@@ -89,7 +89,7 @@ impl VariantAttribute {
 
         let name = match parser.get("name") {
             Some(val) => parse_name(val)?,
-            None => return Err(Error::new(attr.span(), "Missing required attribute `name`")),
+            None => return Err(Error::new(attr.span(), "missing required attribute `name`")),
         };
 
         Ok(Self { name })
@@ -131,7 +131,7 @@ impl TypeAttribute {
 
         let name = match parser.get("name") {
             Some(val) => parse_name(val)?,
-            None => return Err(Error::new(attr.span(), "Missing required attribute `name`")),
+            None => return Err(Error::new(attr.span(), "missing required attribute `name`")),
         };
         let name_localizations = parser
             .get("name_localizations")

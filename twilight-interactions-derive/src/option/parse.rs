@@ -27,7 +27,7 @@ impl ParsedVariant {
             None => {
                 return Err(Error::new(
                     input_span,
-                    "Enum must have at least one variant",
+                    "enum must have at least one variant",
                 ))
             }
         };
@@ -48,7 +48,7 @@ impl ParsedVariant {
     fn from_variant(variant: Variant, kind: Option<ChoiceKind>) -> Result<Self> {
         match variant.fields {
             Fields::Unit => (),
-            _ => return Err(Error::new(variant.span(), "Variant must be a unit variant")),
+            _ => return Err(Error::new(variant.span(), "variant must be a unit variant")),
         }
 
         let attribute = match find_attr(&variant.attrs, "option") {
@@ -56,7 +56,7 @@ impl ParsedVariant {
             None => {
                 return Err(Error::new(
                     variant.span(),
-                    "Missing required #[option(...)] attribute",
+                    "missing required #[option(...)] attribute",
                 ))
             }
         };
@@ -91,7 +91,7 @@ impl VariantAttribute {
 
         let name = match parser.get("name") {
             Some(val) => parse_name(val)?,
-            None => return Err(Error::new(attr.span(), "Missing required attribute `name`")),
+            None => return Err(Error::new(attr.span(), "missing required attribute `name`")),
         };
         let name_localizations = parser
             .get("name_localizations")
@@ -102,7 +102,7 @@ impl VariantAttribute {
             None => {
                 return Err(Error::new(
                     attr.span(),
-                    "Missing required attribute `value`",
+                    "missing required attribute `value`",
                 ))
             }
         };
@@ -133,7 +133,7 @@ impl ChoiceValue {
             _ => {
                 return Err(Error::new(
                     val.inner().span(),
-                    "Invalid attribute type, expected string, integer or float",
+                    "invalid attribute type, expected string, integer or float",
                 ))
             }
         };
@@ -143,7 +143,7 @@ impl ChoiceValue {
             if parsed.kind() != kind {
                 return Err(Error::new(
                     val.inner().span(),
-                    format!("Invalid attribute type, expected {}", kind.name()),
+                    format!("invalid attribute type, expected {}", kind.name()),
                 ));
             }
         }
@@ -190,7 +190,7 @@ fn parse_name(val: &AttrValue) -> Result<String> {
         1..=100 => Ok(val),
         _ => Err(Error::new(
             span,
-            "Name must be between 1 and 100 characters",
+            "name must be between 1 and 100 characters",
         )),
     }
 }

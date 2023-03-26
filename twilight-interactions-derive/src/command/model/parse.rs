@@ -35,7 +35,7 @@ impl StructField {
                 Some(_) => {
                     return Err(Error::new(
                         ty.span(),
-                        "AutocompleteValue cannot be wrapped in `Option<T>`",
+                        "`AutocompleteValue` can not be wrapped in `Option<T>`",
                     ))
                 }
                 None => (FieldType::Optional, ty),
@@ -318,7 +318,7 @@ impl CommandOptionValue {
             Lit::Float(inner) => Ok(Self::Number(inner.base10_parse()?)),
             _ => Err(Error::new(
                 attr.inner().span(),
-                "Invalid attribute type, expected integer or float",
+                "invalid attribute type, expected integer or float",
             )),
         }
     }

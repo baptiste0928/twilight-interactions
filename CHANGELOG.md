@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Updated to `syn` 2.
+- Error messages are now in lowercase to match compiler errors.
 
 ## [0.15.0] - 2023-02-07
 ### Changed

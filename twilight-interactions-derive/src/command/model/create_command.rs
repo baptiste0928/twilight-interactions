@@ -24,7 +24,7 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
         None => {
             return Err(Error::new(
                 span,
-                "Missing required #[command(...)] attribute",
+                "missing required #[command(...)] attribute",
             ))
         }
     };
@@ -32,13 +32,13 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
     if attributes.autocomplete == Some(true) {
         return Err(Error::new(
             attr_span,
-            "Cannot implement `CreateCommand` on partial model",
+            "cannot implement `CreateCommand` on partial model",
         ));
     }
 
     let name = match &attributes.name {
         Some(name) => name,
-        None => return Err(Error::new(attr_span, "Missing required attribute `name`")),
+        None => return Err(Error::new(attr_span, "missing required attribute `name`")),
     };
     let name_localizations = localization_field(&attributes.name_localizations);
     let description = match &attributes.desc {
@@ -161,7 +161,7 @@ fn check_fields_order(fields: &[StructField]) -> Result<()> {
         if optional_option_added && field.kind.required() {
             return Err(Error::new(
                 field.span,
-                "Required options should be added before optional",
+                "required options should be added before optional",
             ));
         }
     }

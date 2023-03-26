@@ -21,7 +21,7 @@ pub fn impl_create_command(
         None => {
             return Err(Error::new(
                 span,
-                "Missing required #[command(...)] attribute",
+                "missing required #[command(...)] attribute",
             ))
         }
     };

@@ -28,7 +28,7 @@ pub fn impl_command_model(input: DeriveInput, fields: Option<FieldsNamed>) -> Re
         if autocomplete && ![FieldType::Autocomplete, FieldType::Optional].contains(&field.kind) {
             return Err(Error::new(
                 field.span,
-                "Autocomplete models only supports `Option` or `AutocompleteValue` field type",
+                "autocomplete models only supports `Option` or `AutocompleteValue` field type",
             ));
         }
 
@@ -36,7 +36,7 @@ pub fn impl_command_model(input: DeriveInput, fields: Option<FieldsNamed>) -> Re
         if !autocomplete && field.kind == FieldType::Autocomplete {
             return Err(Error::new(
                 field.span,
-                "`AutocompleteValue` is only available in autocomplete models. Add the `#[command(autocomplete = true)]` attribute to the type."
+                "`AutocompleteValue` is only available in autocomplete models, add the `#[command(autocomplete = true)]` attribute to the type"
             ));
         }
     }

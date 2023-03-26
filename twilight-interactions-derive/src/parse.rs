@@ -66,7 +66,7 @@ pub fn parse_doc(attrs: &[Attribute], span: Span) -> Result<String> {
         None => {
             return Err(Error::new(
                 span,
-                "Description is required (documentation comment or `desc` attribute)",
+                "description is required (documentation comment or `desc` attribute)",
             ))
         }
     };
@@ -76,7 +76,7 @@ pub fn parse_doc(attrs: &[Attribute], span: Span) -> Result<String> {
         _ => {
             return Err(Error::new(
                 attr.span(),
-                "Failed to parse documentation attribute",
+                "failed to parse documentation attribute",
             ))
         }
     };
@@ -88,7 +88,7 @@ pub fn parse_doc(attrs: &[Attribute], span: Span) -> Result<String> {
         _ => {
             return Err(Error::new(
                 attr.span(),
-                "Failed to parse documentation attribute",
+                "failed to parse documentation attribute",
             ))
         }
     };
@@ -97,7 +97,7 @@ pub fn parse_doc(attrs: &[Attribute], span: Span) -> Result<String> {
         1..=100 => Ok(doc),
         _ => Err(Error::new(
             span,
-            "Description must be between 1 and 100 characters",
+            "description must be between 1 and 100 characters",
         )),
     }
 }
@@ -131,13 +131,13 @@ impl<'a> NamedAttrs<'a> {
         let key = match meta.path.get_ident() {
             Some(ident) => ident.to_string(),
             None => {
-                return Err(meta.error(format!("Invalid parameter name (expected {}", expected())))
+                return Err(meta.error(format!("invalid parameter name (expected {}", expected())))
             }
         };
 
         // Ensure the parsed parameter is valid
         if !self.valid.contains(&&*key) {
-            return Err(meta.error(format!("Invalid parameter name (expected {})", expected())));
+            return Err(meta.error(format!("invalid parameter name (expected {})", expected())));
         }
 
         self.values.insert(key, AttrValue(meta.value()?.parse()?));
@@ -167,7 +167,7 @@ impl AttrValue {
             Lit::Str(inner) => Ok(inner.value()),
             _ => Err(Error::new(
                 self.0.span(),
-                "Invalid attribute type, expected string",
+                "invalid attribute type, expected string",
             )),
         }
     }
@@ -177,7 +177,7 @@ impl AttrValue {
             Lit::Bool(inner) => Ok(inner.value()),
             _ => Err(Error::new(
                 self.0.span(),
-                "Invalid attribute type, expected boolean",
+                "invalid attribute type, expected boolean",
             )),
         }
     }
@@ -191,7 +191,7 @@ impl AttrValue {
             Lit::Int(inner) => inner.base10_parse(),
             _ => Err(Error::new(
                 self.0.span(),
-                "Invalid attribute type, expected integer",
+                "invalid attribute type, expected integer",
             )),
         }
     }
@@ -218,21 +218,21 @@ pub fn parse_name(val: &AttrValue) -> Result<String> {
 
     match val.chars().count() {
         1..=32 => (),
-        _ => return Err(Error::new(span, "Name must be between 1 and 32 characters")),
+        _ => return Err(Error::new(span, "name must be between 1 and 32 characters")),
     }
 
     for char in val.chars() {
         if !char.is_alphanumeric() && char != '-' && char != '_' {
             return Err(Error::new(
                 span,
-                format!("Name must only contain word characters, found invalid character `{char}`"),
+                format!("name must only contain word characters, found invalid character `{char}`"),
             ));
         }
 
         if char.to_lowercase().to_string() != char.to_string() {
             return Err(Error::new(
                 span,
-                format!("Name must be in lowercase, found invalid character `{char}`"),
+                format!("name must be in lowercase, found invalid character `{char}`"),
             ));
         }
     }
@@ -249,7 +249,7 @@ pub fn parse_desc(val: &AttrValue) -> Result<String> {
         1..=100 => Ok(val),
         _ => Err(Error::new(
             span,
-            "Description must be between 1 and 100 characters",
+            "description must be between 1 and 100 characters",
         )),
     }
 }
