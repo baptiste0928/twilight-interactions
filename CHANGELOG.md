@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Strings are now trimmed in macro attributes to match Discord's behavior.
 
+### Changed
+- Bumped MSRV to 1.67.
+
 ## [0.15.1] - 2023-03-26
 ### Fixed
 - Attribute parameters names are now correctly validated. (#21)
