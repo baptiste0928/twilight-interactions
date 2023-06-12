@@ -164,7 +164,7 @@ impl AttrValue {
 
     pub fn parse_string(&self) -> Result<String> {
         match self.inner() {
-            Lit::Str(inner) => Ok(inner.value()),
+            Lit::Str(inner) => Ok(inner.value().trim().to_string()),
             _ => Err(Error::new(
                 self.0.span(),
                 "invalid attribute type, expected string",
