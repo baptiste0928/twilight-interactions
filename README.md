@@ -35,7 +35,7 @@ twilight-interactions = "0.15"
 ```
 
 The crate's major version follows the version of the official twilight crates.
-The current MSRV is `1.64`.
+The current MSRV is `1.67`.
 
 ## Documentation
 
