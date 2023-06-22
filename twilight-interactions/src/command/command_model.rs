@@ -153,6 +153,12 @@ pub trait CommandModel: Sized {
     fn from_interaction(data: CommandInputData) -> Result<Self, ParseError>;
 }
 
+impl<T: CommandModel> CommandModel for Box<T> {
+    fn from_interaction(data: CommandInputData) -> Result<Self, ParseError> {
+        T::from_interaction(data).map(Box::new)
+    }
+}
+
 impl CommandModel for Vec<CommandDataOption> {
     fn from_interaction(data: CommandInputData) -> Result<Self, ParseError> {
         Ok(data.options)

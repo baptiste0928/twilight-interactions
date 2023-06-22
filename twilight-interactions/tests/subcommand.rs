@@ -52,7 +52,7 @@ enum SubCommand {
     #[command(name = "one")]
     One(CommandOne),
     #[command(name = "group")]
-    Group(SubCommandGroup),
+    Group(Box<SubCommandGroup>),
 }
 
 fn subcommand_desc() -> [(&'static str, &'static str); 1] {
@@ -115,9 +115,9 @@ fn test_subcommand_group_model() {
     let result = SubCommand::from_interaction(data).unwrap();
 
     assert_eq!(
-        SubCommand::Group(SubCommandGroup::Three(CommandThree {
+        SubCommand::Group(Box::new(SubCommandGroup::Three(CommandThree {
             option: "test".into()
-        })),
+        }))),
         result
     );
 }
