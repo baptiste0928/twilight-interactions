@@ -361,8 +361,6 @@ pub enum ResolvedMentionable {
     User(ResolvedUser),
     /// Role mention.
     Role(Role),
-    /// Unknown mention.
-    Unknown(Id<GenericMarker>),
 }
 
 impl ResolvedMentionable {
@@ -371,7 +369,6 @@ impl ResolvedMentionable {
         match self {
             ResolvedMentionable::User(user) => user.resolved.id.cast(),
             ResolvedMentionable::Role(role) => role.id.cast(),
-            ResolvedMentionable::Unknown(id) => *id,
         }
     }
 }
@@ -673,7 +670,7 @@ impl CommandOption for ResolvedMentionable {
             return Ok(Self::Role(role));
         }
 
-        Ok(Self::Unknown(id))
+        Err(ParseOptionErrorType::LookupFailed(id.into()))
     }
 }
 
