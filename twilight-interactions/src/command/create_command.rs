@@ -92,6 +92,14 @@ pub trait CreateCommand: Sized {
     fn create_command() -> ApplicationCommandData;
 }
 
+impl<T: CreateCommand> CreateCommand for Box<T> {
+    const NAME: &'static str = T::NAME;
+
+    fn create_command() -> ApplicationCommandData {
+        T::create_command()
+    }
+}
+
 /// Create a command option from a type.
 ///
 /// This trait is used by the implementation of [`CreateCommand`] generated
