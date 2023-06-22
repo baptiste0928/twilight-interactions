@@ -1,6 +1,8 @@
 use std::{borrow::Cow, collections::HashMap};
 
-use twilight_interactions::command::{CommandInputData, CommandModel, CommandOption, ResolvedUser};
+use twilight_interactions::command::{
+    CommandInputData, CommandModel, CommandOption, ResolvedMentionable, ResolvedUser,
+};
 use twilight_model::{
     application::interaction::application_command::{
         CommandDataOption, CommandInteractionDataResolved, CommandOptionValue, InteractionMember,
@@ -22,6 +24,7 @@ where
     number: Option<i64>,
     generic: T,
     cow: Cow<'a, str>,
+    mentionable: ResolvedMentionable,
 }
 
 #[derive(CommandModel, Debug, PartialEq, Eq)]
@@ -50,6 +53,10 @@ fn test_command_model() {
         CommandDataOption {
             name: "cow".into(),
             value: CommandOptionValue::String("cow".into()),
+        },
+        CommandDataOption {
+            name: "mentionable".into(),
+            value: CommandOptionValue::Mentionable(user_id.cast()),
         },
     ];
 
@@ -83,11 +90,16 @@ fn test_command_model() {
         banner: None,
     };
 
+    let resolved_user = ResolvedUser {
+        resolved: user.clone(),
+        member: Some(member.clone()),
+    };
+
     let resolved = CommandInteractionDataResolved {
         channels: HashMap::new(),
-        members: HashMap::from([(user_id, member.clone())]),
+        members: HashMap::from([(user_id, member)]),
         roles: HashMap::new(),
-        users: HashMap::from([(user_id, user.clone())]),
+        users: HashMap::from([(user_id, user)]),
         messages: HashMap::new(),
         attachments: HashMap::new(),
     };
@@ -101,14 +113,12 @@ fn test_command_model() {
 
     assert_eq!(
         DemoCommand {
-            user: ResolvedUser {
-                resolved: user,
-                member: Some(member)
-            },
+            user: resolved_user.clone(),
             text: "hello world".into(),
             number: Some(42),
             generic: 0_i64,
-            cow: Cow::Borrowed("cow")
+            cow: Cow::Borrowed("cow"),
+            mentionable: ResolvedMentionable::User(resolved_user)
         },
         result
     );
