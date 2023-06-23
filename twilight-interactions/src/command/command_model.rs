@@ -351,6 +351,28 @@ pub struct ResolvedUser {
     pub member: Option<InteractionMember>,
 }
 
+/// A resolved mentionable.
+///
+/// This struct implements [`CommandOption`] and can be used to obtain the
+/// resolved data from a mentionable ID, that can be either a user or a role.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ResolvedMentionable {
+    /// User mention.
+    User(ResolvedUser),
+    /// Role mention.
+    Role(Role),
+}
+
+impl ResolvedMentionable {
+    /// Get the ID of the mentionable.
+    pub fn id(&self) -> Id<GenericMarker> {
+        match self {
+            ResolvedMentionable::User(user) => user.resolved.id.cast(),
+            ResolvedMentionable::Role(role) => role.id.cast(),
+        }
+    }
+}
+
 /// An autocomplete command field.
 ///
 /// This type represent a value parsed from an autocomplete field. See "Autocomplete interactions"
@@ -619,6 +641,36 @@ impl CommandOption for ResolvedUser {
             resolved: lookup!(resolved.users, user_id)?,
             member: lookup!(resolved.members, user_id).ok(),
         })
+    }
+}
+
+impl CommandOption for ResolvedMentionable {
+    fn from_option(
+        value: CommandOptionValue,
+        _data: CommandOptionData,
+        resolved: Option<&CommandInteractionDataResolved>,
+    ) -> Result<Self, ParseOptionErrorType> {
+        let id = match value {
+            CommandOptionValue::Mentionable(value) => value,
+            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
+        };
+
+        let user_id = id.cast();
+        if let Ok(user) = lookup!(resolved.users, user_id) {
+            let resolved_user = ResolvedUser {
+                resolved: user,
+                member: lookup!(resolved.members, user_id).ok(),
+            };
+
+            return Ok(Self::User(resolved_user));
+        }
+
+        let role_id = id.cast();
+        if let Ok(role) = lookup!(resolved.roles, role_id) {
+            return Ok(Self::Role(role));
+        }
+
+        Err(ParseOptionErrorType::LookupFailed(id.into()))
     }
 }
 

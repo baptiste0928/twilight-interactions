@@ -66,7 +66,7 @@
 //! | `USER`              | [`ResolvedUser`], [`User`], [`Id<UserMarker>`] |
 //! | `CHANNEL`           | [`InteractionChannel`], [`Id<ChannelMarker>`]  |
 //! | `ROLE`              | [`Role`], [`Id<RoleMarker>`]                   |
-//! | `MENTIONABLE`       | [`Id<GenericMarker>`]                          |
+//! | `MENTIONABLE`       | [`ResolvedMentionable`], [`Id<GenericMarker>`] |
 //! | `ATTACHMENT`        | [`Attachment`], [`Id<AttachmentMarker>`]       |
 //!
 //! [`from_interaction`]: CommandModel::from_interaction
@@ -89,7 +89,8 @@ mod create_command;
 pub mod internal;
 
 pub use command_model::{
-    AutocompleteValue, CommandInputData, CommandModel, CommandOption, ResolvedUser,
+    AutocompleteValue, CommandInputData, CommandModel, CommandOption, ResolvedMentionable,
+    ResolvedUser,
 };
 pub use create_command::{ApplicationCommandData, CreateCommand, CreateOption};
 #[cfg(feature = "derive")]

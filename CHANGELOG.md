@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Subcommands enums now support `Box`ed variants to avoid large enums.
+- `ResolvedMentionable` type can be used to resolve a mentionable to either
+  a user or a role.
 
 ### Fixed
 - Strings are now trimmed in macro attributes to match Discord's behavior.

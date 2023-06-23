@@ -14,7 +14,7 @@ use twilight_model::{
     user::User,
 };
 
-use super::{internal::CreateOptionData, ResolvedUser};
+use super::{internal::CreateOptionData, ResolvedMentionable, ResolvedUser};
 
 /// Create a slash command from a type.
 ///
@@ -291,6 +291,12 @@ impl CreateOption for User {
 impl CreateOption for ResolvedUser {
     fn create_option(data: CreateOptionData) -> CommandOption {
         data.into_option(CommandOptionType::User)
+    }
+}
+
+impl CreateOption for ResolvedMentionable {
+    fn create_option(data: CreateOptionData) -> CommandOption {
+        data.into_option(CommandOptionType::Mentionable)
     }
 }
 
