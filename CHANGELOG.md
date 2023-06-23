@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.15.2] - 2023-06-23
 ### Added
 - Subcommands enums now support `Box`ed variants to avoid large enums.
 - `ResolvedMentionable` type can be used to resolve a mentionable to either
@@ -148,7 +150,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of `twilight-interactions` and `twilight-interactions-derive` crates.
 
-[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.15.1...main
+[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.15.2...main
+[0.15.2]: https://github.com/baptiste0928/twilight-interactions/compare/v0.15.1...v0.15.2
 [0.15.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.4...v0.15.0
 [0.14.4]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.3...v0.14.4
