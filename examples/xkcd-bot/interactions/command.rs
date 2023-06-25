@@ -1,4 +1,5 @@
 use anyhow::Context;
+use twilight_http::Client;
 use twilight_interactions::command::{CommandModel, CreateCommand};
 use twilight_model::{
     application::interaction::{application_command::CommandData, Interaction},
@@ -10,7 +11,7 @@ use twilight_util::builder::{
     InteractionResponseDataBuilder,
 };
 
-use crate::{api::XkcdComic, BotState};
+use crate::api::XkcdComic;
 
 /// Explore xkcd comics
 #[derive(CommandModel, CreateCommand, Debug)]
@@ -27,7 +28,7 @@ impl XkcdCommand {
     pub async fn handle(
         interaction: Interaction,
         data: CommandData,
-        state: &BotState,
+        client: &Client,
     ) -> anyhow::Result<()> {
         // Parse the command data into a structure using twilight-interactions.
         let command =
@@ -35,8 +36,8 @@ impl XkcdCommand {
 
         // Call the appropriate subcommand.
         match command {
-            XkcdCommand::Latest(command) => command.run(interaction, state).await,
-            XkcdCommand::Number(command) => command.run(interaction, state).await,
+            XkcdCommand::Latest(command) => command.run(interaction, client).await,
+            XkcdCommand::Number(command) => command.run(interaction, client).await,
         }
     }
 }
@@ -48,12 +49,12 @@ pub struct XkcdLatestCommand;
 
 impl XkcdLatestCommand {
     /// Run the `/xkcd latest` command.
-    pub async fn run(&self, interaction: Interaction, state: &BotState) -> anyhow::Result<()> {
+    pub async fn run(&self, interaction: Interaction, client: &Client) -> anyhow::Result<()> {
         let comic = XkcdComic::get_latest().await?;
         let embed = crate_comic_embed(comic)?;
 
         // Respond to the interaction with an embed.
-        let client = state.client.interaction(state.application_id);
+        let client = client.interaction(interaction.application_id);
         let data = InteractionResponseDataBuilder::new()
             .embeds([embed])
             .build();
@@ -82,7 +83,7 @@ pub struct XkcdNumberCommand {
 
 impl XkcdNumberCommand {
     /// Run the `/xkcd number <num>` command.
-    pub async fn run(&self, interaction: Interaction, state: &BotState) -> anyhow::Result<()> {
+    pub async fn run(&self, interaction: Interaction, client: &Client) -> anyhow::Result<()> {
         let comic = XkcdComic::get_number(self.number.try_into()?).await?;
 
         let mut data = InteractionResponseDataBuilder::new();
@@ -92,7 +93,7 @@ impl XkcdNumberCommand {
             data = data.content(format!("No comic found for number {}", self.number));
         }
 
-        let client = state.client.interaction(state.application_id);
+        let client = client.interaction(interaction.application_id);
         let response = InteractionResponse {
             kind: InteractionResponseType::ChannelMessageWithSource,
             data: Some(data.build()),

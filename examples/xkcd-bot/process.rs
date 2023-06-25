@@ -2,14 +2,15 @@ use std::{mem, sync::Arc};
 
 use anyhow::bail;
 use twilight_gateway::Event;
+use twilight_http::Client;
 use twilight_model::application::interaction::{
     application_command::CommandData, Interaction, InteractionData,
 };
 
-use crate::{interactions::command::XkcdCommand, BotState};
+use crate::interactions::command::XkcdCommand;
 
 /// Process incoming interactions from Discord.
-pub async fn process_interactions(event: Event, state: Arc<BotState>) {
+pub async fn process_interactions(event: Event, client: Arc<Client>) {
     // We only care about interaction events.
     let mut interaction = match event {
         Event::InteractionCreate(interaction) => interaction.0,
@@ -26,7 +27,7 @@ pub async fn process_interactions(event: Event, state: Arc<BotState>) {
         }
     };
 
-    if let Err(error) = handle_command(interaction, data, &state).await {
+    if let Err(error) = handle_command(interaction, data, &client).await {
         tracing::error!(?error, "error while handling command");
     }
 }
@@ -35,10 +36,10 @@ pub async fn process_interactions(event: Event, state: Arc<BotState>) {
 async fn handle_command(
     interaction: Interaction,
     data: CommandData,
-    state: &BotState,
+    client: &Client,
 ) -> anyhow::Result<()> {
     match &*data.name {
-        "xkcd" => XkcdCommand::handle(interaction, data, state).await,
+        "xkcd" => XkcdCommand::handle(interaction, data, client).await,
         name => bail!("unknown command: {}", name),
     }
 }
