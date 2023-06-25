@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "twilight-interactions",
-    "twilight-interactions-derive"
+    "twilight-interactions-derive",
+    "examples"
 ]
