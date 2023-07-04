@@ -14,6 +14,8 @@ use twilight_model::{
     user::User,
 };
 
+use crate::error::CreateCommandError;
+
 use super::{internal::CreateOptionData, ResolvedMentionable, ResolvedUser};
 
 /// Create a slash command from a type.
@@ -89,13 +91,13 @@ pub trait CreateCommand: Sized {
     const NAME: &'static str;
 
     /// Create an [`ApplicationCommandData`] for this type.
-    fn create_command() -> ApplicationCommandData;
+    fn create_command() -> Result<ApplicationCommandData, CreateCommandError>;
 }
 
 impl<T: CreateCommand> CreateCommand for Box<T> {
     const NAME: &'static str = T::NAME;
 
-    fn create_command() -> ApplicationCommandData {
+    fn create_command() -> Result<ApplicationCommandData, CreateCommandError> {
         T::create_command()
     }
 }

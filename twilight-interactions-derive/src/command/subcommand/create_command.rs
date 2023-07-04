@@ -31,8 +31,11 @@ pub fn impl_create_command(
     let name_localizations = localization_field(&attribute.name_localizations);
     let description_localizations = localization_field(&attribute.desc_localizations);
     let description = match attribute.desc {
-        Some(desc) => desc,
-        None => parse_doc(&input.attrs, span)?,
+        Some(desc) => quote! { ::std::option::Option::Some((#desc).to_string()) },
+        None => match parse_doc(&input.attrs, span).ok() {
+            Some(doc) => quote! { ::std::option::Option::Some((#doc).to_string()) },
+            None => quote! { ::std::option::Option::None },
+        },
     };
     let default_permissions = match &attribute.default_permissions {
         Some(path) => quote! { ::std::option::Option::Some(#path())},
@@ -53,22 +56,44 @@ pub fn impl_create_command(
         impl #generics ::twilight_interactions::command::CreateCommand for #ident #generics #where_clause {
             const NAME: &'static str = #name;
 
-            fn create_command() -> ::twilight_interactions::command::ApplicationCommandData {
+            fn create_command() -> ::std::result::Result<
+                ::twilight_interactions::command::ApplicationCommandData,
+                ::twilight_interactions::error::CreateCommandError
+            > {
                 let mut command_options = ::std::vec::Vec::with_capacity(#capacity);
-
                 #(#variant_options)*
 
-                ::twilight_interactions::command::ApplicationCommandData {
+                let mut desc_locales: ::std::option::Option<::std::collections::HashMap<String, String>> = #description_localizations;
+                let description = match #description {
+                    ::std::option::Option::Some(val) => val,
+                    ::std::option::Option::None => {
+                        let ::std::option::Option::Some(desc_locales) = desc_locales.as_mut() else {
+                            return ::std::result::Result::Err(
+                                ::twilight_interactions::error::CreateCommandError::NoCommandDescription(#name)
+                            );
+                        };
+
+                        let ::std::option::Option::Some(desc) = desc_locales.remove("") else {
+                            return ::std::result::Result::Err(
+                                ::twilight_interactions::error::CreateCommandError::NoCommandDescription(#name)
+                            );
+                        };
+
+                        desc
+                    },
+                };
+
+                ::std::result::Result::Ok(::twilight_interactions::command::ApplicationCommandData {
                     name: ::std::convert::From::from(#name),
                     name_localizations: #name_localizations,
-                    description: ::std::convert::From::from(#description),
-                    description_localizations: #description_localizations,
+                    description: description,
+                    description_localizations: desc_locales,
                     options: command_options,
                     default_member_permissions: #default_permissions,
                     dm_permission: #dm_permission,
                     nsfw: #nsfw,
                     group: true,
-                }
+                })
             }
         }
     })
@@ -94,7 +119,7 @@ fn variant_option(variant: &ParsedVariant) -> TokenStream {
 
     quote_spanned! {span=>
         command_options.push(::std::convert::From::from(
-            <#ty as ::twilight_interactions::command::CreateCommand>::create_command()
+            <#ty as ::twilight_interactions::command::CreateCommand>::create_command()?
         ));
     }
 }

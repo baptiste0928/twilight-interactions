@@ -53,8 +53,12 @@ fn demo_name() -> [(&'static str, &'static str); 1] {
     [("en", "demo")]
 }
 
+fn desc() -> [(&'static str, &'static str); 2] {
+    [("en", "en desc"), ("", "fallback desc")]
+}
+
 #[derive(CreateCommand, Debug, PartialEq, Eq)]
-#[command(name = "unit", desc = "Unit command for testing purposes")]
+#[command(name = "unit", desc_localizations = "desc")]
 struct UnitCommand;
 
 #[test]
@@ -172,17 +176,19 @@ fn test_create_command() {
         nsfw: Some(true),
     };
 
-    assert_eq!(DemoCommand::<i64>::create_command(), expected);
+    assert_eq!(DemoCommand::<i64>::create_command(), Ok(expected));
     assert_eq!(DemoCommand::<i64>::NAME, "demo");
 }
 
 #[test]
 fn test_unit_create_command() {
+    let desc_localizations = HashMap::from([("en".into(), "en desc".into())]);
+
     let expected = ApplicationCommandData {
         name: "unit".into(),
         name_localizations: None,
-        description: "Unit command for testing purposes".into(),
-        description_localizations: None,
+        description: "fallback desc".into(),
+        description_localizations: Some(desc_localizations),
         options: vec![],
         default_member_permissions: None,
         dm_permission: None,
@@ -190,6 +196,6 @@ fn test_unit_create_command() {
         nsfw: None,
     };
 
-    assert_eq!(UnitCommand::create_command(), expected);
+    assert_eq!(UnitCommand::create_command(), Ok(expected));
     assert_eq!(UnitCommand::NAME, "unit");
 }

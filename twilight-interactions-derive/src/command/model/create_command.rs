@@ -42,8 +42,11 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
     };
     let name_localizations = localization_field(&attributes.name_localizations);
     let description = match &attributes.desc {
-        Some(desc) => desc.clone(),
-        None => parse_doc(&input.attrs, span)?,
+        Some(desc) => quote! { ::std::option::Option::Some((#desc).to_string()) },
+        None => match parse_doc(&input.attrs, span).ok() {
+            Some(doc) => quote! { ::std::option::Option::Some((#doc).to_string()) },
+            None => quote! { ::std::option::Option::None },
+        },
     };
     let description_localizations = localization_field(&attributes.desc_localizations);
     let default_permissions = match &attributes.default_permissions {
@@ -68,22 +71,44 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
         impl #generics ::twilight_interactions::command::CreateCommand for #ident #generics #where_clause {
             const NAME: &'static str = #name;
 
-            fn create_command() -> ::twilight_interactions::command::ApplicationCommandData {
+            fn create_command() -> ::std::result::Result<
+                ::twilight_interactions::command::ApplicationCommandData,
+                ::twilight_interactions::error::CreateCommandError
+            > {
                 let mut command_options = ::std::vec::Vec::with_capacity(#capacity);
-
                 #(#field_options)*
 
-                ::twilight_interactions::command::ApplicationCommandData {
+                let mut desc_locales: ::std::option::Option<::std::collections::HashMap<String, String>> = #description_localizations;
+                let description = match #description {
+                    ::std::option::Option::Some(val) => val,
+                    ::std::option::Option::None => {
+                        let ::std::option::Option::Some(desc_locales) = desc_locales.as_mut() else {
+                            return ::std::result::Result::Err(
+                                ::twilight_interactions::error::CreateCommandError::NoCommandDescription(#name)
+                            );
+                        };
+
+                        let ::std::option::Option::Some(desc) = desc_locales.remove("") else {
+                            return ::std::result::Result::Err(
+                                ::twilight_interactions::error::CreateCommandError::NoCommandDescription(#name)
+                            );
+                        };
+
+                        desc
+                    },
+                };
+
+                ::std::result::Result::Ok(::twilight_interactions::command::ApplicationCommandData {
                     name: ::std::convert::From::from(#name),
                     name_localizations: #name_localizations,
-                    description: ::std::convert::From::from(#description),
-                    description_localizations: #description_localizations,
+                    description,
+                    description_localizations: desc_locales,
                     options: command_options,
                     default_member_permissions: #default_permissions,
                     dm_permission: #dm_permission,
                     nsfw: #nsfw,
                     group: false,
-                }
+                })
             }
         }
     })
@@ -97,9 +122,16 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
     let name = field.attributes.name_default(field.ident.to_string());
     let name_localizations = localization_field(&field.attributes.name_localizations);
     let description = match &field.attributes.desc {
-        Some(desc) => desc.clone(),
-        None => parse_doc(&field.raw_attrs, field.span)?,
+        Some(desc) => quote! { ::std::option::Option::Some((#desc).to_string()) },
+        None => match parse_doc(&field.raw_attrs, field.span).ok() {
+            Some(doc) => quote! { ::std::option::Option::Some((#doc).to_string()) },
+            None => quote! { ::std::option::Option::None },
+        },
     };
+    // let description = match &field.attributes.desc {
+    //     Some(desc) => desc.clone(),
+    //     None => parse_doc(&field.raw_attrs, field.span)?,
+    // };
     let description_localizations = localization_field(&field.attributes.desc_localizations);
     let required = field.kind.required();
     let autocomplete = field.attributes.autocomplete;
@@ -116,12 +148,32 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
     };
 
     Ok(quote_spanned! {span=>
+        let mut desc_locales: ::std::option::Option<::std::collections::HashMap<String, String>> = #description_localizations;
+        let description = match #description {
+            ::std::option::Option::Some(val) => val,
+            ::std::option::Option::None => {
+                let ::std::option::Option::Some(desc_locales) = desc_locales.as_mut() else {
+                    return ::std::result::Result::Err(
+                        ::twilight_interactions::error::CreateCommandError::NoOptionDescription(#name)
+                    );
+                };
+
+                let ::std::option::Option::Some(desc) = desc_locales.remove("") else {
+                    return ::std::result::Result::Err(
+                        ::twilight_interactions::error::CreateCommandError::NoOptionDescription(#name)
+                    );
+                };
+
+                desc
+            },
+        };
+
         command_options.push(<#ty as ::twilight_interactions::command::CreateOption>::create_option(
             ::twilight_interactions::command::internal::CreateOptionData {
                 name: ::std::convert::From::from(#name),
                 name_localizations: #name_localizations,
-                description: ::std::convert::From::from(#description),
-                description_localizations: #description_localizations,
+                description,
+                description_localizations: desc_locales,
                 required: ::std::option::Option::Some(#required),
                 autocomplete: #autocomplete,
                 data: ::twilight_interactions::command::internal::CommandOptionData {

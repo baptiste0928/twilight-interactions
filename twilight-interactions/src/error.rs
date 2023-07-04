@@ -7,6 +7,35 @@ use std::{
 
 use twilight_model::{application::command::CommandOptionType, channel::ChannelType};
 
+/// Error when creating a command.
+///
+/// This error type is returned by the [`CreateCommand::create_command`]
+/// method.
+///
+/// [`CreateCommand::create_command`]: crate::command::CreateCommand::create_command
+#[derive(Debug, Clone, PartialEq)]
+pub enum CreateCommandError {
+    /// No description was specified for a command.
+    NoCommandDescription(&'static str),
+    /// No description was specified for an option.
+    NoOptionDescription(&'static str),
+}
+
+impl Error for CreateCommandError {}
+
+impl Display for CreateCommandError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        match self {
+            Self::NoCommandDescription(cmd) => {
+                write!(f, "no description specified for command {cmd}")
+            }
+            Self::NoOptionDescription(option) => {
+                write!(f, "no description was specified for option {option}")
+            }
+        }
+    }
+}
+
 /// Error when parsing a command.
 ///
 /// This error type is returned by the [`CommandModel::from_interaction`]

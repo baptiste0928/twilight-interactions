@@ -223,5 +223,5 @@ fn test_create_subcommand() {
         nsfw: None,
     };
 
-    assert_eq!(SubCommand::create_command(), expected);
+    assert_eq!(SubCommand::create_command(), Ok(expected));
 }
