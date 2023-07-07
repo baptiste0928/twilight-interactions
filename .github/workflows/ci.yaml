@@ -57,7 +57,7 @@ jobs:
       - name: Run clippy
         env:
           RUSTFLAGS: -D warnings
-        run: cargo clippy --all-features --tests
+        run: cargo clippy --all-features --tests --examples
 
   build-docs:
     name: Build docs
