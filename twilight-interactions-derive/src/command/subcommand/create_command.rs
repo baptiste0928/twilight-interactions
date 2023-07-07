@@ -39,7 +39,7 @@ pub fn impl_create_command(
                 None => parse_doc(&input.attrs, span)?,
             };
 
-            quote! { (#desc, None) }
+            quote! { (::std::convert::From::from(#desc), None) }
         }
     };
 
@@ -74,7 +74,7 @@ pub fn impl_create_command(
                 ::twilight_interactions::command::ApplicationCommandData {
                     name: ::std::convert::From::from(#name),
                     name_localizations: #name_localizations,
-                    description: ::std::convert::From::from(desc.0),
+                    description: desc.0,
                     description_localizations: desc.1,
                     options: command_options,
                     default_member_permissions: #default_permissions,

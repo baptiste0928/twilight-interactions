@@ -49,7 +49,7 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
                 None => parse_doc(&input.attrs, span)?,
             };
 
-            quote! { (#desc, None) }
+            quote! { (::std::convert::From::from(#desc), None) }
         }
     };
 
@@ -89,7 +89,7 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
                 ::twilight_interactions::command::ApplicationCommandData {
                     name: ::std::convert::From::from(#name),
                     name_localizations: #name_localizations,
-                    description: ::std::convert::From::from(desc.0),
+                    description: desc.0,
                     description_localizations: desc.1,
                     options: command_options,
                     default_member_permissions: #default_permissions,
@@ -120,7 +120,7 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
                 None => parse_doc(&field.raw_attrs, field.span)?,
             };
 
-            quote! { (#desc, None) }
+            quote! { (::std::convert::From::from(#desc), None) }
         }
     };
 
@@ -146,7 +146,7 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
             ::twilight_interactions::command::internal::CreateOptionData {
                 name: ::std::convert::From::from(#name),
                 name_localizations: #name_localizations,
-                description: ::std::convert::From::from(desc.0),
+                description: desc.0,
                 description_localizations: desc.1,
                 required: ::std::option::Option::Some(#required),
                 autocomplete: #autocomplete,
