@@ -8,6 +8,13 @@ pub fn get_description(
     span: proc_macro2::Span,
     attrs: &[syn::Attribute],
 ) -> syn::Result<proc_macro2::TokenStream> {
+    if desc.is_some() && desc_localizations.is_some() {
+        return Err(syn::Error::new(
+            span,
+            "You can't specify `desc` and `desc_localizations`.",
+        ));
+    }
+
     let desc = match desc_localizations {
         Some(path) => quote! {
             {
