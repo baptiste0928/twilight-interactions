@@ -36,16 +36,28 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
         ));
     }
 
+    let desc = match &attributes.desc_localizations {
+        Some(path) => quote! {
+            {
+                let desc = #path();
+                (desc.fallback, ::std::option::Option::Some(desc.localizations))
+            }
+        },
+        None => {
+            let desc = match &attributes.desc {
+                Some(desc) => desc.clone(),
+                None => parse_doc(&input.attrs, span)?,
+            };
+
+            quote! { (#desc, None) }
+        }
+    };
+
     let name = match &attributes.name {
         Some(name) => name,
         None => return Err(Error::new(attr_span, "missing required attribute `name`")),
     };
     let name_localizations = localization_field(&attributes.name_localizations);
-    let description = match &attributes.desc {
-        Some(desc) => desc.clone(),
-        None => parse_doc(&input.attrs, span)?,
-    };
-    let description_localizations = localization_field(&attributes.desc_localizations);
     let default_permissions = match &attributes.default_permissions {
         Some(path) => quote! { ::std::option::Option::Some(#path())},
         None => quote! { ::std::option::Option::None },
@@ -73,11 +85,12 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
 
                 #(#field_options)*
 
+                let desc = #desc;
                 ::twilight_interactions::command::ApplicationCommandData {
                     name: ::std::convert::From::from(#name),
                     name_localizations: #name_localizations,
-                    description: ::std::convert::From::from(#description),
-                    description_localizations: #description_localizations,
+                    description: ::std::convert::From::from(desc.0),
+                    description_localizations: desc.1,
                     options: command_options,
                     default_member_permissions: #default_permissions,
                     dm_permission: #dm_permission,
@@ -94,13 +107,25 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
     let ty = &field.ty;
     let span = field.span;
 
+    let desc = match &field.attributes.desc_localizations {
+        Some(path) => quote! {
+            {
+                let desc = #path();
+                (desc.fallback, ::std::option::Option::Some(desc.localizations))
+            }
+        },
+        None => {
+            let desc = match &field.attributes.desc {
+                Some(desc) => desc.clone(),
+                None => parse_doc(&field.raw_attrs, field.span)?,
+            };
+
+            quote! { (#desc, None) }
+        }
+    };
+
     let name = field.attributes.name_default(field.ident.to_string());
     let name_localizations = localization_field(&field.attributes.name_localizations);
-    let description = match &field.attributes.desc {
-        Some(desc) => desc.clone(),
-        None => parse_doc(&field.raw_attrs, field.span)?,
-    };
-    let description_localizations = localization_field(&field.attributes.desc_localizations);
     let required = field.kind.required();
     let autocomplete = field.attributes.autocomplete;
     let max_value = command_option_value(field.attributes.max_value);
@@ -116,12 +141,13 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
     };
 
     Ok(quote_spanned! {span=>
+        let desc = #desc;
         command_options.push(<#ty as ::twilight_interactions::command::CreateOption>::create_option(
             ::twilight_interactions::command::internal::CreateOptionData {
                 name: ::std::convert::From::from(#name),
                 name_localizations: #name_localizations,
-                description: ::std::convert::From::from(#description),
-                description_localizations: #description_localizations,
+                description: ::std::convert::From::from(desc.0),
+                description_localizations: desc.1,
                 required: ::std::option::Option::Some(#required),
                 autocomplete: #autocomplete,
                 data: ::twilight_interactions::command::internal::CommandOptionData {
