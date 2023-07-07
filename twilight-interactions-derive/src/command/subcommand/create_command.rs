@@ -3,10 +3,7 @@ use quote::{quote, quote_spanned};
 use syn::{spanned::Spanned, DeriveInput, Error, Result, Variant};
 
 use super::parse::{ParsedVariant, TypeAttribute};
-use crate::{
-    command::description::get_description,
-    parse::find_attr,
-};
+use crate::{command::description::get_description, parse::find_attr};
 
 /// Implementation of `CreateCommand` derive macro
 pub fn impl_create_command(

@@ -3,7 +3,7 @@ use quote::{quote, quote_spanned};
 use syn::{spanned::Spanned, DeriveInput, Error, FieldsNamed, Result};
 
 use super::parse::{channel_type, command_option_value, optional, StructField, TypeAttribute};
-use crate::{parse::find_attr, command::description::get_description};
+use crate::{command::description::get_description, parse::find_attr};
 
 /// Implementation of `CreateCommand` derive macro
 pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> Result<TokenStream> {
