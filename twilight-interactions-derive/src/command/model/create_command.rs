@@ -3,7 +3,7 @@ use quote::{quote, quote_spanned};
 use syn::{spanned::Spanned, DeriveInput, Error, FieldsNamed, Result};
 
 use super::parse::{channel_type, command_option_value, optional, StructField, TypeAttribute};
-use crate::parse::{find_attr, parse_doc};
+use crate::{parse::find_attr, command::description::get_description};
 
 /// Implementation of `CreateCommand` derive macro
 pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> Result<TokenStream> {
@@ -36,22 +36,12 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
         ));
     }
 
-    let desc = match &attributes.desc_localizations {
-        Some(path) => quote! {
-            {
-                let desc = #path();
-                (desc.fallback, ::std::option::Option::Some(desc.localizations))
-            }
-        },
-        None => {
-            let desc = match &attributes.desc {
-                Some(desc) => desc.clone(),
-                None => parse_doc(&input.attrs, span)?,
-            };
-
-            quote! { (::std::convert::From::from(#desc), None) }
-        }
-    };
+    let desc = get_description(
+        &attributes.desc_localizations,
+        &attributes.desc,
+        span,
+        &input.attrs,
+    )?;
 
     let name = match &attributes.name {
         Some(name) => name,
@@ -107,22 +97,12 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
     let ty = &field.ty;
     let span = field.span;
 
-    let desc = match &field.attributes.desc_localizations {
-        Some(path) => quote! {
-            {
-                let desc = #path();
-                (desc.fallback, ::std::option::Option::Some(desc.localizations))
-            }
-        },
-        None => {
-            let desc = match &field.attributes.desc {
-                Some(desc) => desc.clone(),
-                None => parse_doc(&field.raw_attrs, field.span)?,
-            };
-
-            quote! { (::std::convert::From::from(#desc), None) }
-        }
-    };
+    let desc = get_description(
+        &field.attributes.desc_localizations,
+        &field.attributes.desc,
+        field.span,
+        &field.raw_attrs,
+    )?;
 
     let name = field.attributes.name_default(field.ident.to_string());
     let name_localizations = localization_field(&field.attributes.name_localizations);

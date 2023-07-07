@@ -3,7 +3,10 @@ use quote::{quote, quote_spanned};
 use syn::{spanned::Spanned, DeriveInput, Error, Result, Variant};
 
 use super::parse::{ParsedVariant, TypeAttribute};
-use crate::parse::{find_attr, parse_doc};
+use crate::{
+    command::description::get_description,
+    parse::find_attr,
+};
 
 /// Implementation of `CreateCommand` derive macro
 pub fn impl_create_command(
@@ -26,22 +29,12 @@ pub fn impl_create_command(
         }
     };
 
-    let desc = match &attribute.desc_localizations {
-        Some(path) => quote! {
-            {
-                let desc = #path();
-                (desc.fallback, ::std::option::Option::Some(desc.localizations))
-            }
-        },
-        None => {
-            let desc = match &attribute.desc {
-                Some(desc) => desc.clone(),
-                None => parse_doc(&input.attrs, span)?,
-            };
-
-            quote! { (::std::convert::From::from(#desc), None) }
-        }
-    };
+    let desc = get_description(
+        &attribute.desc_localizations,
+        &attribute.desc,
+        span,
+        &input.attrs,
+    )?;
 
     let capacity = variants.len();
     let name = &attribute.name;
