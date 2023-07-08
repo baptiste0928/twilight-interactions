@@ -9,6 +9,7 @@ mod process;
 
 use std::{env, sync::Arc};
 
+use anyhow::Context;
 use futures_util::StreamExt;
 use tracing::Level;
 use twilight_gateway::{
@@ -26,7 +27,7 @@ use crate::{interactions::command::XkcdCommand, process::process_interactions};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let token = env::var("DISCORD_TOKEN")?;
+    let token = env::var("DISCORD_TOKEN").context("DISCORD_TOKEN environment variable not set")?;
 
     // Initialize logging with tracing
     tracing_subscriber::fmt()
