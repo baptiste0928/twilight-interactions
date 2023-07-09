@@ -41,6 +41,8 @@ The current MSRV is `1.67`.
 
 The API documentation is available on docs.rs: [`twilight-interactions` documentation](https://docs.rs/twilight-interactions/).
 
+Examples are available in the [`examples`](https://github.com/baptiste0928/twilight-interactions/tree/main/examples) directory.
+
 ## Contributing
 There is no particular contribution guidelines, feel free to open a new PR to improve the code. If you want to introduce a new feature, please create an issue before.
 

@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- A basic example bot implementation has been added in the `examples` directory
+  of the repository.
 - `DescriptionLocalizations` and `NameLocalizations` structs
 
 ### Changed
