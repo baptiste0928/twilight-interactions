@@ -2,6 +2,7 @@
 
 mod impls;
 
+mod description;
 mod model;
 mod subcommand;
 

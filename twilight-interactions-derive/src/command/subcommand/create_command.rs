@@ -3,7 +3,7 @@ use quote::{quote, quote_spanned};
 use syn::{spanned::Spanned, DeriveInput, Error, Result, Variant};
 
 use super::parse::{ParsedVariant, TypeAttribute};
-use crate::parse::{find_attr, parse_doc};
+use crate::{command::description::get_description, parse::find_attr};
 
 /// Implementation of `CreateCommand` derive macro
 pub fn impl_create_command(
@@ -26,14 +26,16 @@ pub fn impl_create_command(
         }
     };
 
+    let desc = get_description(
+        &attribute.desc_localizations,
+        &attribute.desc,
+        span,
+        &input.attrs,
+    )?;
+
     let capacity = variants.len();
     let name = &attribute.name;
     let name_localizations = localization_field(&attribute.name_localizations);
-    let description_localizations = localization_field(&attribute.desc_localizations);
-    let description = match attribute.desc {
-        Some(desc) => desc,
-        None => parse_doc(&input.attrs, span)?,
-    };
     let default_permissions = match &attribute.default_permissions {
         Some(path) => quote! { ::std::option::Option::Some(#path())},
         None => quote! { ::std::option::Option::None },
@@ -54,6 +56,7 @@ pub fn impl_create_command(
             const NAME: &'static str = #name;
 
             fn create_command() -> ::twilight_interactions::command::ApplicationCommandData {
+                let desc = #desc;
                 let mut command_options = ::std::vec::Vec::with_capacity(#capacity);
 
                 #(#variant_options)*
@@ -61,8 +64,8 @@ pub fn impl_create_command(
                 ::twilight_interactions::command::ApplicationCommandData {
                     name: ::std::convert::From::from(#name),
                     name_localizations: #name_localizations,
-                    description: ::std::convert::From::from(#description),
-                    description_localizations: #description_localizations,
+                    description: desc.0,
+                    description_localizations: desc.1,
                     options: command_options,
                     default_member_permissions: #default_permissions,
                     dm_permission: #dm_permission,
