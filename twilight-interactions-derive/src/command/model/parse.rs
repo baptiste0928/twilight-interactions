@@ -2,11 +2,12 @@
 
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{quote, ToTokens};
-use syn::{spanned::Spanned, Attribute, Error, Lit, Result, Type};
+use syn::{parse::ParseStream, spanned::Spanned, Attribute, Error, Lit, LitStr, Result, Type};
 
 use crate::parse::{
-    extract_option, extract_type, find_attr, parse_desc, parse_name, parse_path, AttrValue,
-    NamedAttrs,
+    attribute::{NamedAttrs, ParseAttribute},
+    parsers::{CommandDescription, CommandName, FunctionPath},
+    syntax::{extract_generic, find_attr},
 };
 
 /// Parsed struct field
@@ -30,8 +31,8 @@ pub enum FieldType {
 impl StructField {
     /// Parse a [`syn::Field`] as a [`StructField`]
     pub fn from_field(field: syn::Field) -> Result<Self> {
-        let (kind, ty) = match extract_option(&field.ty) {
-            Some(ty) => match extract_type(&ty, "AutocompleteValue") {
+        let (kind, ty) = match extract_generic(&field.ty, "Option") {
+            Some(ty) => match extract_generic(&ty, "AutocompleteValue") {
                 Some(_) => {
                     return Err(Error::new(
                         ty.span(),
@@ -40,7 +41,7 @@ impl StructField {
                 }
                 None => (FieldType::Optional, ty),
             },
-            None => match extract_type(&field.ty, "AutocompleteValue") {
+            None => match extract_generic(&field.ty, "AutocompleteValue") {
                 Some(ty) => (FieldType::Autocomplete, ty),
                 None => (FieldType::Required, field.ty.clone()),
             },
@@ -81,15 +82,15 @@ pub struct TypeAttribute {
     /// Whether the model is an autocomplete interaction model.
     pub autocomplete: Option<bool>,
     /// Command name.
-    pub name: Option<String>,
+    pub name: Option<CommandName>,
     /// Localization dictionary for the command name.
-    pub name_localizations: Option<syn::Path>,
+    pub name_localizations: Option<FunctionPath>,
     /// Command description.
-    pub desc: Option<String>,
+    pub desc: Option<CommandDescription>,
     /// Localization dictionary for the command description.
-    pub desc_localizations: Option<syn::Path>,
+    pub desc_localizations: Option<FunctionPath>,
     /// Default permissions required for a member to run the command.
-    pub default_permissions: Option<syn::Path>,
+    pub default_permissions: Option<FunctionPath>,
     /// Whether the command is available in DMs.
     pub dm_permission: Option<bool>,
     /// Whether the command is nsfw.
@@ -97,54 +98,29 @@ pub struct TypeAttribute {
 }
 
 impl TypeAttribute {
-    /// Parse a single [`Attribute`]
+    const VALID_ATTRIBUTES: &'static [&'static str] = &[
+        "autocomplete",
+        "name",
+        "name_localizations",
+        "desc",
+        "desc_localizations",
+        "default_permissions",
+        "dm_permission",
+        "nsfw",
+    ];
+
     pub fn parse(attr: &Attribute) -> Result<Self> {
-        let mut parser = NamedAttrs::new(&[
-            "autocomplete",
-            "name",
-            "name_localizations",
-            "desc",
-            "desc_localizations",
-            "default_permissions",
-            "dm_permission",
-            "nsfw",
-        ]);
-
-        attr.parse_nested_meta(|meta| parser.parse(meta))?;
-
-        let autocomplete = parser
-            .get("autocomplete")
-            .map(|v| v.parse_bool())
-            .transpose()?;
-        let name = parser.get("name").map(parse_name).transpose()?;
-        let name_localizations = parser
-            .get("name_localizations")
-            .map(parse_path)
-            .transpose()?;
-        let desc = parser.get("desc").map(parse_desc).transpose()?;
-        let desc_localizations = parser
-            .get("desc_localizations")
-            .map(parse_path)
-            .transpose()?;
-        let default_permissions = parser
-            .get("default_permissions")
-            .map(parse_path)
-            .transpose()?;
-        let dm_permission = parser
-            .get("dm_permission")
-            .map(|v| v.parse_bool())
-            .transpose()?;
-        let nsfw = parser.get("nsfw").map(|v| v.parse_bool()).transpose()?;
+        let mut parser = NamedAttrs::parse(attr, Self::VALID_ATTRIBUTES)?;
 
         Ok(Self {
-            autocomplete,
-            name,
-            name_localizations,
-            desc,
-            desc_localizations,
-            default_permissions,
-            dm_permission,
-            nsfw,
+            autocomplete: parser.optional("autocomplete")?,
+            name: parser.optional("name")?,
+            name_localizations: parser.optional("name_localizations")?,
+            desc: parser.optional("desc")?,
+            desc_localizations: parser.optional("desc_localizations")?,
+            default_permissions: parser.optional("default_permissions")?,
+            dm_permission: parser.optional("dm_permission")?,
+            nsfw: parser.optional("nsfw")?,
         })
     }
 }
@@ -153,13 +129,13 @@ impl TypeAttribute {
 #[derive(Default)]
 pub struct FieldAttribute {
     /// Rename the field to the given name
-    pub rename: Option<String>,
+    pub rename: Option<CommandName>,
     /// Localization dictionary for the field name.
-    pub name_localizations: Option<syn::Path>,
+    pub name_localizations: Option<FunctionPath>,
     /// Overwrite the field description
-    pub desc: Option<String>,
+    pub desc: Option<CommandDescription>,
     /// Localization dictionary for the command description.
-    pub desc_localizations: Option<syn::Path>,
+    pub desc_localizations: Option<FunctionPath>,
     /// Whether the field supports autocomplete
     pub autocomplete: bool,
     /// Limit to specific channel types
@@ -175,77 +151,40 @@ pub struct FieldAttribute {
 }
 
 impl FieldAttribute {
+    const VALID_ATTRIBUTES: &'static [&'static str] = &[
+        "rename",
+        "name_localizations",
+        "desc",
+        "desc_localizations",
+        "autocomplete",
+        "channel_types",
+        "max_value",
+        "min_value",
+        "max_length",
+        "min_length",
+    ];
+
     /// Parse a single [`Attribute`]
     pub fn parse(attr: &Attribute) -> Result<Self> {
-        let mut parser = NamedAttrs::new(&[
-            "rename",
-            "name_localizations",
-            "desc",
-            "desc_localizations",
-            "autocomplete",
-            "channel_types",
-            "max_value",
-            "min_value",
-            "max_length",
-            "min_length",
-        ]);
-
-        attr.parse_nested_meta(|meta| parser.parse(meta))?;
-
-        let rename = parser.get("rename").map(parse_name).transpose()?;
-        let name_localizations = parser
-            .get("name_localizations")
-            .map(parse_path)
-            .transpose()?;
-        let desc = parser.get("desc").map(parse_desc).transpose()?;
-        let desc_localizations = parser
-            .get("desc_localizations")
-            .map(parse_path)
-            .transpose()?;
-        let autocomplete = parser
-            .get("autocomplete")
-            .map(|val| val.parse_bool())
-            .transpose()?
-            .unwrap_or_default();
-        let channel_types = parser
-            .get("channel_types")
-            .map(ChannelType::parse_attr)
-            .transpose()?
-            .unwrap_or_default();
-        let max_value = parser
-            .get("max_value")
-            .map(CommandOptionValue::parse_attr)
-            .transpose()?;
-        let min_value = parser
-            .get("min_value")
-            .map(CommandOptionValue::parse_attr)
-            .transpose()?;
-        let max_length = parser
-            .get("max_length")
-            .map(|val| val.parse_int())
-            .transpose()?;
-        let min_length = parser
-            .get("min_length")
-            .map(|val| val.parse_int())
-            .transpose()?;
+        let mut parser = NamedAttrs::parse(attr, Self::VALID_ATTRIBUTES)?;
 
         Ok(Self {
-            rename,
-            name_localizations,
-            desc,
-            desc_localizations,
-            autocomplete,
-            channel_types,
-            max_value,
-            min_value,
-            max_length,
-            min_length,
+            rename: parser.optional("rename")?,
+            name_localizations: parser.optional("name_localizations")?,
+            desc: parser.optional("desc")?,
+            desc_localizations: parser.optional("desc_localizations")?,
+            autocomplete: parser.optional("autocomplete")?.unwrap_or_default(),
+            channel_types: parser.optional("channel_types")?.unwrap_or_default(),
+            max_value: parser.optional("max_value")?,
+            min_value: parser.optional("min_value")?,
+            max_length: parser.optional("max_length")?,
+            min_length: parser.optional("min_length")?,
         })
     }
 
     pub fn name_default(&self, default: String) -> String {
         match &self.rename {
-            Some(name) => name.clone(),
+            Some(name) => name.clone().into(),
             None => default,
         }
     }
@@ -268,18 +207,19 @@ pub enum ChannelType {
     GuildForum,
 }
 
-impl ChannelType {
-    /// Parse an [`AttrValue`] string as a [`ChannelType`]
-    fn parse_attr(attr: &AttrValue) -> Result<Vec<Self>> {
-        let span = attr.inner().span();
-        let val = attr.parse_string()?;
+impl ParseAttribute for Vec<ChannelType> {
+    fn parse_attribute(input: ParseStream) -> Result<Self> {
+        let lit: LitStr = input.parse()?;
+        let span = lit.span();
 
-        val.split_whitespace()
+        lit.value()
+            .split_ascii_whitespace()
             .map(|value| ChannelType::parse(value, span))
             .collect()
     }
+}
 
-    /// Parse a single string as a [`ChannelType`]
+impl ChannelType {
     fn parse(value: &str, span: Span) -> Result<Self> {
         match value {
             "guild_text" => Ok(Self::GuildText),
@@ -310,16 +250,15 @@ pub enum CommandOptionValue {
     Number(f64),
 }
 
-impl CommandOptionValue {
-    /// Parse an [`AttrValue`] as a [`CommandOptionValue`]
-    fn parse_attr(attr: &AttrValue) -> Result<Self> {
-        match attr.inner() {
+impl ParseAttribute for CommandOptionValue {
+    fn parse_attribute(input: ParseStream) -> Result<Self> {
+        let input = input;
+        let lit: Lit = input.parse()?;
+
+        match lit {
             Lit::Int(inner) => Ok(Self::Integer(inner.base10_parse()?)),
             Lit::Float(inner) => Ok(Self::Number(inner.base10_parse()?)),
-            _ => Err(Error::new(
-                attr.inner().span(),
-                "invalid attribute type, expected integer or float",
-            )),
+            _ => Err(input.error("expected integer or floating point literal")),
         }
     }
 }

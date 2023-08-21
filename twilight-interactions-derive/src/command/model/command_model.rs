@@ -5,7 +5,7 @@ use syn::{DeriveInput, Error, FieldsNamed, Result};
 use super::parse::{optional, FieldType, StructField, TypeAttribute};
 use crate::{
     command::model::parse::{channel_type, command_option_value},
-    parse::find_attr,
+    parse::syntax::find_attr,
 };
 
 /// Implementation of `CommandModel` derive macro

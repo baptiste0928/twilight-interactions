@@ -3,7 +3,10 @@ use quote::{quote, quote_spanned};
 use syn::{spanned::Spanned, DeriveInput, Error, Result, Variant};
 
 use super::parse::{ParsedVariant, TypeAttribute};
-use crate::{command::description::get_description, parse::find_attr};
+use crate::{
+    command::description::get_description,
+    parse::{parsers::FunctionPath, syntax::find_attr},
+};
 
 /// Implementation of `CreateCommand` derive macro
 pub fn impl_create_command(
@@ -77,7 +80,7 @@ pub fn impl_create_command(
     })
 }
 
-fn localization_field(path: &Option<syn::Path>) -> TokenStream {
+fn localization_field(path: &Option<FunctionPath>) -> TokenStream {
     match path {
         Some(path) => {
             quote! {

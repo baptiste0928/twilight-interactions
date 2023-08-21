@@ -1,7 +1,11 @@
 use proc_macro2::{Ident, Span};
 use syn::{spanned::Spanned, Attribute, Error, Fields, Result, Type, TypePath, Variant};
 
-use crate::parse::{find_attr, parse_desc, parse_name, parse_path, NamedAttrs};
+use crate::parse::{
+    attribute::NamedAttrs,
+    parsers::{CommandDescription, CommandName, FunctionPath},
+    syntax::find_attr,
+};
 
 /// Parsed enum variant
 pub struct ParsedVariant {
@@ -77,37 +81,31 @@ impl ParsedVariant {
 /// Parsed variant attribute
 pub struct VariantAttribute {
     /// Name of the subcommand
-    pub name: String,
+    pub name: CommandName,
 }
 
 impl VariantAttribute {
-    /// Parse a single [`Attribute`].
     pub fn parse(attr: &Attribute) -> Result<Self> {
-        let mut parser = NamedAttrs::new(&["name"]);
+        let mut parser = NamedAttrs::parse(attr, &["name"])?;
 
-        attr.parse_nested_meta(|meta| parser.parse(meta))?;
-
-        let name = match parser.get("name") {
-            Some(val) => parse_name(val)?,
-            None => return Err(Error::new(attr.span(), "missing required attribute `name`")),
-        };
-
-        Ok(Self { name })
+        Ok(Self {
+            name: parser.required("name")?,
+        })
     }
 }
 
 /// Parsed type attribute
 pub struct TypeAttribute {
     /// Name of the command
-    pub name: String,
+    pub name: CommandName,
     /// Localization dictionary for the command name.
-    pub name_localizations: Option<syn::Path>,
+    pub name_localizations: Option<FunctionPath>,
     /// Description of the command
-    pub desc: Option<String>,
+    pub desc: Option<CommandDescription>,
     /// Localization dictionary for the command description.
-    pub desc_localizations: Option<syn::Path>,
+    pub desc_localizations: Option<FunctionPath>,
     /// Default permissions required for a member to run the command.
-    pub default_permissions: Option<syn::Path>,
+    pub default_permissions: Option<FunctionPath>,
     /// Whether the command is available in DMs.
     pub dm_permission: Option<bool>,
     /// Whether the command is nsfw.
@@ -115,51 +113,27 @@ pub struct TypeAttribute {
 }
 
 impl TypeAttribute {
-    /// Parse a single [`Attribute`]
+    const VALID_ATTRIBUTES: &'static [&'static str] = &[
+        "name",
+        "name_localizations",
+        "desc",
+        "desc_localizations",
+        "default_permissions",
+        "dm_permission",
+        "nsfw",
+    ];
+
     pub fn parse(attr: &Attribute) -> Result<Self> {
-        let mut parser = NamedAttrs::new(&[
-            "name",
-            "name_localizations",
-            "desc",
-            "desc_localizations",
-            "default_permissions",
-            "dm_permission",
-            "nsfw",
-        ]);
-
-        attr.parse_nested_meta(|meta| parser.parse(meta))?;
-
-        let name = match parser.get("name") {
-            Some(val) => parse_name(val)?,
-            None => return Err(Error::new(attr.span(), "missing required attribute `name`")),
-        };
-        let name_localizations = parser
-            .get("name_localizations")
-            .map(parse_path)
-            .transpose()?;
-        let desc = parser.get("desc").map(parse_desc).transpose()?;
-        let desc_localizations = parser
-            .get("desc_localizations")
-            .map(parse_path)
-            .transpose()?;
-        let default_permissions = parser
-            .get("default_permissions")
-            .map(parse_path)
-            .transpose()?;
-        let dm_permission = parser
-            .get("dm_permission")
-            .map(|v| v.parse_bool())
-            .transpose()?;
-        let nsfw = parser.get("nsfw").map(|v| v.parse_bool()).transpose()?;
+        let mut parser = NamedAttrs::parse(attr, Self::VALID_ATTRIBUTES)?;
 
         Ok(Self {
-            name,
-            name_localizations,
-            desc,
-            desc_localizations,
-            default_permissions,
-            dm_permission,
-            nsfw,
+            name: parser.required("name")?,
+            name_localizations: parser.optional("name_localizations")?,
+            desc: parser.optional("desc")?,
+            desc_localizations: parser.optional("desc_localizations")?,
+            default_permissions: parser.optional("default_permissions")?,
+            dm_permission: parser.optional("dm_permission")?,
+            nsfw: parser.optional("nsfw")?,
         })
     }
 }
