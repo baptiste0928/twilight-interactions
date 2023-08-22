@@ -1,6 +1,7 @@
 //! Rust syntax parsing helpers.
 
-use proc_macro2::Span;
+use proc_macro2::{Span, TokenStream};
+use quote::{quote, ToTokens};
 use syn::{Attribute, Error, Expr, GenericArgument, Lit, PathArguments, Result};
 
 /// Find the first attribute with a specific name.
@@ -74,5 +75,16 @@ pub fn parse_doc(attrs: &[Attribute], span: Span) -> Result<String> {
             lit,
             "description must be between 1 and 100 characters",
         )),
+    }
+}
+
+/// Convert an [`Option<T>`] into a [`TokenStream`]
+pub fn optional<T>(value: Option<T>) -> TokenStream
+where
+    T: ToTokens,
+{
+    match value {
+        Some(value) => quote! { ::std::option::Option::Some(#value) },
+        None => quote! {::std::option::Option::None },
     }
 }

@@ -50,9 +50,11 @@ impl ParsedVariant {
     ///
     /// If no [`ChoiceKind`] is provided, the type is inferred from value.
     fn from_variant(variant: Variant, kind: Option<ChoiceKind>) -> Result<Self> {
-        match variant.fields {
-            Fields::Unit => (),
-            _ => return Err(Error::new(variant.span(), "variant must be a unit variant")),
+        if !matches!(variant.fields, Fields::Unit) {
+            return Err(Error::new_spanned(
+                variant,
+                "variant must be a unit variant",
+            ));
         }
 
         let attribute = match find_attr(&variant.attrs, "option") {

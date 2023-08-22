@@ -1,7 +1,7 @@
 //! Parsing of struct fields and attributes
 
 use proc_macro2::{Ident, Span, TokenStream};
-use quote::{quote, ToTokens};
+use quote::quote;
 use syn::{spanned::Spanned, Attribute, Error, Lit, Result, Type};
 
 use crate::parse::{
@@ -34,9 +34,9 @@ impl StructField {
         let (kind, ty) = match extract_generic(&field.ty, "Option") {
             Some(ty) => match extract_generic(&ty, "AutocompleteValue") {
                 Some(_) => {
-                    return Err(Error::new(
-                        ty.span(),
-                        "`AutocompleteValue` can not be wrapped in `Option<T>`",
+                    return Err(Error::new_spanned(
+                        ty,
+                        "`AutocompleteValue` cannot be wrapped in `Option<T>`",
                     ))
                 }
                 None => (FieldType::Optional, ty),
@@ -52,9 +52,16 @@ impl StructField {
             None => FieldAttribute::default(),
         };
 
+        let Some(ident) = field.ident else {
+            return Err(Error::new_spanned(
+                field,
+                "expected struct field to have an identifier",
+            ));
+        };
+
         Ok(Self {
             span: field.ty.span(),
-            ident: field.ident.unwrap(),
+            ident,
             ty,
             raw_attrs: field.attrs,
             attributes,
@@ -304,16 +311,5 @@ pub fn command_option_value(value: Option<CommandOptionValue>) -> TokenStream {
         Some(CommandOptionValue::Number(inner)) => {
             quote!(::std::option::Option::Some(::twilight_model::application::command::CommandOptionValue::Number(#inner)))
         }
-    }
-}
-
-/// Convert an [`Option<T>`] into a [`TokenStream`]
-pub fn optional<T>(value: Option<T>) -> TokenStream
-where
-    T: ToTokens,
-{
-    match value {
-        Some(value) => quote!(::std::option::Option::Some(#value)),
-        None => quote!(::std::option::Option::None),
     }
 }

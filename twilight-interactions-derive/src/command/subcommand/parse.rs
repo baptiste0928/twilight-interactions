@@ -36,9 +36,8 @@ impl ParsedVariant {
     /// Parse a single syn [`Variant`].
     fn from_variant(variant: Variant) -> Result<Self> {
         let span = variant.span();
-        let fields = match variant.fields {
-            Fields::Unnamed(fields) => fields,
-            _ => return Err(Error::new(span, "variant must be an unnamed variant")),
+        let Fields::Unnamed(fields) =  variant.fields else {
+            return Err(Error::new(span, "variant must be an unnamed variant"));
         };
 
         if fields.unnamed.len() != 1 {

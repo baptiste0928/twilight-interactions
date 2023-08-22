@@ -19,21 +19,21 @@ pub fn impl_command_model(
     Ok(quote! {
         impl #generics ::twilight_interactions::command::CommandModel for #ident #generics #where_clause {
             fn from_interaction(
-                data: ::twilight_interactions::command::CommandInputData,
+                __data: ::twilight_interactions::command::CommandInputData,
             ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseError> {
-                if data.options.is_empty() {
+                if __data.options.is_empty() {
                     return std::result::Result::Err(twilight_interactions::error::ParseError::EmptyOptions);
                 }
 
-                let mut options = data.options;
-                let opt = options.swap_remove(0);
+                let mut __options = __data.options;
+                let __opt = __options.swap_remove(0);
 
-                match &*opt.name {
+                match &*__opt.name {
                     #(#variants_match_arms,)*
-                    other => ::std::result::Result::Err(
+                    __other => ::std::result::Result::Err(
                         ::twilight_interactions::error::ParseError::Option(
                             ::twilight_interactions::error::ParseOptionError {
-                                field: ::std::convert::From::from(other),
+                                field: ::std::convert::From::from(__other),
                                 kind: twilight_interactions::error::ParseOptionErrorType::UnknownSubcommand,
                             }
                         )
@@ -52,20 +52,20 @@ fn variant_match_arm(variant: &ParsedVariant) -> TokenStream {
 
     quote_spanned! {span=>
         #name => {
-            let input = match ::twilight_interactions::command::CommandInputData::from_option(opt.value, data.resolved.as_deref()) {
-                Ok(value) => value,
-                Err(error) => return ::std::result::Result::Err(
+            let __input = match ::twilight_interactions::command::CommandInputData::from_option(__opt.value, __data.resolved.as_deref()) {
+                Ok(__value) => __value,
+                Err(__error) => return ::std::result::Result::Err(
                     ::twilight_interactions::error::ParseError::Option(
                         ::twilight_interactions::error::ParseOptionError {
                             field: ::std::convert::From::from(#name),
-                            kind: error,
+                            kind: __error,
                         }
                     )
                 )
             };
 
             Ok(Self::#ident(
-                ::twilight_interactions::command::CommandModel::from_interaction(input)?
+                ::twilight_interactions::command::CommandModel::from_interaction(__input)?
             ))
         }
     }

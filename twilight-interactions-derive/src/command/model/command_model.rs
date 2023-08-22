@@ -2,10 +2,10 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::{DeriveInput, Error, FieldsNamed, Result};
 
-use super::parse::{optional, FieldType, StructField, TypeAttribute};
+use super::parse::{FieldType, StructField, TypeAttribute};
 use crate::{
     command::model::parse::{channel_type, command_option_value},
-    parse::syntax::find_attr,
+    parse::syntax::{find_attr, optional},
 };
 
 /// Implementation of `CommandModel` derive macro
@@ -24,7 +24,7 @@ pub fn impl_command_model(input: DeriveInput, fields: Option<FieldsNamed>) -> Re
     };
 
     for field in &fields {
-        // Ensure all fields are either `AutocompleteValue` or `Option`s
+        // If autocomplete, ensure all fields are either `AutocompleteValue` or `Option`s
         if autocomplete && ![FieldType::Autocomplete, FieldType::Optional].contains(&field.kind) {
             return Err(Error::new(
                 field.span,
@@ -49,14 +49,14 @@ pub fn impl_command_model(input: DeriveInput, fields: Option<FieldsNamed>) -> Re
     Ok(quote! {
         impl #generics ::twilight_interactions::command::CommandModel for #ident #generics #where_clause {
             fn from_interaction(
-                data: ::twilight_interactions::command::CommandInputData,
+                __data: ::twilight_interactions::command::CommandInputData,
             ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseError> {
                 #(#fields_init)*
 
-                for opt in data.options {
-                    match &*opt.name {
+                for __opt in __data.options {
+                    match &*__opt.name {
                         #(#fields_match_arms,)*
-                        other => #field_unknown
+                        __other => #field_unknown
                     }
                 }
 
@@ -92,7 +92,7 @@ fn field_match_arm(field: &StructField) -> TokenStream {
 
     quote_spanned! {span=>
         #name => {
-            let option_data = ::twilight_interactions::command::internal::CommandOptionData {
+            let __option_data = ::twilight_interactions::command::internal::CommandOptionData {
                 channel_types: #channel_types,
                 max_value: #max_value,
                 min_value: #min_value,
@@ -100,14 +100,14 @@ fn field_match_arm(field: &StructField) -> TokenStream {
                 min_length: #min_length,
             };
 
-            match ::twilight_interactions::command::CommandOption::from_option(opt.value, option_data, data.resolved.as_deref()) {
-                ::std::result::Result::Ok(value) => #ident = Some(value),
-                ::std::result::Result::Err(kind) => {
+            match ::twilight_interactions::command::CommandOption::from_option(__opt.value, __option_data, __data.resolved.as_deref()) {
+                ::std::result::Result::Ok(__value) => #ident = Some(__value),
+                ::std::result::Result::Err(__kind) => {
                     return ::std::result::Result::Err(
                         ::twilight_interactions::error::ParseError::Option(
                             ::twilight_interactions::error::ParseOptionError {
                                 field: ::std::convert::From::from(#name),
-                                kind,
+                                kind: __kind,
                         })
                     )
                 }
@@ -124,7 +124,7 @@ fn field_constructor(field: &StructField) -> TokenStream {
     match field.kind {
         FieldType::Required => quote! {
             #ident: match #ident {
-                Some(value) => value,
+                Some(__value) => __value,
                 None => return Err(::twilight_interactions::error::ParseError::Option(
                     ::twilight_interactions::error::ParseOptionError {
                         field: ::std::convert::From::from(#ident_str),
@@ -135,7 +135,7 @@ fn field_constructor(field: &StructField) -> TokenStream {
         FieldType::Optional => quote!(#ident),
         FieldType::Autocomplete => quote! {
             #ident: match #ident {
-                Some(value) => value,
+                Some(__value) => __value,
                 None => ::twilight_interactions::command::AutocompleteValue::None,
             }
         },
@@ -151,7 +151,7 @@ fn field_unknown(autocomplete: bool) -> TokenStream {
             return ::std::result::Result::Err(
                 ::twilight_interactions::error::ParseError::Option(
                     ::twilight_interactions::error::ParseOptionError {
-                        field: ::std::convert::From::from(other),
+                        field: ::std::convert::From::from(__other),
                         kind: ::twilight_interactions::error::ParseOptionErrorType::UnknownField,
                 })
             )
