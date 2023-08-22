@@ -1,8 +1,8 @@
 use proc_macro2::{Ident, Span};
-use syn::{parse::ParseStream, spanned::Spanned, Attribute, Error, Fields, Lit, Result, Variant};
+use syn::{spanned::Spanned, Attribute, Error, Fields, Lit, Result, Variant};
 
 use crate::parse::{
-    attribute::{NamedAttrs, ParseAttribute, ParsedSpanned},
+    attribute::{NamedAttrs, ParseAttribute, ParseSpanned},
     parsers::{ChoiceName, FunctionPath},
     syntax::find_attr,
 };
@@ -92,7 +92,7 @@ impl VariantAttribute {
         let mut parser = NamedAttrs::parse(attr, &["name", "name_localizations", "value"])?;
 
         // Ensure the parsed type is the same as the inferred one
-        let value: ParsedSpanned<ChoiceValue> = parser.required("value")?;
+        let value: ParseSpanned<ChoiceValue> = parser.required("value")?;
         if let Some(kind) = kind {
             if value.inner.kind() != kind {
                 return Err(Error::new(
@@ -130,15 +130,17 @@ impl ChoiceValue {
 }
 
 impl ParseAttribute for ChoiceValue {
-    fn parse_attribute(input: ParseStream) -> Result<Self> {
-        let fork = input.fork();
-        let lit: Lit = input.parse()?;
-
-        let parsed = match lit {
+    fn parse_attribute(input: Lit) -> Result<Self> {
+        let parsed = match input {
             Lit::Str(inner) => Self::String(inner.value()),
             Lit::Int(inner) => Self::Int(inner.base10_parse()?),
             Lit::Float(inner) => Self::Number(inner.base10_parse()?),
-            _ => return Err(fork.error("expected string, integer or float point literal")),
+            _ => {
+                return Err(Error::new_spanned(
+                    input,
+                    "expected string, integer or float point literal",
+                ))
+            }
         };
 
         Ok(parsed)

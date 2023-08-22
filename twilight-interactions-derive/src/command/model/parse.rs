@@ -2,10 +2,10 @@
 
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::{quote, ToTokens};
-use syn::{parse::ParseStream, spanned::Spanned, Attribute, Error, Lit, LitStr, Result, Type};
+use syn::{spanned::Spanned, Attribute, Error, Lit, Result, Type};
 
 use crate::parse::{
-    attribute::{NamedAttrs, ParseAttribute},
+    attribute::{NamedAttrs, ParseAttribute, ParseSpanned},
     parsers::{CommandDescription, CommandName, FunctionPath},
     syntax::{extract_generic, find_attr},
 };
@@ -208,13 +208,13 @@ pub enum ChannelType {
 }
 
 impl ParseAttribute for Vec<ChannelType> {
-    fn parse_attribute(input: ParseStream) -> Result<Self> {
-        let lit: LitStr = input.parse()?;
-        let span = lit.span();
+    fn parse_attribute(input: Lit) -> Result<Self> {
+        let spanned: ParseSpanned<String> = ParseAttribute::parse_attribute(input)?;
 
-        lit.value()
+        spanned
+            .inner
             .split_ascii_whitespace()
-            .map(|value| ChannelType::parse(value, span))
+            .map(|value| ChannelType::parse(value, spanned.span))
             .collect()
     }
 }
@@ -251,14 +251,14 @@ pub enum CommandOptionValue {
 }
 
 impl ParseAttribute for CommandOptionValue {
-    fn parse_attribute(input: ParseStream) -> Result<Self> {
-        let input = input;
-        let lit: Lit = input.parse()?;
-
-        match lit {
+    fn parse_attribute(input: Lit) -> Result<Self> {
+        match input {
             Lit::Int(inner) => Ok(Self::Integer(inner.base10_parse()?)),
             Lit::Float(inner) => Ok(Self::Number(inner.base10_parse()?)),
-            _ => Err(input.error("expected integer or floating point literal")),
+            _ => Err(Error::new_spanned(
+                input,
+                "expected integer or floating point literal",
+            )),
         }
     }
 }

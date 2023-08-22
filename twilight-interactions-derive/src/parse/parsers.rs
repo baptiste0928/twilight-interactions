@@ -1,16 +1,19 @@
 use proc_macro2::TokenStream;
 use quote::ToTokens;
-use syn::{LitStr, Path, Result};
+use syn::{Error, Lit, Path, Result};
 
-use super::attribute::ParseAttribute;
+use super::attribute::{ParseAttribute, ParseSpanned};
 
 /// Path to a function.
 #[derive(Clone, Debug)]
 pub struct FunctionPath(Path);
 
 impl ParseAttribute for FunctionPath {
-    fn parse_attribute(input: syn::parse::ParseStream) -> Result<Self> {
-        let lit: LitStr = input.parse()?;
+    fn parse_attribute(input: Lit) -> Result<Self> {
+        let Lit::Str(lit) = input else {
+            return Err(Error::new_spanned(input, "expected string literal"));
+        };
+
         let path = lit.parse_with(Path::parse_mod_style)?;
 
         Ok(Self(path))
@@ -35,30 +38,30 @@ impl ToTokens for FunctionPath {
 pub struct CommandName(String);
 
 impl ParseAttribute for CommandName {
-    fn parse_attribute(input: syn::parse::ParseStream) -> Result<Self> {
-        let lit: LitStr = input.parse()?;
-        let value = lit.value().trim().to_string();
+    fn parse_attribute(input: Lit) -> Result<Self> {
+        let spanned: ParseSpanned<String> = ParseAttribute::parse_attribute(input)?;
+        let value = spanned.inner.trim();
 
         match value.chars().count() {
             1..=32 => (),
-            _ => return Err(input.error("name must be between 1 and 32 characters")),
+            _ => return Err(spanned.error("name must be between 1 and 32 characters")),
         }
 
         for char in value.chars() {
             if !char.is_alphanumeric() && char != '-' && char != '_' {
-                return Err(input.error(format!(
+                return Err(spanned.error(format!(
                     "name must only contain word characters, found invalid character `{char}`"
                 )));
             }
 
             if char.to_lowercase().to_string() != char.to_string() {
-                return Err(input.error(format!(
+                return Err(spanned.error(format!(
                     "name must be in lowercase, found invalid character `{char}`"
                 )));
             }
         }
 
-        Ok(Self(value))
+        Ok(Self(value.to_owned()))
     }
 }
 
@@ -81,16 +84,16 @@ impl From<CommandName> for String {
 pub struct CommandDescription(String);
 
 impl ParseAttribute for CommandDescription {
-    fn parse_attribute(input: syn::parse::ParseStream) -> Result<Self> {
-        let lit: LitStr = input.parse()?;
-        let value = lit.value().trim().to_string();
+    fn parse_attribute(input: Lit) -> Result<Self> {
+        let spanned: ParseSpanned<String> = ParseAttribute::parse_attribute(input)?;
+        let value = spanned.inner.trim();
 
         match value.chars().count() {
             1..=100 => (),
-            _ => return Err(input.error("description must be between 1 and 100 characters")),
+            _ => return Err(spanned.error("description must be between 1 and 100 characters")),
         }
 
-        Ok(Self(value))
+        Ok(Self(value.to_owned()))
     }
 }
 
@@ -114,16 +117,16 @@ impl From<CommandDescription> for String {
 pub struct ChoiceName(String);
 
 impl ParseAttribute for ChoiceName {
-    fn parse_attribute(input: syn::parse::ParseStream) -> Result<Self> {
-        let lit: LitStr = input.parse()?;
-        let value = lit.value().trim().to_string();
+    fn parse_attribute(input: Lit) -> Result<Self> {
+        let spanned: ParseSpanned<String> = ParseAttribute::parse_attribute(input)?;
+        let value = spanned.inner.trim();
 
         match value.chars().count() {
             1..=100 => (),
-            _ => return Err(input.error("name must be between 1 and 100 characters")),
+            _ => return Err(spanned.error("name must be between 1 and 100 characters")),
         }
 
-        Ok(Self(value))
+        Ok(Self(value.to_owned()))
     }
 }
 

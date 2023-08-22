@@ -6,22 +6,18 @@
 //! - [`ParseAttribute`] is used to parse a single attribute into a concrete
 //!  type.
 
-use proc_macro2::{Span, TokenStream};
-use quote::ToTokens;
-use syn::{
-    meta::ParseNestedMeta,
-    parse::{ParseStream, Parser},
-    spanned::Spanned,
-    Attribute, Error, Expr, LitBool, LitInt, LitStr, Path, Result,
-};
+use std::fmt::Display;
+
+use proc_macro2::{Ident, Span};
+use syn::{meta::ParseNestedMeta, spanned::Spanned, Attribute, Error, Lit, Result};
 
 /// Parse a list of named attributes like `#[command(rename = "name")]`.
 ///
-/// This type collects all attributes matching allowed names as a list of
-/// [`TokenStream`]s, and provides methods to parse values from them.
+/// This only support `(ident) = (literal)` syntax for simplicity. Collected
+/// values can be parsed using the `optional` and `required` methods.
 pub struct NamedAttrs {
     attr_span: Span,
-    values: Vec<(Path, TokenStream)>,
+    values: Vec<(Ident, Lit)>,
 }
 
 impl NamedAttrs {
@@ -40,32 +36,28 @@ impl NamedAttrs {
     }
 
     fn parse_meta(&mut self, meta: ParseNestedMeta, valid: &[&str]) -> Result<()> {
-        let is_valid = valid.iter().any(|n| meta.path.is_ident(n));
+        let is_valid = |ident| valid.iter().any(|name| ident == name);
 
-        if !is_valid {
+        let Some(ident) = meta.path.get_ident().filter(|i| is_valid(*i)) else {
             let expected = valid.join(", ");
-            return Err(meta.error(format!(
-                "invalid argument name (expected one of {expected})"
-            )));
+            return Err(Error::new_spanned(meta.path, format!("invalid argument name (expected one of {expected})")));
         };
 
-        let expr: Expr = meta.value()?.parse()?;
-
-        self.values
-            .push((meta.path.clone(), expr.into_token_stream()));
+        let lit: Lit = meta.value()?.parse()?;
+        self.values.push((ident.clone(), lit));
 
         Ok(())
     }
 
     /// Parse an optional attribute using the specified parser function.
     pub fn optional<T: ParseAttribute>(&mut self, name: &str) -> Result<Option<T>> {
-        let index = match self.values.iter().position(|(n, _)| n.is_ident(name)) {
+        let index = match self.values.iter().position(|(ident, _)| ident == name) {
             Some(index) => index,
             None => return Ok(None),
         };
 
-        let (_, tokens) = self.values.remove(index);
-        let parsed = T::parse_attribute.parse2(tokens)?;
+        let (_, lit) = self.values.remove(index);
+        let parsed = T::parse_attribute(lit)?;
 
         Ok(Some(parsed))
     }
@@ -85,46 +77,55 @@ impl NamedAttrs {
     }
 }
 
-/// Parse an attribute into a concrete type.
-///
-/// This trait is identical to the [`syn::parse::Parse`] trait with a different
-/// method name.
+/// Parse an attribute literal into a concrete type.
 pub trait ParseAttribute: Sized {
-    fn parse_attribute(input: ParseStream) -> Result<Self>;
+    fn parse_attribute(input: Lit) -> Result<Self>;
 }
 
 impl ParseAttribute for String {
-    fn parse_attribute(input: ParseStream) -> Result<Self> {
-        let lit: LitStr = input.parse()?;
+    fn parse_attribute(input: Lit) -> Result<Self> {
+        let Lit::Str(lit) = input else {
+            return Err(Error::new_spanned(input, "expected string literal"));
+        };
 
         Ok(lit.value())
     }
 }
 
 impl ParseAttribute for bool {
-    fn parse_attribute(input: ParseStream) -> Result<Self> {
-        let lit: LitBool = input.parse()?;
+    fn parse_attribute(input: Lit) -> Result<Self> {
+        let Lit::Bool(lit) = input else {
+            return Err(Error::new_spanned(input, "expected boolean literal"));
+        };
 
         Ok(lit.value)
     }
 }
 
 impl ParseAttribute for u16 {
-    fn parse_attribute(input: ParseStream) -> Result<Self> {
-        let lit: LitInt = input.parse()?;
+    fn parse_attribute(input: Lit) -> Result<Self> {
+        let Lit::Int(lit) = input else {
+            return Err(Error::new_spanned(input, "expected integer literal"));
+        };
 
         lit.base10_parse()
     }
 }
 
 /// Capture the [`Span`] of a parsed attribute.
-pub struct ParsedSpanned<T> {
+pub struct ParseSpanned<T> {
     pub span: Span,
     pub inner: T,
 }
 
-impl<T: ParseAttribute> ParseAttribute for ParsedSpanned<T> {
-    fn parse_attribute(input: ParseStream) -> Result<Self> {
+impl<T> ParseSpanned<T> {
+    pub fn error(&self, message: impl Display) -> Error {
+        Error::new(self.span, message)
+    }
+}
+
+impl<T: ParseAttribute> ParseAttribute for ParseSpanned<T> {
+    fn parse_attribute(input: Lit) -> Result<Self> {
         let span = input.span();
         let inner = T::parse_attribute(input)?;
 
