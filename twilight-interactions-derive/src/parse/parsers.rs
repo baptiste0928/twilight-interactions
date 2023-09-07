@@ -5,7 +5,7 @@ use syn::{Error, Lit, Path, Result};
 use super::attribute::{ParseAttribute, ParseSpanned};
 
 /// Path to a function.
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct FunctionPath(Path);
 
 impl ParseAttribute for FunctionPath {
