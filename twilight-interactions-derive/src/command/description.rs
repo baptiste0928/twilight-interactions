@@ -1,13 +1,18 @@
+use proc_macro2::{Span, TokenStream};
 use quote::quote;
+use syn::{Attribute, Result};
 
-use crate::parse::parse_doc;
+use crate::parse::{
+    parsers::{CommandDescription, FunctionPath},
+    syntax::parse_doc,
+};
 
 pub fn get_description(
-    desc_localizations: &Option<syn::Path>,
-    desc: &Option<String>,
-    span: proc_macro2::Span,
-    attrs: &[syn::Attribute],
-) -> syn::Result<proc_macro2::TokenStream> {
+    desc_localizations: &Option<FunctionPath>,
+    desc: &Option<CommandDescription>,
+    span: Span,
+    attrs: &[Attribute],
+) -> Result<TokenStream> {
     if desc.is_some() && desc_localizations.is_some() {
         return Err(syn::Error::new(
             span,
@@ -24,7 +29,7 @@ pub fn get_description(
         },
         None => {
             let desc = match desc {
-                Some(desc) => desc.clone(),
+                Some(desc) => desc.clone().into(),
                 None => parse_doc(attrs, span)?,
             };
 

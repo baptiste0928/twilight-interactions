@@ -27,9 +27,9 @@ pub fn impl_create_option(input: DeriveInput) -> Result<TokenStream> {
     Ok(quote! {
         impl ::twilight_interactions::command::CreateOption for #ident {
             fn create_option(
-                data: ::twilight_interactions::command::internal::CreateOptionData,
+                __data: ::twilight_interactions::command::internal::CreateOptionData,
             ) -> ::twilight_model::application::command::CommandOption {
-                let mut choices = ::std::vec::Vec::with_capacity(#vec_capacity);
+                let mut __choices = ::std::vec::Vec::with_capacity(#vec_capacity);
 
                 #(#choice_variants)*
 
@@ -80,7 +80,7 @@ fn choice_variant(variant: &ParsedVariant) -> TokenStream {
     };
 
     quote! {
-        choices.push(
+        __choices.push(
             ::twilight_model::application::command::CommandOptionChoice {
                 name: ::std::convert::From::from(#name),
                 name_localizations: #name_localizations,
@@ -98,9 +98,9 @@ fn command_option(kind: ChoiceKind) -> TokenStream {
     };
 
     quote! {
-        data
+        __data
             .builder(::twilight_model::application::command::CommandOptionType::#opt_kind)
-            .choices(choices)
+            .choices(__choices)
             .build()
     }
 }

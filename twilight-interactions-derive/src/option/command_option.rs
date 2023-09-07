@@ -35,17 +35,17 @@ pub fn impl_command_option(input: DeriveInput) -> Result<TokenStream> {
     Ok(quote! {
         impl ::twilight_interactions::command::CommandOption for #ident {
             fn from_option(
-                value: ::twilight_model::application::interaction::application_command::CommandOptionValue,
-                data: twilight_interactions::command::internal::CommandOptionData,
-                resolved: ::std::option::Option<&::twilight_model::application::interaction::application_command::CommandInteractionDataResolved>
+                __value: ::twilight_model::application::interaction::application_command::CommandOptionValue,
+                __data: twilight_interactions::command::internal::CommandOptionData,
+                __resolved: ::std::option::Option<&::twilight_model::application::interaction::application_command::CommandInteractionDataResolved>
             ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseOptionErrorType> {
                 #parsed_init
 
                 match #match_expr {
                     #(#match_arms,)*
-                    other => ::std::result::Result::Err(
+                    __other => ::std::result::Result::Err(
                         ::twilight_interactions::error::ParseOptionErrorType::InvalidChoice(
-                            ::std::string::ToString::to_string(other)
+                            ::std::string::ToString::to_string(__other)
                         )
                     )
                 }
@@ -90,13 +90,13 @@ pub fn dummy_command_option(ident: Ident, error: Error) -> TokenStream {
 fn parsed_init(kind: ChoiceKind) -> TokenStream {
     match kind {
         ChoiceKind::String => {
-            quote! { let parsed: ::std::string::String = ::twilight_interactions::command::CommandOption::from_option(value, ::std::default::Default::default(), resolved)?; }
+            quote! { let __parsed: ::std::string::String = ::twilight_interactions::command::CommandOption::from_option(__value, ::std::default::Default::default(), __resolved)?; }
         }
         ChoiceKind::Integer => {
-            quote! { let parsed: i64 = ::twilight_interactions::command::CommandOption::from_option(value, ::std::default::Default::default(), resolved)?; }
+            quote! { let __parsed: i64 = ::twilight_interactions::command::CommandOption::from_option(__value, ::std::default::Default::default(), __resolved)?; }
         }
         ChoiceKind::Number => {
-            quote! { let parsed: f64 = ::twilight_interactions::command::CommandOption::from_option(value, ::std::default::Default::default(), resolved)?; }
+            quote! { let __parsed: f64 = ::twilight_interactions::command::CommandOption::from_option(__value, ::std::default::Default::default(), __resolved)?; }
         }
     }
 }
@@ -104,8 +104,8 @@ fn parsed_init(kind: ChoiceKind) -> TokenStream {
 /// Expression in match block
 fn match_expr(kind: ChoiceKind) -> TokenStream {
     match kind {
-        ChoiceKind::String => quote!(parsed.as_str()),
-        _ => quote!(&parsed),
+        ChoiceKind::String => quote!(__parsed.as_str()),
+        _ => quote!(&__parsed),
     }
 }
 
@@ -118,7 +118,7 @@ fn variant_match_arm(variant: &ParsedVariant) -> TokenStream {
         ChoiceValue::Int(val) => val.to_token_stream(),
         // https://stackoverflow.com/questions/45875142/what-are-the-alternatives-to-pattern-matching-floating-point-numbers
         // https://rust-lang.github.io/rust-clippy/master/index.html#float_cmp
-        ChoiceValue::Number(val) => quote! { val if (val - #val).abs() < f64::EPSILON },
+        ChoiceValue::Number(val) => quote! { __val if (__val - #val).abs() < f64::EPSILON },
     };
 
     quote_spanned! {span=>

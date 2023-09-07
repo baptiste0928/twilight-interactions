@@ -1,7 +1,11 @@
 use proc_macro2::{Ident, Span};
-use syn::{spanned::Spanned, Attribute, Error, Fields, Result, Variant};
+use syn::{spanned::Spanned, Attribute, Error, Fields, Lit, Result, Variant};
 
-use crate::parse::{find_attr, parse_path, AttrValue, NamedAttrs};
+use crate::parse::{
+    attribute::{NamedAttrs, ParseAttribute, ParseSpanned},
+    parsers::{ChoiceName, FunctionPath},
+    syntax::find_attr,
+};
 
 /// Parsed enum variants.
 pub struct ParsedVariant {
@@ -46,9 +50,11 @@ impl ParsedVariant {
     ///
     /// If no [`ChoiceKind`] is provided, the type is inferred from value.
     fn from_variant(variant: Variant, kind: Option<ChoiceKind>) -> Result<Self> {
-        match variant.fields {
-            Fields::Unit => (),
-            _ => return Err(Error::new(variant.span(), "variant must be a unit variant")),
+        if !matches!(variant.fields, Fields::Unit) {
+            return Err(Error::new_spanned(
+                variant,
+                "variant must be a unit variant",
+            ));
         }
 
         let attribute = match find_attr(&variant.attrs, "option") {
@@ -73,9 +79,9 @@ impl ParsedVariant {
 /// Parsed variant attribute
 pub struct VariantAttribute {
     /// Name of the choice (shown to users)
-    pub name: String,
+    pub name: ChoiceName,
     /// Localizations dictionary for the choice name
-    pub name_localizations: Option<syn::Path>,
+    pub name_localizations: Option<FunctionPath>,
     /// Value of the choice
     pub value: ChoiceValue,
 }
@@ -85,32 +91,23 @@ impl VariantAttribute {
     ///
     /// If no [`ChoiceKind`] is provided, the type is inferred from value.
     pub fn parse(attr: &Attribute, kind: Option<ChoiceKind>) -> Result<Self> {
-        let mut parser = NamedAttrs::new(&["name", "name_localizations", "value"]);
+        let mut parser = NamedAttrs::parse(attr, &["name", "name_localizations", "value"])?;
 
-        attr.parse_nested_meta(|meta| parser.parse(meta))?;
-
-        let name = match parser.get("name") {
-            Some(val) => parse_name(val)?,
-            None => return Err(Error::new(attr.span(), "missing required attribute `name`")),
-        };
-        let name_localizations = parser
-            .get("name_localizations")
-            .map(parse_path)
-            .transpose()?;
-        let value = match parser.get("value") {
-            Some(val) => ChoiceValue::parse(val, kind)?,
-            None => {
+        // Ensure the parsed type is the same as the inferred one
+        let value: ParseSpanned<ChoiceValue> = parser.required("value")?;
+        if let Some(kind) = kind {
+            if value.inner.kind() != kind {
                 return Err(Error::new(
-                    attr.span(),
-                    "missing required attribute `value`",
-                ))
+                    value.span,
+                    format!("invalid attribute type, expected {}", kind.name()),
+                ));
             }
-        };
+        }
 
         Ok(Self {
-            name,
-            name_localizations,
-            value,
+            name: parser.required("name")?,
+            name_localizations: parser.optional("name_localizations")?,
+            value: value.inner,
         })
     }
 }
@@ -124,33 +121,6 @@ pub enum ChoiceValue {
 }
 
 impl ChoiceValue {
-    /// Parse a [`AttrValue`] into a [`ChoiceValue`]
-    pub fn parse(val: &AttrValue, kind: Option<ChoiceKind>) -> Result<Self> {
-        let parsed = match val.inner() {
-            syn::Lit::Str(inner) => Self::String(inner.value()),
-            syn::Lit::Int(inner) => Self::Int(inner.base10_parse()?),
-            syn::Lit::Float(inner) => Self::Number(inner.base10_parse()?),
-            _ => {
-                return Err(Error::new(
-                    val.inner().span(),
-                    "invalid attribute type, expected string, integer or float",
-                ))
-            }
-        };
-
-        // Ensure parsed type is expected type
-        if let Some(kind) = kind {
-            if parsed.kind() != kind {
-                return Err(Error::new(
-                    val.inner().span(),
-                    format!("invalid attribute type, expected {}", kind.name()),
-                ));
-            }
-        }
-
-        Ok(parsed)
-    }
-
     /// Get the [`ChoiceKind`] corresponding to this value
     pub fn kind(&self) -> ChoiceKind {
         match self {
@@ -158,6 +128,24 @@ impl ChoiceValue {
             ChoiceValue::Int(_) => ChoiceKind::Integer,
             ChoiceValue::Number(_) => ChoiceKind::Number,
         }
+    }
+}
+
+impl ParseAttribute for ChoiceValue {
+    fn parse_attribute(input: Lit) -> Result<Self> {
+        let parsed = match input {
+            Lit::Str(inner) => Self::String(inner.value()),
+            Lit::Int(inner) => Self::Int(inner.base10_parse()?),
+            Lit::Float(inner) => Self::Number(inner.base10_parse()?),
+            _ => {
+                return Err(Error::new_spanned(
+                    input,
+                    "expected string, integer or float point literal",
+                ))
+            }
+        };
+
+        Ok(parsed)
     }
 }
 
@@ -177,20 +165,5 @@ impl ChoiceKind {
             ChoiceKind::Integer => "integer",
             ChoiceKind::Number => "float",
         }
-    }
-}
-
-/// Parse choice name
-fn parse_name(val: &AttrValue) -> Result<String> {
-    let span = val.inner().span();
-    let val = val.parse_string()?;
-
-    // https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-choice-structure
-    match val.chars().count() {
-        1..=100 => Ok(val),
-        _ => Err(Error::new(
-            span,
-            "name must be between 1 and 100 characters",
-        )),
     }
 }
