@@ -52,19 +52,19 @@ pub fn extract_generic(ty: &syn::Type, name: &str) -> Option<syn::Type> {
 /// This function return error if the description is not found or if the
 /// description is longer than 100 characters.
 pub fn parse_doc(attrs: &[Attribute], span: Span) -> Result<String> {
-    let Some(attr) = find_attr(attrs, "doc")  else {
+    let Some(attr) = find_attr(attrs, "doc") else {
         return Err(Error::new(
             span,
             "description is required (documentation comment or `desc` attribute)",
-        ))
+        ));
     };
 
     let meta = attr.meta.require_name_value()?;
     let Expr::Lit(expr) = &meta.value else {
-        return Err(Error::new_spanned(&meta.value, "expected string literal"))
+        return Err(Error::new_spanned(&meta.value, "expected string literal"));
     };
     let Lit::Str(lit) = &expr.lit else {
-        return Err(Error::new_spanned(&expr.lit, "expected string literal"))
+        return Err(Error::new_spanned(&expr.lit, "expected string literal"));
     };
 
     let doc = lit.value().trim().to_string();

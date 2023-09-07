@@ -40,7 +40,10 @@ impl NamedAttrs {
 
         let Some(ident) = meta.path.get_ident().filter(|i| is_valid(*i)) else {
             let expected = valid.join(", ");
-            return Err(Error::new_spanned(meta.path, format!("invalid argument name (expected one of {expected})")));
+            return Err(Error::new_spanned(
+                meta.path,
+                format!("invalid argument name (expected one of {expected})"),
+            ));
         };
 
         let lit: Lit = meta.value()?.parse()?;
@@ -70,7 +73,7 @@ impl NamedAttrs {
             return Err(Error::new(
                 self.attr_span,
                 format!("missing required `{name}` argument"),
-            ))
+            ));
         };
 
         Ok(parsed)
