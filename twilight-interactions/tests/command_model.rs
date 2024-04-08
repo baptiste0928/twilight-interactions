@@ -88,6 +88,8 @@ fn test_command_model() {
         verified: None,
         accent_color: None,
         banner: None,
+        avatar_decoration: None,
+        global_name: None,
     };
 
     let resolved_user = ResolvedUser {
