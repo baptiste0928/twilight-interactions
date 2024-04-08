@@ -7,14 +7,19 @@ pub mod api;
 mod interactions;
 mod process;
 
-use std::{env, sync::Arc};
+use std::{
+    env,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+};
 
 use anyhow::Context;
-use futures_util::StreamExt;
 use tracing::Level;
 use twilight_gateway::{
-    stream::{self, ShardEventStream},
-    Config, Intents,
+    error::ReceiveMessageErrorType, CloseFrame, ConfigBuilder, Event, EventTypeFlags, Intents,
+    Shard, StreamExt as _,
 };
 use twilight_http::Client;
 use twilight_interactions::command::CreateCommand;
@@ -24,6 +29,8 @@ use twilight_model::gateway::{
 };
 
 use crate::{interactions::command::XkcdCommand, process::process_interactions};
+
+static SHUTDOWN: AtomicBool = AtomicBool::new(false);
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -37,7 +44,7 @@ async fn main() -> anyhow::Result<()> {
 
     // Initialize Twilight HTTP client and gateway configuration.
     let client = Arc::new(Client::new(token.clone()));
-    let config = Config::builder(token.clone(), Intents::empty())
+    let config = ConfigBuilder::new(token.clone(), Intents::empty())
         .presence(presence())
         .build();
 
@@ -53,31 +60,53 @@ async fn main() -> anyhow::Result<()> {
     }
 
     // Start gateway shards.
-    let mut shards = stream::create_recommended(&client, config, |_id, builder| builder.build())
-        .await?
-        .collect::<Vec<_>>();
-    let mut stream = ShardEventStream::new(shards.iter_mut());
+    let shards =
+        twilight_gateway::create_recommended(&client, config, |_id, builder| builder.build())
+            .await?;
+    let shard_len = shards.len();
+    let mut senders = Vec::with_capacity(shard_len);
+    let mut tasks = Vec::with_capacity(shard_len);
 
-    // Process Discord events (see `process.rs` file).
-    while let Some((shard, event)) = stream.next().await {
-        let event = match event {
+    for shard in shards {
+        senders.push(shard.sender());
+        tasks.push(tokio::spawn(runner(shard, client.clone())));
+    }
+
+    tokio::signal::ctrl_c().await?;
+    SHUTDOWN.store(true, Ordering::Relaxed);
+    for sender in senders {
+        // Ignore error if shard's already shutdown.
+        _ = sender.close(CloseFrame::NORMAL);
+    }
+
+    for jh in tasks {
+        _ = jh.await;
+    }
+
+    Ok(())
+}
+
+async fn runner(mut shard: Shard, client: Arc<Client>) {
+    while let Some(item) = shard.next_event(EventTypeFlags::all()).await {
+        let event = match item {
+            Ok(Event::GatewayClose(_)) if SHUTDOWN.load(Ordering::Relaxed) => break,
             Ok(event) => event,
+            Err(error)
+                if SHUTDOWN.load(Ordering::Relaxed)
+                    && matches!(error.kind(), ReceiveMessageErrorType::WebSocket) =>
+            {
+                break
+            }
             Err(error) => {
-                if error.is_fatal() {
-                    tracing::error!(?error, "fatal error while receiving event");
-                    break;
-                }
-
                 tracing::warn!(?error, "error while receiving event");
                 continue;
             }
         };
 
+        // Process Discord events (see `process.rs` file).
         tracing::info!(kind = ?event.kind(), shard = ?shard.id().number(), "received event");
         tokio::spawn(process_interactions(event, client.clone()));
     }
-
-    Ok(())
 }
 
 fn presence() -> UpdatePresencePayload {

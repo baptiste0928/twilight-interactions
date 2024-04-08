@@ -37,7 +37,7 @@ pub fn impl_command_option(input: DeriveInput) -> Result<TokenStream> {
             fn from_option(
                 __value: ::twilight_model::application::interaction::application_command::CommandOptionValue,
                 __data: twilight_interactions::command::internal::CommandOptionData,
-                __resolved: ::std::option::Option<&::twilight_model::application::interaction::application_command::CommandInteractionDataResolved>
+                __resolved: ::std::option::Option<&::twilight_model::application::interaction::InteractionDataResolved>
             ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseOptionErrorType> {
                 #parsed_init
 
@@ -78,7 +78,7 @@ pub fn dummy_command_option(ident: Ident, error: Error) -> TokenStream {
             fn from_option(
                 value: ::twilight_model::application::interaction::application_command::CommandOptionValue,
                 data: ::twilight_interactions::command::internal::CommandOptionData,
-                resolved: ::std::option::Option<&::twilight_model::application::interaction::application_command::CommandInteractionDataResolved>
+                resolved: ::std::option::Option<&::twilight_model::application::interaction::InteractionDataResolved>
             ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseOptionErrorType> {
                 ::std::unimplemented!()
             }

@@ -10,16 +10,16 @@ anyhow = "1"
 serde = { version = "1", features = ["derive"] }
 
 futures-util = { version = "0.3", default-features = false }
-reqwest = { version = "0.11", features = ["json"] }
-tokio = { version = "1.28", features = ["macros", "rt-multi-thread"] }
+reqwest = { version = "0.12", features = ["json"] }
+tokio = { version = "1.37", features = ["macros", "rt-multi-thread", "signal"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["std", "fmt", "ansi"], default-features = false }
 
-twilight-gateway = "0.15.2"
-twilight-http = "0.15.2"
+twilight-gateway = "=0.16.0-rc.1"
+twilight-http = "=0.16.0-rc.1"
 twilight-interactions = { path = "../twilight-interactions" }
-twilight-model = "0.15.2"
-twilight-util = { version = "0.15.2", features = ["builder"] }
+twilight-model = "=0.16.0-rc.1"
+twilight-util = { version = "=0.16.0-rc.1", features = ["builder"] }
 
 [[example]]
 name = "xkcd-bot"

@@ -3,7 +3,7 @@ use std::{borrow::Cow, collections::HashMap};
 use twilight_model::{
     application::{
         command::{Command, CommandOption, CommandOptionType, CommandType},
-        interaction::application_command::InteractionChannel,
+        interaction::InteractionChannel,
     },
     channel::Attachment,
     guild::{Permissions, Role},
