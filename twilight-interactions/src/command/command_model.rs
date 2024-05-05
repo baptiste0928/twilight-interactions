@@ -3,9 +3,9 @@ use std::borrow::Cow;
 use twilight_model::{
     application::{
         command::CommandOptionValue as NumberCommandOptionValue,
-        interaction::application_command::{
-            CommandData, CommandDataOption, CommandInteractionDataResolved, CommandOptionValue,
-            InteractionChannel, InteractionMember,
+        interaction::{
+            application_command::{CommandData, CommandDataOption, CommandOptionValue},
+            InteractionChannel, InteractionDataResolved, InteractionMember,
         },
     },
     channel::Attachment,
@@ -214,7 +214,7 @@ pub trait CommandOption: Sized {
     fn from_option(
         value: CommandOptionValue,
         data: CommandOptionData,
-        resolved: Option<&CommandInteractionDataResolved>,
+        resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType>;
 }
 
@@ -227,7 +227,7 @@ pub trait CommandOption: Sized {
 #[derive(Debug, Clone, PartialEq)]
 pub struct CommandInputData<'a> {
     pub options: Vec<CommandDataOption>,
-    pub resolved: Option<Cow<'a, CommandInteractionDataResolved>>,
+    pub resolved: Option<Cow<'a, InteractionDataResolved>>,
 }
 
 impl<'a> CommandInputData<'a> {
@@ -314,7 +314,7 @@ impl<'a> CommandInputData<'a> {
     /// subcommands.
     pub fn from_option(
         value: CommandOptionValue,
-        resolved: Option<&'a CommandInteractionDataResolved>,
+        resolved: Option<&'a InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         let options = match value {
             CommandOptionValue::SubCommand(options)
@@ -401,7 +401,7 @@ impl CommandOption for CommandOptionValue {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
-        _resolved: Option<&CommandInteractionDataResolved>,
+        _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         Ok(value)
     }
@@ -414,7 +414,7 @@ where
     fn from_option(
         value: CommandOptionValue,
         data: CommandOptionData,
-        resolved: Option<&CommandInteractionDataResolved>,
+        resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::Focused(value, _) => Ok(Self::Focused(value)),
@@ -431,7 +431,7 @@ impl CommandOption for String {
     fn from_option(
         value: CommandOptionValue,
         data: CommandOptionData,
-        _resolved: Option<&CommandInteractionDataResolved>,
+        _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         let value = match value {
             CommandOptionValue::String(value) => value,
@@ -458,7 +458,7 @@ impl<'a> CommandOption for Cow<'a, str> {
     fn from_option(
         value: CommandOptionValue,
         data: CommandOptionData,
-        resolved: Option<&CommandInteractionDataResolved>,
+        resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         String::from_option(value, data, resolved).map(Cow::Owned)
     }
@@ -468,7 +468,7 @@ impl CommandOption for i64 {
     fn from_option(
         value: CommandOptionValue,
         data: CommandOptionData,
-        _resolved: Option<&CommandInteractionDataResolved>,
+        _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         let value = match value {
             CommandOptionValue::Integer(value) => value,
@@ -495,7 +495,7 @@ impl CommandOption for f64 {
     fn from_option(
         value: CommandOptionValue,
         data: CommandOptionData,
-        _resolved: Option<&CommandInteractionDataResolved>,
+        _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         let value = match value {
             CommandOptionValue::Number(value) => value,
@@ -522,7 +522,7 @@ impl CommandOption for bool {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
-        _resolved: Option<&CommandInteractionDataResolved>,
+        _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::Boolean(value) => Ok(value),
@@ -535,7 +535,7 @@ impl CommandOption for Id<UserMarker> {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
-        _resolved: Option<&CommandInteractionDataResolved>,
+        _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::User(value) => Ok(value),
@@ -548,7 +548,7 @@ impl CommandOption for Id<ChannelMarker> {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
-        _resolved: Option<&CommandInteractionDataResolved>,
+        _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::Channel(value) => Ok(value),
@@ -561,7 +561,7 @@ impl CommandOption for Id<RoleMarker> {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
-        _resolved: Option<&CommandInteractionDataResolved>,
+        _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::Role(value) => Ok(value),
@@ -574,7 +574,7 @@ impl CommandOption for Id<GenericMarker> {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
-        _resolved: Option<&CommandInteractionDataResolved>,
+        _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::Mentionable(value) => Ok(value),
@@ -587,7 +587,7 @@ impl CommandOption for Id<AttachmentMarker> {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
-        _resolved: Option<&CommandInteractionDataResolved>,
+        _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         match value {
             CommandOptionValue::Attachment(value) => Ok(value),
@@ -600,7 +600,7 @@ impl CommandOption for Attachment {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
-        resolved: Option<&CommandInteractionDataResolved>,
+        resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         let attachment_id = match value {
             CommandOptionValue::Attachment(value) => value,
@@ -615,7 +615,7 @@ impl CommandOption for User {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
-        resolved: Option<&CommandInteractionDataResolved>,
+        resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         let user_id = match value {
             CommandOptionValue::User(value) => value,
@@ -630,7 +630,7 @@ impl CommandOption for ResolvedUser {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
-        resolved: Option<&CommandInteractionDataResolved>,
+        resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         let user_id = match value {
             CommandOptionValue::User(value) => value,
@@ -648,7 +648,7 @@ impl CommandOption for ResolvedMentionable {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
-        resolved: Option<&CommandInteractionDataResolved>,
+        resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         let id = match value {
             CommandOptionValue::Mentionable(value) => value,
@@ -678,7 +678,7 @@ impl CommandOption for InteractionChannel {
     fn from_option(
         value: CommandOptionValue,
         data: CommandOptionData,
-        resolved: Option<&CommandInteractionDataResolved>,
+        resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         let resolved = match value {
             CommandOptionValue::Channel(value) => lookup!(resolved.channels, value)?,
@@ -699,7 +699,7 @@ impl CommandOption for Role {
     fn from_option(
         value: CommandOptionValue,
         _data: CommandOptionData,
-        resolved: Option<&CommandInteractionDataResolved>,
+        resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
         let role_id = match value {
             CommandOptionValue::Role(value) => value,

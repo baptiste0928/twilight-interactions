@@ -74,7 +74,7 @@
 //! [`Cow`]: std::borrow::Cow
 //! [`User`]: twilight_model::user::User
 //! [`Id<UserMarker>`]: twilight_model::id::Id
-//! [`InteractionChannel`]: twilight_model::application::interaction::application_command::InteractionChannel
+//! [`InteractionChannel`]: twilight_model::application::interaction::InteractionChannel
 //! [`Id<ChannelMarker>`]: twilight_model::id::Id
 //! [`Role`]: twilight_model::guild::Role
 //! [`Id<RoleMarker>`]: twilight_model::id::Id

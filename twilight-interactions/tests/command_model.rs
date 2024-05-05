@@ -4,8 +4,9 @@ use twilight_interactions::command::{
     CommandInputData, CommandModel, CommandOption, ResolvedMentionable, ResolvedUser,
 };
 use twilight_model::{
-    application::interaction::application_command::{
-        CommandDataOption, CommandInteractionDataResolved, CommandOptionValue, InteractionMember,
+    application::interaction::{
+        application_command::{CommandDataOption, CommandOptionValue},
+        InteractionDataResolved, InteractionMember,
     },
     guild::{MemberFlags, Permissions},
     id::Id,
@@ -61,7 +62,7 @@ fn test_command_model() {
     ];
 
     let member = InteractionMember {
-        joined_at: Timestamp::from_secs(1609455600).unwrap(),
+        joined_at: Some(Timestamp::from_secs(1609455600).unwrap()),
         nick: None,
         premium_since: None,
         roles: vec![],
@@ -88,6 +89,8 @@ fn test_command_model() {
         verified: None,
         accent_color: None,
         banner: None,
+        avatar_decoration: None,
+        global_name: None,
     };
 
     let resolved_user = ResolvedUser {
@@ -95,7 +98,7 @@ fn test_command_model() {
         member: Some(member.clone()),
     };
 
-    let resolved = CommandInteractionDataResolved {
+    let resolved = InteractionDataResolved {
         channels: HashMap::new(),
         members: HashMap::from([(user_id, member)]),
         roles: HashMap::new(),

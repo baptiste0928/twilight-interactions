@@ -6,7 +6,7 @@ use twilight_interactions::command::{
 use twilight_model::{
     application::{
         command::{CommandOption, CommandOptionType, CommandOptionValue},
-        interaction::application_command::InteractionChannel,
+        interaction::InteractionChannel,
     },
     channel::ChannelType,
     guild::Permissions,
