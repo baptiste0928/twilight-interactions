@@ -212,6 +212,7 @@ pub enum ChannelType {
     GuildStageVoice,
     GuildDirectory,
     GuildForum,
+    GuildMedia,
 }
 
 impl ParseAttribute for Vec<ChannelType> {
@@ -242,6 +243,7 @@ impl ChannelType {
             "guild_stage_voice" => Ok(Self::GuildStageVoice),
             "guild_directory" => Ok(Self::GuildDirectory),
             "guild_forum" => Ok(Self::GuildForum),
+            "guild_media" => Ok(Self::GuildMedia),
             invalid => Err(Error::new(
                 span,
                 format!("`{invalid}` is not a valid channel type"),
@@ -298,6 +300,7 @@ pub fn channel_type(kind: &ChannelType) -> TokenStream {
             quote!(::twilight_model::channel::ChannelType::GuildDirectory)
         }
         ChannelType::GuildForum => quote!(::twilight_model::channel::ChannelType::GuildForum),
+        ChannelType::GuildMedia => quote!(::twilight_model::channel::ChannelType::GuildMedia),
     }
 }
 

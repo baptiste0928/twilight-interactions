@@ -36,7 +36,7 @@ pub fn impl_command_option(input: DeriveInput) -> Result<TokenStream> {
         impl ::twilight_interactions::command::CommandOption for #ident {
             fn from_option(
                 __value: ::twilight_model::application::interaction::application_command::CommandOptionValue,
-                __data: twilight_interactions::command::internal::CommandOptionData,
+                __data: ::twilight_interactions::command::internal::CommandOptionData,
                 __resolved: ::std::option::Option<&::twilight_model::application::interaction::InteractionDataResolved>
             ) -> ::std::result::Result<Self, ::twilight_interactions::error::ParseOptionErrorType> {
                 #parsed_init
