@@ -132,6 +132,12 @@ impl ParseAttribute for ChoiceName {
 
 impl ToTokens for ChoiceName {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        self.0.to_tokens(tokens)
+        self.0.to_tokens(tokens);
+    }
+}
+
+impl From<ChoiceName> for String {
+    fn from(value: ChoiceName) -> Self {
+        value.0
     }
 }

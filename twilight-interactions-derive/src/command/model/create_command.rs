@@ -4,11 +4,8 @@ use syn::{spanned::Spanned, DeriveInput, Error, FieldsNamed, Result};
 
 use super::parse::{channel_type, command_option_value, StructField, TypeAttribute};
 use crate::{
-    command::description::get_description,
-    parse::{
-        parsers::FunctionPath,
-        syntax::{find_attr, optional},
-    },
+    localization::{description_expr, name_expr},
+    parse::syntax::{find_attr, optional, parse_doc},
 };
 
 /// Implementation of `CreateCommand` derive macro
@@ -41,18 +38,16 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
         ));
     }
 
-    let desc = get_description(
-        &attributes.desc_localizations,
-        &attributes.desc,
-        input.span(),
-        &input.attrs,
-    )?;
-
-    let name = match &attributes.name {
-        Some(name) => name,
+    let name = match attributes.name {
+        Some(name) => String::from(name),
         None => return Err(Error::new(attr_span, "missing required attribute `name`")),
     };
-    let name_localizations = localization_field(&attributes.name_localizations);
+
+    let name_expr = name_expr(&name, &attributes.name_localizations);
+    let desc_expr = description_expr(&attributes.desc, &attributes.desc_localizations, || {
+        parse_doc(&input.attrs, input.span())
+    })?;
+
     let default_permissions = match &attributes.default_permissions {
         Some(path) => quote! { ::std::option::Option::Some(#path())},
         None => quote! { ::std::option::Option::None },
@@ -74,12 +69,14 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
 
                 #(#field_options)*
 
-                let desc = #desc;
+                let __command_name = #name_expr;
+                let __command_desc = #desc_expr;
+
                 ::twilight_interactions::command::ApplicationCommandData {
-                    name: ::std::convert::From::from(#name),
-                    name_localizations: #name_localizations,
-                    description: desc.0,
-                    description_localizations: desc.1,
+                    name: __command_name.fallback,
+                    name_localizations: __command_name.localizations,
+                    description: __command_desc.fallback,
+                    description_localizations: __command_desc.localizations,
                     options: __command_options,
                     default_member_permissions: #default_permissions,
                     dm_permission: #dm_permission,
@@ -96,15 +93,15 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
     let ty = &field.ty;
     let span = field.span;
 
-    let desc = get_description(
-        &field.attributes.desc_localizations,
+    let name = field.attributes.name_default(field.ident.to_string());
+    let name_expr = name_expr(&name, &field.attributes.name_localizations);
+
+    let desc_expr = description_expr(
         &field.attributes.desc,
-        field.span,
-        &field.raw_attrs,
+        &field.attributes.desc_localizations,
+        || parse_doc(&field.raw_attrs, span),
     )?;
 
-    let name = field.attributes.name_default(field.ident.to_string());
-    let name_localizations = localization_field(&field.attributes.name_localizations);
     let required = field.kind.required();
     let autocomplete = field.attributes.autocomplete;
     let max_value = command_option_value(field.attributes.max_value);
@@ -119,14 +116,16 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
         quote! { ::std::option::Option::Some(::std::vec![#(#items),*]) }
     };
 
-    Ok(quote_spanned! {span=>
-        let desc = #desc;
+    Ok(quote_spanned! {span => {
+        let __field_desc = #desc_expr;
+        let __field_name = #name_expr;
+
         __command_options.push(<#ty as ::twilight_interactions::command::CreateOption>::create_option(
             ::twilight_interactions::command::internal::CreateOptionData {
-                name: ::std::convert::From::from(#name),
-                name_localizations: #name_localizations,
-                description: desc.0,
-                description_localizations: desc.1,
+                name: __field_name.fallback,
+                name_localizations: __field_name.localizations,
+                description: __field_desc.fallback,
+                description_localizations: __field_desc.localizations,
                 required: ::std::option::Option::Some(#required),
                 autocomplete: #autocomplete,
                 data: ::twilight_interactions::command::internal::CommandOptionData {
@@ -138,20 +137,7 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
                 },
             }
         ));
-    })
-}
-
-fn localization_field(path: &Option<FunctionPath>) -> TokenStream {
-    match path {
-        Some(path) => {
-            quote! {
-                ::std::option::Option::Some(
-                    ::twilight_interactions::command::internal::convert_localizations(#path())
-                )
-            }
-        }
-        None => quote! { ::std::option::Option::None },
-    }
+    }})
 }
 
 /// Ensure optional options are after required ones

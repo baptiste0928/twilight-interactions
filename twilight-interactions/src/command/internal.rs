@@ -14,19 +14,46 @@ use twilight_model::{
     channel::ChannelType,
 };
 
-/// Convert a type to [`HashMap<String, String>`].
-///
-/// This method is used for the `name_localizations` and
-/// `description_localizations` fields in macros implementations.
-pub fn convert_localizations<I, K, V>(item: I) -> HashMap<String, String>
-where
-    I: IntoIterator<Item = (K, V)>,
-    K: ToString,
-    V: ToString,
-{
-    item.into_iter()
-        .map(|(k, v)| (k.to_string(), v.to_string()))
-        .collect()
+use super::{DescLocalizations, NameLocalizations};
+
+/// Internal representation of localization types ([`NameLocalizations`] and
+/// [`DescLocalizations`]).
+#[derive(Debug, Clone, PartialEq)]
+pub struct LocalizationsInternal {
+    pub fallback: String,
+    pub localizations: Option<HashMap<String, String>>,
+}
+
+/// Convert a type into a [`LocalizationsInternal`].
+pub trait IntoLocalizationsInternal {
+    fn into_localizations(self) -> LocalizationsInternal;
+}
+
+impl IntoLocalizationsInternal for DescLocalizations {
+    fn into_localizations(self) -> LocalizationsInternal {
+        LocalizationsInternal {
+            fallback: self.fallback,
+            localizations: Some(self.localizations),
+        }
+    }
+}
+
+impl IntoLocalizationsInternal for (&str, Option<NameLocalizations>) {
+    fn into_localizations(self) -> LocalizationsInternal {
+        LocalizationsInternal {
+            fallback: self.0.to_owned(),
+            localizations: self.1.map(|v| v.localizations),
+        }
+    }
+}
+
+impl IntoLocalizationsInternal for &str {
+    fn into_localizations(self) -> LocalizationsInternal {
+        LocalizationsInternal {
+            fallback: self.to_owned(),
+            localizations: None,
+        }
+    }
 }
 
 /// Data to create a command option from.

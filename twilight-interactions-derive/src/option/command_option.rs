@@ -103,9 +103,10 @@ fn parsed_init(kind: ChoiceKind) -> TokenStream {
 
 /// Expression in match block
 fn match_expr(kind: ChoiceKind) -> TokenStream {
-    match kind {
-        ChoiceKind::String => quote!(__parsed.as_str()),
-        _ => quote!(&__parsed),
+    if kind == ChoiceKind::String {
+        quote! { __parsed.as_str() }
+    } else {
+        quote! { &__parsed }
     }
 }
 

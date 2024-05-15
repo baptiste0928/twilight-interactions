@@ -4,11 +4,8 @@ use syn::{spanned::Spanned, DeriveInput, Error, Result, Variant};
 
 use super::parse::{ParsedVariant, TypeAttribute};
 use crate::{
-    command::description::get_description,
-    parse::{
-        parsers::FunctionPath,
-        syntax::{find_attr, optional},
-    },
+    localization::{description_expr, name_expr},
+    parse::syntax::{find_attr, optional, parse_doc},
 };
 
 /// Implementation of `CreateCommand` derive macro
@@ -21,7 +18,7 @@ pub fn impl_create_command(
     let where_clause = &generics.where_clause;
 
     let variants = ParsedVariant::from_variants(variants, input.span())?;
-    let attribute = match find_attr(&input.attrs, "command") {
+    let attributes = match find_attr(&input.attrs, "command") {
         Some(attr) => TypeAttribute::parse(attr)?,
         None => {
             return Err(Error::new_spanned(
@@ -31,22 +28,20 @@ pub fn impl_create_command(
         }
     };
 
-    let desc = get_description(
-        &attribute.desc_localizations,
-        &attribute.desc,
-        input.span(),
-        &input.attrs,
-    )?;
+    let name = String::from(attributes.name);
+    let name_expr = name_expr(&name, &attributes.name_localizations);
+
+    let desc_expr = description_expr(&attributes.desc, &attributes.desc_localizations, || {
+        parse_doc(&input.attrs, input.span())
+    })?;
 
     let capacity = variants.len();
-    let name = &attribute.name;
-    let name_localizations = localization_field(&attribute.name_localizations);
-    let default_permissions = match &attribute.default_permissions {
+    let default_permissions = match &attributes.default_permissions {
         Some(path) => quote! { ::std::option::Option::Some(#path())},
         None => quote! { ::std::option::Option::None },
     };
-    let dm_permission = optional(attribute.dm_permission);
-    let nsfw = optional(attribute.nsfw);
+    let dm_permission = optional(attributes.dm_permission);
+    let nsfw = optional(attributes.nsfw);
 
     let variant_options = variants.iter().map(variant_option);
 
@@ -55,16 +50,17 @@ pub fn impl_create_command(
             const NAME: &'static str = #name;
 
             fn create_command() -> ::twilight_interactions::command::ApplicationCommandData {
-                let desc = #desc;
+                let __command_name = #name_expr;
+                let __command_desc = #desc_expr;
                 let mut __command_options = ::std::vec::Vec::with_capacity(#capacity);
 
                 #(#variant_options)*
 
                 ::twilight_interactions::command::ApplicationCommandData {
-                    name: ::std::convert::From::from(#name),
-                    name_localizations: #name_localizations,
-                    description: desc.0,
-                    description_localizations: desc.1,
+                    name: __command_name.fallback,
+                    name_localizations: __command_name.localizations,
+                    description: __command_desc.fallback,
+                    description_localizations: __command_desc.localizations,
                     options: __command_options,
                     default_member_permissions: #default_permissions,
                     dm_permission: #dm_permission,
@@ -74,19 +70,6 @@ pub fn impl_create_command(
             }
         }
     })
-}
-
-fn localization_field(path: &Option<FunctionPath>) -> TokenStream {
-    match path {
-        Some(path) => {
-            quote! {
-                ::std::option::Option::Some(
-                    ::twilight_interactions::command::internal::convert_localizations(#path())
-                )
-            }
-        }
-        None => quote! { ::std::option::Option::None },
-    }
 }
 
 /// Generate variant option code

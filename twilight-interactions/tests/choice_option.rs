@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use twilight_interactions::command::{
     internal::{CommandOptionData, CreateOptionData},
-    CommandOption, CreateOption,
+    CommandOption, CreateOption, NameLocalizations,
 };
 use twilight_model::application::{
     command::{
@@ -42,8 +42,8 @@ enum ChoiceNumber {
     Quarter,
 }
 
-pub fn name_dog() -> [(&'static str, &'static str); 1] {
-    [("en", "Dog")]
+pub fn name_dog() -> NameLocalizations {
+    NameLocalizations::new([("en", "Dog")])
 }
 
 #[test]

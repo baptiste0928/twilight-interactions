@@ -144,6 +144,48 @@ pub trait CreateOption: Sized {
     fn create_option(data: CreateOptionData) -> CommandOption;
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct NameLocalizations {
+    pub(crate) localizations: HashMap<String, String>,
+}
+
+impl NameLocalizations {
+    pub fn new(
+        localizations: impl IntoIterator<Item = (impl Into<String>, impl Into<String>)>,
+    ) -> Self {
+        let localizations = localizations
+            .into_iter()
+            .map(|(k, v)| (k.into(), v.into()))
+            .collect();
+
+        Self { localizations }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct DescLocalizations {
+    pub(crate) fallback: String,
+    pub(crate) localizations: HashMap<String, String>,
+}
+
+impl DescLocalizations {
+    pub fn new(
+        fallback: impl Into<String>,
+        localizations: impl IntoIterator<Item = (impl Into<String>, impl Into<String>)>,
+    ) -> Self {
+        let fallback = fallback.into();
+        let localizations = localizations
+            .into_iter()
+            .map(|(k, v)| (k.into(), v.into()))
+            .collect();
+
+        Self {
+            fallback,
+            localizations,
+        }
+    }
+}
+
 /// Data sent to Discord to create a command.
 ///
 /// This type is used in the [`CreateCommand`] trait.

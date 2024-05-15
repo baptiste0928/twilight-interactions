@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use twilight_interactions::command::{
-    ApplicationCommandData, CommandInputData, CommandModel, CreateCommand, DescriptionLocalizations,
+    ApplicationCommandData, CommandInputData, CommandModel, CreateCommand, DescLocalizations,
 };
 use twilight_model::{
     application::{
@@ -54,8 +54,8 @@ enum SubCommand {
     Group(Box<SubCommandGroup>),
 }
 
-fn subcommand_desc() -> DescriptionLocalizations {
-    DescriptionLocalizations::new("fallback", [("en", "en description")])
+fn subcommand_desc() -> DescLocalizations {
+    DescLocalizations::new("fallback", [("en", "en description")])
 }
 
 fn subcommand_permissions() -> Permissions {

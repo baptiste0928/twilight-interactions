@@ -39,14 +39,14 @@
 //! and the second tuple element is the localized value.
 //!
 //! ```
-//! use twilight_interactions::command::{CommandModel, CreateCommand, ResolvedUser, DescriptionLocalizations};
+//! use twilight_interactions::command::{CommandModel, CreateCommand, ResolvedUser, DescLocalizations};
 //!
 //! #[derive(CommandModel, CreateCommand)]
 //! #[command(name = "hello", desc_localizations = "hello_desc")]
 //! struct HelloCommand;
 //!
-//! pub fn hello_desc() -> DescriptionLocalizations {
-//!     DescriptionLocalizations::new("Say hello", [("fr", "Dis bonjour"), ("de", "Sag Hallo")])
+//! pub fn hello_desc() -> DescLocalizations {
+//!     DescLocalizations::new("Say hello", [("fr", "Dis bonjour"), ("de", "Sag Hallo")])
 //! }
 //! ```
 //!
@@ -84,7 +84,6 @@
 
 mod command_model;
 mod create_command;
-mod localizations;
 
 #[doc(hidden)]
 pub mod internal;
@@ -93,8 +92,9 @@ pub use command_model::{
     AutocompleteValue, CommandInputData, CommandModel, CommandOption, ResolvedMentionable,
     ResolvedUser,
 };
-pub use create_command::{ApplicationCommandData, CreateCommand, CreateOption};
-pub use localizations::{DescriptionLocalizations, NameLocalizations};
+pub use create_command::{
+    ApplicationCommandData, CreateCommand, CreateOption, DescLocalizations, NameLocalizations,
+};
 #[cfg(feature = "derive")]
 #[cfg_attr(docsrs, doc(cfg(feature = "derive")))]
 pub use twilight_interactions_derive::{CommandModel, CommandOption, CreateCommand, CreateOption};

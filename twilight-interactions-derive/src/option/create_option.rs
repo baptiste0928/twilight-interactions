@@ -2,6 +2,8 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::{spanned::Spanned, DeriveInput, Error, Ident, Result};
 
+use crate::localization::name_expr;
+
 use super::parse::{ChoiceKind, ChoiceValue, ParsedVariant};
 
 pub fn impl_create_option(input: DeriveInput) -> Result<TokenStream> {
@@ -57,17 +59,9 @@ pub fn dummy_create_option(ident: Ident, error: Error) -> TokenStream {
 
 /// Generate push instruction for a given variant
 fn choice_variant(variant: &ParsedVariant) -> TokenStream {
-    let name = &variant.attribute.name;
-    let name_localizations = match &variant.attribute.name_localizations {
-        Some(path) => {
-            quote! {
-                ::std::option::Option::Some(
-                    ::twilight_interactions::command::internal::convert_localizations(#path())
-                )
-            }
-        }
-        None => quote! { ::std::option::Option::None },
-    };
+    let name = String::from(variant.attribute.name.clone());
+    let name_expr = name_expr(&name, &variant.attribute.name_localizations);
+
     let value = match &variant.attribute.value {
         ChoiceValue::String(val) => quote! { ::std::convert::From::from(#val) },
         ChoiceValue::Int(val) => val.to_token_stream(),
@@ -79,14 +73,15 @@ fn choice_variant(variant: &ParsedVariant) -> TokenStream {
         ChoiceKind::Number => quote! { Number },
     };
 
-    quote! {
+    quote! { {
+        let __choice_name = #name_expr;
         __choices.push(
             ::twilight_model::application::command::CommandOptionChoice {
-                name: ::std::convert::From::from(#name),
-                name_localizations: #name_localizations,
+                name: __choice_name.fallback,
+                name_localizations: __choice_name.localizations,
                 value: ::twilight_model::application::command::CommandOptionChoiceValue::#type_path(#value),
             });
-    }
+    } }
 }
 
 /// Generate command option

@@ -54,9 +54,8 @@ impl NamedAttrs {
 
     /// Parse an optional attribute using the specified parser function.
     pub fn optional<T: ParseAttribute>(&mut self, name: &str) -> Result<Option<T>> {
-        let index = match self.values.iter().position(|(ident, _)| ident == name) {
-            Some(index) => index,
-            None => return Ok(None),
+        let Some(index) = self.values.iter().position(|(ident, _)| ident == name) else {
+            return Ok(None);
         };
 
         let (_, lit) = self.values.remove(index);

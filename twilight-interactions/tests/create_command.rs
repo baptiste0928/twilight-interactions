@@ -1,7 +1,8 @@
 use std::{borrow::Cow, collections::HashMap};
 
 use twilight_interactions::command::{
-    ApplicationCommandData, CreateCommand, CreateOption, ResolvedUser,
+    ApplicationCommandData, CreateCommand, CreateOption, DescLocalizations, NameLocalizations,
+    ResolvedUser,
 };
 use twilight_model::{
     application::{
@@ -26,7 +27,7 @@ where
     T: CreateOption,
 {
     /// This should be overwritten
-    #[command(rename = "member", desc = "A member")]
+    #[command(rename = "member", desc_localizations = "demo_desc")]
     user: ResolvedUser,
     /// Some text
     ///
@@ -49,8 +50,12 @@ fn demo_permissions() -> Permissions {
     Permissions::SEND_MESSAGES
 }
 
-fn demo_name() -> [(&'static str, &'static str); 1] {
-    [("en", "demo")]
+fn demo_name() -> NameLocalizations {
+    NameLocalizations::new([("en", "demo")])
+}
+
+fn demo_desc() -> DescLocalizations {
+    DescLocalizations::new("A member", [("fr", "Un membre")])
 }
 
 #[derive(CreateCommand, Debug, PartialEq, Eq)]
@@ -65,7 +70,7 @@ fn test_create_command() {
             channel_types: None,
             choices: None,
             description: "A member".into(),
-            description_localizations: None,
+            description_localizations: Some(HashMap::from([("fr".into(), "Un membre".into())])),
             kind: CommandOptionType::User,
             max_length: None,
             max_value: None,

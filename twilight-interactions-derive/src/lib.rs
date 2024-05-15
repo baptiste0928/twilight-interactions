@@ -6,6 +6,7 @@
 //! information.
 
 mod command;
+mod localization;
 mod option;
 mod parse;
 
