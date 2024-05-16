@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Rust ${{ env.minrust }}
         run: rustup default ${{ env.minrust }}
@@ -32,7 +32,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
@@ -49,7 +49,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
@@ -66,7 +66,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
@@ -76,34 +76,13 @@ jobs:
           RUSTDOCFLAGS: -D rustdoc::broken_intra_doc_links
         run: cargo doc --no-deps --all-features
 
-  # cargo-deny:
-  #   name: Lint dependencies
-  #   needs: [msrv]
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: Checkout sources
-  #       uses: actions/checkout@v3
-
-  #     - name: Install cargo-deny
-  #       uses: baptiste0928/cargo-install@v2
-  #       with:
-  #         crate: cargo-deny
-
-  #     - name: Lint dependencies
-  #       run: cargo-deny check bans licenses sources
-
-  #     - name: Check security advisories
-  #       run: cargo-deny check advisories
-  #       continue-on-error: true  # Avoid sudden breakages
-
   rustfmt:
     name: Format
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Run cargo fmt
         run: cargo fmt --all -- --check
@@ -114,7 +93,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Run Codespell
-        uses: codespell-project/actions-codespell@master
+        uses: codespell-project/actions-codespell@v2
