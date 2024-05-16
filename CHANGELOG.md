@@ -8,13 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - A basic example bot implementation has been added in the `examples` directory
   of the repository.
-- `DescriptionLocalizations` and `NameLocalizations` structs
+- Localizations are now handled by the `DescLocalizations` and
+  `NameLocalizations` structs.
 
 ### Changed
-- `desc` and `desc_localizations` are now mutually exclusive
-- `desc_localizations` and `name_localizations` must return the
-  `DescriptionLocalizations` and `NameLocalizations` structs,
-  respectively.
+- Updated to `twilight-model` 0.16.0-rc.1 (@fdnt7)
+- Localization functions now return `DescLocalizations` or `NameLocalizations`.
+- `desc` should not be provided anymore if `desc_localizations` is provided.
+- Various improvements to the documentation.
+- Improved macro error messages.
 
 ## [0.15.2] - 2023-06-23
 ### Added
