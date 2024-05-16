@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.16.0-rc.1] - 2024-05-16
 ### Added
 - A basic example bot implementation has been added in the `examples` directory
   of the repository.
@@ -162,7 +164,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of `twilight-interactions` and `twilight-interactions-derive` crates.
 
-[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.15.2...main
+[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.16.0-rc.1...main
+[0.16.0-rc.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.15.2...v0.16.0-rc.1
 [0.15.2]: https://github.com/baptiste0928/twilight-interactions/compare/v0.15.1...v0.15.2
 [0.15.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.14.4...v0.15.0
