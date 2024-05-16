@@ -8,6 +8,7 @@ license = "ISC"
 [dev-dependencies]
 anyhow = "1"
 serde = { version = "1", features = ["derive"] }
+fastrand = "2.1"
 
 futures-util = { version = "0.3", default-features = false }
 reqwest = { version = "0.12", features = ["json"] }

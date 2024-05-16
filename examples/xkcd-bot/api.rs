@@ -39,6 +39,17 @@ impl XkcdComic {
         Ok(response.error_for_status()?.json().await?)
     }
 
+    /// Get a random xkcd comic.
+    pub async fn get_random() -> anyhow::Result<XkcdComic> {
+        let latest = Self::get_latest().await?;
+        let number = fastrand::u32(1..=latest.number);
+
+        match Self::get_number(number).await? {
+            Some(comic) => Ok(comic),
+            None => Err(anyhow::Error::msg("failed to get random comic")),
+        }
+    }
+
     /// Return the comic URL.
     pub fn url(&self) -> String {
         format!("https://xkcd.com/{}", self.number)

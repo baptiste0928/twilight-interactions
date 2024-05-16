@@ -73,7 +73,8 @@ use super::{internal::CreateOptionData, ResolvedMentionable, ResolvedUser};
 /// | `max_value`, `min_value`   | `i64` or `f64`      | Field                  | Set the maximum and/or minimum value permitted.                 |
 /// | `max_length`, `min_length` | `u16`               | Field                  |   Maximum and/or minimum string length permitted.               |
 ///
-/// [^perms]: Path to a function that returns [`Permissions`].
+/// [^perms]: Path to a function that returns [`Permissions`]. Permissions can
+/// only be set on top-level commands
 ///
 /// [^localization]: Path to a function that returns a type that implements
 /// `IntoIterator<Item = (ToString, ToString)>`. See the module documentation to
@@ -144,12 +145,26 @@ pub trait CreateOption: Sized {
     fn create_option(data: CreateOptionData) -> CommandOption;
 }
 
+/// Localization data for command names.
+///
+/// This type is used in the `name_localizations` attribute of the
+/// [`CreateCommand`] and [`CreateOption`] traits. See the [module
+/// documentation](crate::command) for more information.
 #[derive(Debug, Clone, PartialEq)]
 pub struct NameLocalizations {
     pub(crate) localizations: HashMap<String, String>,
 }
 
 impl NameLocalizations {
+    /// Create a new [`NameLocalizations`].
+    ///
+    /// The localizations must be a tuple where the first element is a valid
+    /// [Discord locale] and the second element is the localized value.
+    ///
+    /// See [Localization] on Discord Developer Docs for more information.
+    ///
+    /// [Discord locale]: https://discord.com/developers/docs/reference#locales
+    /// [Localization]: https://discord.com/developers/docs/interactions/application-commands#localization
     pub fn new(
         localizations: impl IntoIterator<Item = (impl Into<String>, impl Into<String>)>,
     ) -> Self {
@@ -162,6 +177,11 @@ impl NameLocalizations {
     }
 }
 
+/// Localization data for command descriptions.
+///
+/// This type is used in the `desc_localizations` attribute of the
+/// [`CreateCommand`] trait. See the [module documentation](crate::command) for
+/// more information.
 #[derive(Debug, Clone, PartialEq)]
 pub struct DescLocalizations {
     pub(crate) fallback: String,
@@ -169,6 +189,15 @@ pub struct DescLocalizations {
 }
 
 impl DescLocalizations {
+    /// Create a new [`DescLocalizations`].
+    ///
+    /// The localizations must be a tuple where the first element is a valid
+    /// [Discord locale] and the second element is the localized value.
+    ///
+    /// See [Localization] on Discord Developer Docs for more information.
+    ///
+    /// [Discord locale]: https://discord.com/developers/docs/reference#locales
+    /// [Localization]: https://discord.com/developers/docs/interactions/application-commands#localization
     pub fn new(
         fallback: impl Into<String>,
         localizations: impl IntoIterator<Item = (impl Into<String>, impl Into<String>)>,

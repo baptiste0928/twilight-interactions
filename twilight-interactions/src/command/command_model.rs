@@ -73,8 +73,12 @@ use crate::error::{ParseError, ParseOptionError, ParseOptionErrorType};
 ///   will not make the parsing fail.
 /// - It is not possible to derive [`CreateCommand`] on autocomplete models.
 ///
+/// <div class="warning">
+///
 /// Autocomplete models are not meant to be used alone: you should use a regular
 /// model to handle interactions submit, and another for autocomplete interactions.
+///
+/// </div>
 ///
 /// ```
 /// use twilight_interactions::command::{AutocompleteValue, CommandModel, ResolvedUser};
@@ -95,6 +99,15 @@ use crate::error::{ParseError, ParseOptionError, ParseOptionErrorType};
 ///
 /// Subcommand groups work the same way as regular subcommands, except the
 /// variant type is another enum implementing [`CommandModel`].
+///
+/// <div class="warning">
+///
+/// When using subcommands, you should parse and create the command using the
+/// top-level command. See the [`xkcd-bot` example] for example usage.
+///
+/// [`xkcd-bot` example]: https://github.com/baptiste0928/twilight-interactions/tree/main/examples/xkcd-bot
+///
+/// </div>
 ///
 /// ```
 /// use twilight_interactions::command::CommandModel;

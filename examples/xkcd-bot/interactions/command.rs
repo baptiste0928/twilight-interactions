@@ -1,6 +1,6 @@
 use anyhow::Context;
 use twilight_http::Client;
-use twilight_interactions::command::{CommandModel, CreateCommand};
+use twilight_interactions::command::{CommandModel, CreateCommand, DescLocalizations};
 use twilight_model::{
     application::interaction::{application_command::CommandData, Interaction},
     channel::message::Embed,
@@ -13,14 +13,19 @@ use twilight_util::builder::{
 
 use crate::api::XkcdComic;
 
-/// Explore xkcd comics
 #[derive(CommandModel, CreateCommand, Debug)]
-#[command(name = "xkcd")]
+#[command(name = "xkcd", desc_localizations = "xkcd_desc")]
 pub enum XkcdCommand {
     #[command(name = "latest")]
     Latest(XkcdLatestCommand),
     #[command(name = "number")]
     Number(XkcdNumberCommand),
+    #[command(name = "random")]
+    Random(XkcdRandomCommand),
+}
+
+fn xkcd_desc() -> DescLocalizations {
+    DescLocalizations::new("Explore xkcd comics", [("fr", "Explorer les comics xkcd")])
 }
 
 impl XkcdCommand {
@@ -38,14 +43,21 @@ impl XkcdCommand {
         match command {
             XkcdCommand::Latest(command) => command.run(interaction, client).await,
             XkcdCommand::Number(command) => command.run(interaction, client).await,
+            XkcdCommand::Random(command) => command.run(interaction, client).await,
         }
     }
 }
 
-/// Get the latest xkcd comic
 #[derive(CommandModel, CreateCommand, Debug)]
-#[command(name = "latest")]
+#[command(name = "latest", desc_localizations = "xkcd_latest_desc")]
 pub struct XkcdLatestCommand;
+
+fn xkcd_latest_desc() -> DescLocalizations {
+    DescLocalizations::new(
+        "Show the latest xkcd comic",
+        [("fr", "Afficher le dernier comic xkcd")],
+    )
+}
 
 impl XkcdLatestCommand {
     /// Run the `/xkcd latest` command.
@@ -72,13 +84,23 @@ impl XkcdLatestCommand {
     }
 }
 
-/// Get a specific xkcd comic by number
 #[derive(CommandModel, CreateCommand, Debug)]
-#[command(name = "number")]
+#[command(name = "number", desc_localizations = "xkcd_number_desc")]
 pub struct XkcdNumberCommand {
     /// Comic number
-    #[command(min_value = 1)]
+    #[command(min_value = 1, desc_localizations = "xkcd_number_arg_desc")]
     pub number: i64,
+}
+
+fn xkcd_number_desc() -> DescLocalizations {
+    DescLocalizations::new(
+        "Show a specific xkcd comic",
+        [("fr", "Afficher un comic xkcd spécifique")],
+    )
+}
+
+fn xkcd_number_arg_desc() -> DescLocalizations {
+    DescLocalizations::new("Comic number", [("fr", "Numéro du comic")])
 }
 
 impl XkcdNumberCommand {
@@ -97,6 +119,41 @@ impl XkcdNumberCommand {
         let response = InteractionResponse {
             kind: InteractionResponseType::ChannelMessageWithSource,
             data: Some(data.build()),
+        };
+
+        client
+            .create_response(interaction.id, &interaction.token, &response)
+            .await?;
+
+        Ok(())
+    }
+}
+
+#[derive(CommandModel, CreateCommand, Debug)]
+#[command(name = "random", desc_localizations = "xkcd_random_desc")]
+pub struct XkcdRandomCommand;
+
+fn xkcd_random_desc() -> DescLocalizations {
+    DescLocalizations::new(
+        "Show a random xkcd comic",
+        [("fr", "Afficher un comic xkcd aléatoire")],
+    )
+}
+
+impl XkcdRandomCommand {
+    /// Run the `/xkcd random` command.
+    pub async fn run(&self, interaction: Interaction, client: &Client) -> anyhow::Result<()> {
+        let comic = XkcdComic::get_random().await?;
+        let embed = crate_comic_embed(comic)?;
+
+        let client = client.interaction(interaction.application_id);
+        let data = InteractionResponseDataBuilder::new()
+            .embeds([embed])
+            .build();
+
+        let response = InteractionResponse {
+            kind: InteractionResponseType::ChannelMessageWithSource,
+            data: Some(data),
         };
 
         client
