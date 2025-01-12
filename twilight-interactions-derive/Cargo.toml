@@ -10,7 +10,7 @@ homepage = "https://github.com/baptiste0928/twilight-interactions#readme"
 repository = "https://github.com/baptiste0928/twilight-interactions"
 documentation = "https://docs.rs/twilight-interactions"
 edition = "2021"
-rust-version = "1.67"
+rust-version = "1.79"
 license = "ISC"
 
 [lib]
