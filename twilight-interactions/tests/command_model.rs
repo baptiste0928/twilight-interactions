@@ -91,6 +91,7 @@ fn test_command_model() {
         banner: None,
         avatar_decoration: None,
         global_name: None,
+        avatar_decoration_data: None
     };
 
     let resolved_user = ResolvedUser {
