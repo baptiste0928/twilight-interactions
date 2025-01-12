@@ -295,7 +295,7 @@ impl CreateOption for String {
     }
 }
 
-impl<'a> CreateOption for Cow<'a, str> {
+impl CreateOption for Cow<'_, str> {
     fn create_option(data: CreateOptionData) -> CommandOption {
         data.into_option(CommandOptionType::String)
     }
