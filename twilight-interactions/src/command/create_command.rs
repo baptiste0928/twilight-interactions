@@ -245,7 +245,7 @@ pub struct ApplicationCommandData {
 
 impl From<ApplicationCommandData> for Command {
     fn from(item: ApplicationCommandData) -> Self {
-        #[expect(deprecated)]
+        #[allow(deprecated)]
         Command {
             application_id: None,
             guild_id: None,
