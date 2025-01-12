@@ -19,8 +19,8 @@ default = ["derive"]
 derive = ["twilight-interactions-derive"]
 
 [dependencies]
-twilight-model = "=0.16.0-rc.1"
-twilight-interactions-derive = { version = "=0.16.0-rc.1", path = "../twilight-interactions-derive", optional = true }
+twilight-model = "0.16.0"
+twilight-interactions-derive = { version = "=0.16.0", path = "../twilight-interactions-derive", optional = true }
 
 [package.metadata.docs.rs]
 all-features = true

@@ -245,6 +245,7 @@ pub struct ApplicationCommandData {
 
 impl From<ApplicationCommandData> for Command {
     fn from(item: ApplicationCommandData) -> Self {
+        #[expect(deprecated)]
         Command {
             application_id: None,
             guild_id: None,
@@ -259,6 +260,8 @@ impl From<ApplicationCommandData> for Command {
             nsfw: item.nsfw,
             options: item.options,
             version: Id::new(1),
+            contexts: None,
+            integration_types: None,
         }
     }
 }

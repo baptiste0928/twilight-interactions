@@ -93,7 +93,7 @@ async fn runner(mut shard: Shard, client: Arc<Client>) {
             Ok(event) => event,
             Err(error)
                 if SHUTDOWN.load(Ordering::Relaxed)
-                    && matches!(error.kind(), ReceiveMessageErrorType::WebSocket) =>
+                    && matches!(error.kind(), ReceiveMessageErrorType::Reconnect) =>
             {
                 break
             }
