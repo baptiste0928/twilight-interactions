@@ -4,7 +4,7 @@
 //! - [`NamedAttrs`] parses a list of named attributes and allow to parse each
 //!   of them using a custom parser function.
 //! - [`ParseAttribute`] is used to parse a single attribute into a concrete
-//!  type.
+//!   type.
 
 use std::fmt::Display;
 
