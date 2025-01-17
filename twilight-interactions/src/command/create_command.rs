@@ -139,7 +139,6 @@ impl<T: CreateCommand> CreateCommand for Box<T> {
 /// [^localization]: Path to a function that returns a type that implements
 ///                  `IntoIterator<Item = (ToString, ToString)>`. See the
 ///                  [module documentation](crate::command) to learn more.
-
 pub trait CreateOption: Sized {
     /// Create a [`CommandOption`] from this type.
     fn create_option(data: CreateOptionData) -> CommandOption;
@@ -245,6 +244,7 @@ pub struct ApplicationCommandData {
 
 impl From<ApplicationCommandData> for Command {
     fn from(item: ApplicationCommandData) -> Self {
+        #[allow(deprecated)]
         Command {
             application_id: None,
             guild_id: None,
@@ -259,6 +259,8 @@ impl From<ApplicationCommandData> for Command {
             nsfw: item.nsfw,
             options: item.options,
             version: Id::new(1),
+            contexts: None,
+            integration_types: None,
         }
     }
 }
@@ -293,7 +295,7 @@ impl CreateOption for String {
     }
 }
 
-impl<'a> CreateOption for Cow<'a, str> {
+impl CreateOption for Cow<'_, str> {
     fn create_option(data: CreateOptionData) -> CommandOption {
         data.into_option(CommandOptionType::String)
     }

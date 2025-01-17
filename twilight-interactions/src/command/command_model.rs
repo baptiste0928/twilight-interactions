@@ -467,7 +467,7 @@ impl CommandOption for String {
     }
 }
 
-impl<'a> CommandOption for Cow<'a, str> {
+impl CommandOption for Cow<'_, str> {
     fn from_option(
         value: CommandOptionValue,
         data: CommandOptionData,

@@ -16,11 +16,11 @@ tokio = { version = "1.37", features = ["macros", "rt-multi-thread", "signal"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["std", "fmt", "ansi"], default-features = false }
 
-twilight-gateway = "=0.16.0-rc.1"
-twilight-http = "=0.16.0-rc.1"
+twilight-gateway = "0.16.0"
+twilight-http = "0.16.0"
 twilight-interactions = { path = "../twilight-interactions" }
-twilight-model = "=0.16.0-rc.1"
-twilight-util = { version = "=0.16.0-rc.1", features = ["builder"] }
+twilight-model = "0.16.0"
+twilight-util = { version = "0.16.0", features = ["builder"] }
 
 [[example]]
 name = "xkcd-bot"
