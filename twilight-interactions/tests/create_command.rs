@@ -165,6 +165,7 @@ fn test_create_command() {
 
     let name_localizations = HashMap::from([("en".into(), "demo".into())]);
 
+    #[allow(deprecated)]
     let expected = ApplicationCommandData {
         name: "demo".into(),
         name_localizations: Some(name_localizations),
@@ -175,6 +176,8 @@ fn test_create_command() {
         dm_permission: Some(false),
         group: false,
         nsfw: Some(true),
+        contexts: None,
+        integration_types: None,
     };
 
     assert_eq!(DemoCommand::<i64>::create_command(), expected);
@@ -183,6 +186,7 @@ fn test_create_command() {
 
 #[test]
 fn test_unit_create_command() {
+    #[allow(deprecated)]
     let expected = ApplicationCommandData {
         name: "unit".into(),
         name_localizations: None,
@@ -193,6 +197,8 @@ fn test_unit_create_command() {
         dm_permission: None,
         group: false,
         nsfw: None,
+        contexts: None,
+        integration_types: None,
     };
 
     assert_eq!(UnitCommand::create_command(), expected);

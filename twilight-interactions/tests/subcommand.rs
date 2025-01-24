@@ -210,6 +210,7 @@ fn test_create_subcommand() {
         },
     ];
 
+    #[allow(deprecated)]
     let expected = ApplicationCommandData {
         name: "command".into(),
         name_localizations: None,
@@ -220,6 +221,8 @@ fn test_create_subcommand() {
         dm_permission: None,
         group: true,
         nsfw: None,
+        contexts: None,
+        integration_types: None,
     };
 
     assert_eq!(SubCommand::create_command(), expected);

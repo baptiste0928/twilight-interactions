@@ -3,7 +3,7 @@ use std::{borrow::Cow, collections::HashMap};
 use twilight_model::{
     application::{
         command::{Command, CommandOption, CommandOptionType, CommandType},
-        interaction::InteractionChannel,
+        interaction::{InteractionChannel, InteractionContextType},
     },
     channel::Attachment,
     guild::{Permissions, Role},
@@ -11,6 +11,7 @@ use twilight_model::{
         marker::{AttachmentMarker, ChannelMarker, GenericMarker, RoleMarker, UserMarker},
         Id,
     },
+    oauth::ApplicationIntegrationType,
     user::User,
 };
 
@@ -233,6 +234,7 @@ pub struct ApplicationCommandData {
     /// List of command options.
     pub options: Vec<CommandOption>,
     /// Whether the command is available in DMs.
+    #[deprecated(note = "use contexts instead")]
     pub dm_permission: Option<bool>,
     /// Default permissions required for a member to run the command.
     pub default_member_permissions: Option<Permissions>,
@@ -240,6 +242,10 @@ pub struct ApplicationCommandData {
     pub group: bool,
     /// Whether the command is nsfw.
     pub nsfw: Option<bool>,
+    /// Interaction context(s) where the command can be used.
+    pub contexts: Option<Vec<InteractionContextType>>,
+    /// Installation contexts where the command is available.
+    pub integration_types: Option<Vec<ApplicationIntegrationType>>,
 }
 
 impl From<ApplicationCommandData> for Command {
@@ -259,8 +265,8 @@ impl From<ApplicationCommandData> for Command {
             nsfw: item.nsfw,
             options: item.options,
             version: Id::new(1),
-            contexts: None,
-            integration_types: None,
+            contexts: item.contexts,
+            integration_types: item.integration_types,
         }
     }
 }

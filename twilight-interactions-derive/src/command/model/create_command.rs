@@ -4,6 +4,7 @@ use syn::{spanned::Spanned, DeriveInput, Error, FieldsNamed, Result};
 
 use super::parse::{channel_type, command_option_value, StructField, TypeAttribute};
 use crate::{
+    command::user_application::{context, integration_type},
     localization::{description_expr, name_expr},
     parse::syntax::{find_attr, optional, parse_doc},
 };
@@ -60,6 +61,20 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
         .map(field_option)
         .collect::<Result<Vec<_>>>()?;
 
+    let contexts = if let Some(items) = attributes.contexts {
+        let items = items.iter().map(context);
+        quote! { ::std::option::Option::Some(::std::vec![#(#items),*]) }
+    } else {
+        quote! { ::std::option::Option::None }
+    };
+
+    let integration_types = if let Some(items) = attributes.integration_types {
+        let items = items.iter().map(integration_type);
+        quote! { ::std::option::Option::Some(::std::vec![#(#items),*]) }
+    } else {
+        quote! { ::std::option::Option::None }
+    };
+
     Ok(quote! {
         impl #generics ::twilight_interactions::command::CreateCommand for #ident #generics #where_clause {
             const NAME: &'static str = #name;
@@ -82,6 +97,8 @@ pub fn impl_create_command(input: DeriveInput, fields: Option<FieldsNamed>) -> R
                     dm_permission: #dm_permission,
                     nsfw: #nsfw,
                     group: false,
+                    contexts: #contexts,
+                    integration_types: #integration_types,
                 }
             }
         }
