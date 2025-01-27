@@ -4,10 +4,13 @@ use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
 use syn::{spanned::Spanned, Attribute, Error, Lit, Result, Type};
 
-use crate::parse::{
-    attribute::{NamedAttrs, ParseAttribute, ParseSpanned},
-    parsers::{CommandDescription, CommandName, FunctionPath},
-    syntax::{extract_generic, find_attr},
+use crate::{
+    command::user_application::{ApplicationIntegrationType, InteractionContextType},
+    parse::{
+        attribute::{NamedAttrs, ParseAttribute, ParseSpanned},
+        parsers::{CommandDescription, CommandName, FunctionPath},
+        syntax::{extract_generic, find_attr},
+    },
 };
 
 /// Parsed struct field
@@ -102,6 +105,10 @@ pub struct TypeAttribute {
     pub dm_permission: Option<bool>,
     /// Whether the command is nsfw.
     pub nsfw: Option<bool>,
+    /// Interaction context(s) where the command can be used.
+    pub contexts: Option<Vec<InteractionContextType>>,
+    /// Installation contexts where the command is available.
+    pub integration_types: Option<Vec<ApplicationIntegrationType>>,
 }
 
 impl TypeAttribute {
@@ -114,6 +121,8 @@ impl TypeAttribute {
         "default_permissions",
         "dm_permission",
         "nsfw",
+        "contexts",
+        "integration_types",
     ];
 
     pub fn parse(attr: &Attribute) -> Result<Self> {
@@ -128,6 +137,8 @@ impl TypeAttribute {
             default_permissions: parser.optional("default_permissions")?,
             dm_permission: parser.optional("dm_permission")?,
             nsfw: parser.optional("nsfw")?,
+            contexts: parser.optional("contexts")?,
+            integration_types: parser.optional("integration_types")?,
         })
     }
 }

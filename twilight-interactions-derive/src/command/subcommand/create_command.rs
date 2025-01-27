@@ -4,6 +4,7 @@ use syn::{spanned::Spanned, DeriveInput, Error, Result, Variant};
 
 use super::parse::{ParsedVariant, TypeAttribute};
 use crate::{
+    command::user_application::{context, integration_type},
     localization::{description_expr, name_expr},
     parse::syntax::{find_attr, optional, parse_doc},
 };
@@ -45,6 +46,20 @@ pub fn impl_create_command(
 
     let variant_options = variants.iter().map(variant_option);
 
+    let contexts = if let Some(items) = attributes.contexts {
+        let items = items.iter().map(context);
+        quote! { ::std::option::Option::Some(::std::vec![#(#items),*]) }
+    } else {
+        quote! { ::std::option::Option::None }
+    };
+
+    let integration_types = if let Some(items) = attributes.integration_types {
+        let items = items.iter().map(integration_type);
+        quote! { ::std::option::Option::Some(::std::vec![#(#items),*]) }
+    } else {
+        quote! { ::std::option::Option::None }
+    };
+
     Ok(quote! {
         impl #generics ::twilight_interactions::command::CreateCommand for #ident #generics #where_clause {
             const NAME: &'static str = #name;
@@ -66,6 +81,8 @@ pub fn impl_create_command(
                     dm_permission: #dm_permission,
                     nsfw: #nsfw,
                     group: true,
+                    contexts: #contexts,
+                    integration_types: #integration_types,
                 }
             }
         }

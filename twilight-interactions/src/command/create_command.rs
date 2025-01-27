@@ -3,7 +3,7 @@ use std::{borrow::Cow, collections::HashMap};
 use twilight_model::{
     application::{
         command::{Command, CommandOption, CommandOptionType, CommandType},
-        interaction::InteractionChannel,
+        interaction::{InteractionChannel, InteractionContextType},
     },
     channel::Attachment,
     guild::{Permissions, Role},
@@ -11,6 +11,7 @@ use twilight_model::{
         marker::{AttachmentMarker, ChannelMarker, GenericMarker, RoleMarker, UserMarker},
         Id,
     },
+    oauth::ApplicationIntegrationType,
     user::User,
 };
 
@@ -58,20 +59,22 @@ use super::{internal::CreateOptionData, ResolvedMentionable, ResolvedUser};
 /// The macro provides a `#[command]` attribute to provide additional
 /// information.
 ///
-/// | Attribute                  | Type                | Location               | Description                                                     |
-/// |----------------------------|---------------------|------------------------|-----------------------------------------------------------------|
-/// | `name`                     | `str`               | Type                   | Name of the command (required).                                 |
-/// | `desc`                     | `str`               | Type / Field / Variant | Description of the command (required).                          |
-/// | `default_permissions`      | `fn`[^perms]        | Type                   | Default permissions required by members to run the command.     |
-/// | `dm_permission`            | `bool`              | Type                   | Whether the command can be run in DMs.                          |
-/// | `nsfw`                     | `bool`              | Type                   | Whether the command is age-restricted.
-/// | `rename`                   | `str`               | Field                  | Use a different option name than the field name.                |
-/// | `name_localizations`       | `fn`[^localization] | Type / Field / Variant | Localized name of the command (optional).                       |
-/// | `desc_localizations`       | `fn`[^localization] | Type / Field / Variant | Localized description of the command (optional).                |
-/// | `autocomplete`             | `bool`              | Field                  | Enable autocomplete on this field.                              |
-/// | `channel_types`            | `str`               | Field                  | Restricts the channel choice to specific types.[^channel_types] |
-/// | `max_value`, `min_value`   | `i64` or `f64`      | Field                  | Set the maximum and/or minimum value permitted.                 |
-/// | `max_length`, `min_length` | `u16`               | Field                  |   Maximum and/or minimum string length permitted.               |
+/// | Attribute                  | Type                | Location               | Description                                                               |
+/// |----------------------------|---------------------|------------------------|---------------------------------------------------------------------------|
+/// | `name`                     | `str`               | Type                   | Name of the command (required).                                           |
+/// | `desc`                     | `str`               | Type / Field / Variant | Description of the command (required).                                    |
+/// | `default_permissions`      | `fn`[^perms]        | Type                   | Default permissions required by members to run the command.               |
+/// | `dm_permission`            | `bool`              | Type                   | Whether the command can be run in DMs.                                    |
+/// | `nsfw`                     | `bool`              | Type                   | Whether the command is age-restricted.                                    |
+/// | `rename`                   | `str`               | Field                  | Use a different option name than the field name.                          |
+/// | `name_localizations`       | `fn`[^localization] | Type / Field / Variant | Localized name of the command (optional).                                 |
+/// | `desc_localizations`       | `fn`[^localization] | Type / Field / Variant | Localized description of the command (optional).                          |
+/// | `autocomplete`             | `bool`              | Field                  | Enable autocomplete on this field.                                        |
+/// | `channel_types`            | `str`               | Field                  | Restricts the channel choice to specific types.[^channel_types]           |
+/// | `max_value`, `min_value`   | `i64` or `f64`      | Field                  | Set the maximum and/or minimum value permitted.                           |
+/// | `max_length`, `min_length` | `u16`               | Field                  | Maximum and/or minimum string length permitted.                           |
+/// | `contexts`                 | `str`               | Type                   | Interaction context(s) where the command can be used.[^contexts]          |
+/// | `integration_types`        | `str`               | Type                   | Installation contexts where the command is available.[^integration_types] |
 ///
 /// [^perms]: Path to a function that returns [`Permissions`]. Permissions can
 /// only be set on top-level commands
@@ -83,8 +86,16 @@ use super::{internal::CreateOptionData, ResolvedMentionable, ResolvedUser};
 /// [^channel_types]: List of [`ChannelType`] names in snake_case separated by spaces
 /// like `guild_text private`.
 ///
+/// [^contexts]: List of [`InteractionContextType`] names in snake_case separated by
+/// spaces like `guild private_channel`.
+///
+/// [^integration_types]: List of [`ApplicationIntegrationType`] names in snake_case
+/// separated by spaces like `guild_install user_install`.
+///
 /// [`CommandModel`]: super::CommandModel
 /// [`ChannelType`]: twilight_model::channel::ChannelType
+/// [`InteractionContextType`]: twilight_model::application::interaction::InteractionContextType
+/// [`ApplicationIntegrationType`]: twilight_model::oauth::ApplicationIntegrationType
 pub trait CreateCommand: Sized {
     /// Name of the command.
     const NAME: &'static str;
@@ -233,6 +244,7 @@ pub struct ApplicationCommandData {
     /// List of command options.
     pub options: Vec<CommandOption>,
     /// Whether the command is available in DMs.
+    #[deprecated(note = "use contexts instead")]
     pub dm_permission: Option<bool>,
     /// Default permissions required for a member to run the command.
     pub default_member_permissions: Option<Permissions>,
@@ -240,6 +252,10 @@ pub struct ApplicationCommandData {
     pub group: bool,
     /// Whether the command is nsfw.
     pub nsfw: Option<bool>,
+    /// Interaction context(s) where the command can be used.
+    pub contexts: Option<Vec<InteractionContextType>>,
+    /// Installation contexts where the command is available.
+    pub integration_types: Option<Vec<ApplicationIntegrationType>>,
 }
 
 impl From<ApplicationCommandData> for Command {
@@ -259,8 +275,8 @@ impl From<ApplicationCommandData> for Command {
             nsfw: item.nsfw,
             options: item.options,
             version: Id::new(1),
-            contexts: None,
-            integration_types: None,
+            contexts: item.contexts,
+            integration_types: item.integration_types,
         }
     }
 }

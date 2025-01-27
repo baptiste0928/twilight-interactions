@@ -18,8 +18,7 @@ use std::{
 use anyhow::Context;
 use tracing::Level;
 use twilight_gateway::{
-    error::ReceiveMessageErrorType, CloseFrame, ConfigBuilder, Event, EventTypeFlags, Intents,
-    Shard, StreamExt as _,
+    CloseFrame, ConfigBuilder, Event, EventTypeFlags, Intents, Shard, StreamExt as _,
 };
 use twilight_http::Client;
 use twilight_interactions::command::CreateCommand;
@@ -91,12 +90,6 @@ async fn runner(mut shard: Shard, client: Arc<Client>) {
         let event = match item {
             Ok(Event::GatewayClose(_)) if SHUTDOWN.load(Ordering::Relaxed) => break,
             Ok(event) => event,
-            Err(error)
-                if SHUTDOWN.load(Ordering::Relaxed)
-                    && matches!(error.kind(), ReceiveMessageErrorType::Reconnect) =>
-            {
-                break
-            }
             Err(error) => {
                 tracing::warn!(?error, "error while receiving event");
                 continue;
