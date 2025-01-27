@@ -7,10 +7,11 @@ use twilight_interactions::command::{
 use twilight_model::{
     application::{
         command::{CommandOption, CommandOptionType, CommandOptionValue},
-        interaction::InteractionChannel,
+        interaction::{InteractionChannel, InteractionContextType},
     },
     channel::ChannelType,
     guild::Permissions,
+    oauth::ApplicationIntegrationType,
 };
 
 /// Demo command for testing purposes
@@ -20,6 +21,8 @@ use twilight_model::{
     name_localizations = "demo_name",
     default_permissions = "demo_permissions",
     dm_permission = false,
+    contexts = "guild private_channel",
+    integration_types = "guild_install",
     nsfw = true
 )]
 struct DemoCommand<'a, T>
@@ -176,8 +179,11 @@ fn test_create_command() {
         dm_permission: Some(false),
         group: false,
         nsfw: Some(true),
-        contexts: None,
-        integration_types: None,
+        contexts: Some(vec![
+            InteractionContextType::Guild,
+            InteractionContextType::PrivateChannel,
+        ]),
+        integration_types: Some(vec![ApplicationIntegrationType::GuildInstall]),
     };
 
     assert_eq!(DemoCommand::<i64>::create_command(), expected);
