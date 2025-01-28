@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.1] - 2025-01-28
+### Added
+- `contexts` and `integration_types` attributes on `CreateCommand` (@fdnt7)
+
 ## [0.16.0] - 2025-01-17
 ### Changed
 - Updated to `twilight-model` 0.16 (@randomairborne)
@@ -168,7 +172,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of `twilight-interactions` and `twilight-interactions-derive` crates.
 
-[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.16.0...main
+[Unreleased]: https://github.com/baptiste0928/twilight-interactions/compare/v0.16.1...main
+[0.16.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/baptiste0928/twilight-interactions/compare/v0.16.0-rc.1...v0.16.0
 [0.16.0-rc.1]: https://github.com/baptiste0928/twilight-interactions/compare/v0.15.2...v0.16.0-rc.1
 [0.15.2]: https://github.com/baptiste0928/twilight-interactions/compare/v0.15.1...v0.15.2
