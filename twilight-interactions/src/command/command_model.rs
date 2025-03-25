@@ -452,13 +452,13 @@ impl CommandOption for String {
         };
 
         if let Some(min) = data.min_length {
-            if value.len() < min.into() {
+            if value.len() < usize::from(min) {
                 todo!()
             }
         }
 
         if let Some(max) = data.max_length {
-            if value.len() > max.into() {
+            if value.len() > usize::from(max) {
                 todo!()
             }
         }
