@@ -26,6 +26,42 @@ impl ToTokens for FunctionPath {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct LengthValidatedString<const MIN_LENGTH: usize, const MAX_LENGTH: usize>(String);
+
+impl<const MIN_LENGTH: usize, const MAX_LENGTH: usize> ParseAttribute
+    for LengthValidatedString<MIN_LENGTH, MAX_LENGTH>
+{
+    fn parse_attribute(input: Lit) -> Result<Self> {
+        let spanned: ParseSpanned<String> = ParseAttribute::parse_attribute(input)?;
+        let value = spanned.inner.trim();
+
+        if (MIN_LENGTH..=MAX_LENGTH).contains(&value.chars().count()) {
+            Ok(Self(value.to_owned()))
+        } else {
+            Err(spanned.error(format!(
+                "value must be between {MIN_LENGTH} and {MAX_LENGTH} characters long"
+            )))
+        }
+    }
+}
+
+impl<const MIN_LENGTH: usize, const MAX_LENGTH: usize> ToTokens
+    for LengthValidatedString<MIN_LENGTH, MAX_LENGTH>
+{
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        self.0.to_tokens(tokens)
+    }
+}
+
+impl<const MIN_LENGTH: usize, const MAX_LENGTH: usize>
+    From<LengthValidatedString<MIN_LENGTH, MAX_LENGTH>> for String
+{
+    fn from(value: LengthValidatedString<MIN_LENGTH, MAX_LENGTH>) -> Self {
+        value.0
+    }
+}
+
 /// Slash command or command option name.
 ///
 /// The following requirements are validated:
@@ -80,6 +116,7 @@ impl From<CommandName> for String {
 /// Slash command or command option description.
 ///
 /// This validate that the description is between 1 and 100 characters.
+// TODO: Maybe replace with LengthValidatedString?
 #[derive(Clone, Debug)]
 pub struct CommandDescription(String);
 
