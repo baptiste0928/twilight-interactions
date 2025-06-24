@@ -151,7 +151,10 @@ impl ParseAttribute for TextInputStyle {
             "paragraph" => Ok(TextInputStyle::Paragraph),
             invalid => Err(Error::new(
                 spanned.span,
-                format!("`{invalid}` is not a valid channel type"),
+                format!(
+                    "`{invalid}` is not a valid text input style. \
+                    Allowed values are `short` and `paragraph`"
+                ),
             )),
         }
     }
