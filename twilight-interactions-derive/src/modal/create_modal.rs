@@ -1,4 +1,4 @@
-use crate::modal::parse::{StructField, TextInputStyle, TypeAttribute};
+use crate::modal::parse::{text_input_style, StructField, TypeAttribute};
 use crate::parse::syntax::{find_attr, optional};
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
@@ -88,18 +88,7 @@ fn field_component(field: &StructField) -> Result<TokenStream> {
             .map(|placeholder| string_field(&String::from(placeholder))),
     );
     let required = field.kind.required();
-    let style = match &field.attributes.style {
-        TextInputStyle::Short => {
-            quote! {
-                ::twilight_model::channel::message::component::TextInputStyle::Short
-            }
-        }
-        TextInputStyle::Paragraph => {
-            quote! {
-                ::twilight_model::channel::message::component::TextInputStyle::Paragraph
-            }
-        }
-    };
+    let style = text_input_style(&field.attributes.style);
     let value = optional(
         field
             .attributes
