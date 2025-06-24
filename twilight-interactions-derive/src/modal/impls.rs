@@ -30,7 +30,7 @@ pub fn dummy_create_modal(ident: Ident, error: Error) -> TokenStream {
         impl ::twilight_interactions::modal::CreateModal for #ident {
             const CUSTOM_ID: &'static str = "";
 
-            fn create_modal() -> ModalData {
+            fn create_modal() -> ::twilight_interactions::modal::ModalData {
                 ::std::unimplemented!()
             }
         }
