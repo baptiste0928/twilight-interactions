@@ -10,6 +10,7 @@ use syn::{Attribute, Error, Lit, Result, Type};
 pub struct StructField {
     pub span: Span,
     pub ident: Ident,
+    // TODO: Somehow check that this type is String or introduce something like ComponentModel<TextInput> trait
     pub ty: Type,
     pub raw_attrs: Vec<Attribute>,
     pub attributes: FieldAttribute,

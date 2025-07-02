@@ -72,7 +72,6 @@ pub fn impl_create_modal(input: DeriveInput, fields: FieldsNamed) -> Result<Toke
 
 /// Generate field component code, including action row wrapper
 fn field_component(field: &StructField) -> Result<TokenStream> {
-    let ty = &field.ty;
     let span = field.span;
 
     // TODO: Should custom id have a default?
