@@ -35,33 +35,22 @@ pub fn impl_create_modal(input: DeriveInput, fields: FieldsNamed) -> Result<Toke
         None => return Err(Error::new(attr_span, "missing required attribute `title`")),
     };
     let title_expr = string_field(&title);
-    let custom_id = match attributes.custom_id {
-        Some(custom_id) => String::from(custom_id),
-        None => {
-            return Err(Error::new(
-                attr_span,
-                "missing required attribute `custom_id`",
-            ))
-        }
-    };
-    let custom_id_expr = string_field(&custom_id);
 
     let field_components = fields
         .iter()
         .map(field_component)
         .collect::<Result<Vec<_>>>()?;
 
+    // TODO: Validate custom id length?
     Ok(quote! {
         impl #generics ::twilight_interactions::modal::CreateModal for #ident #generics #where_clause {
-            const CUSTOM_ID: &'static str = #custom_id;
-
-            fn create_modal() -> ::twilight_interactions::modal::ModalData {
+            fn create_modal(__custom_id: ::std::string::String) -> ::twilight_interactions::modal::ModalData {
                 let mut __modal_components = ::std::vec::Vec::with_capacity(#capacity);
 
                 #(#field_components)*
 
                 ::twilight_interactions::modal::ModalData {
-                    custom_id: #custom_id_expr,
+                    custom_id: __custom_id,
                     title: #title_expr,
                     components: __modal_components,
                 }

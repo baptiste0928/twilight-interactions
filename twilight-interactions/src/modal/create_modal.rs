@@ -4,16 +4,12 @@ use twilight_model::http::interaction::{
 };
 
 pub trait CreateModal: Sized {
-    const CUSTOM_ID: &'static str;
-
-    fn create_modal() -> ModalData;
+    fn create_modal(custom_id: String) -> ModalData;
 }
 
 impl<T: CreateModal> CreateModal for Box<T> {
-    const CUSTOM_ID: &'static str = T::CUSTOM_ID;
-
-    fn create_modal() -> ModalData {
-        T::create_modal()
+    fn create_modal(custom_id: String) -> ModalData {
+        T::create_modal(custom_id)
     }
 }
 

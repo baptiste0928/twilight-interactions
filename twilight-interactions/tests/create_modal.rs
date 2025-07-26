@@ -3,7 +3,7 @@ use twilight_model::channel::message::component::{ActionRow, TextInput, TextInpu
 use twilight_model::channel::message::Component;
 
 #[derive(CreateModal, Debug, PartialEq, Eq)]
-#[modal(title = "Modal Title", custom_id = "demo_modal")]
+#[modal(title = "Modal Title")]
 struct DemoModal {
     #[modal(
         custom_id = "foo",
@@ -74,6 +74,5 @@ fn test_create_modal() {
         components,
     };
 
-    assert_eq!(DemoModal::create_modal(), expected);
-    assert_eq!(DemoModal::CUSTOM_ID, "demo_modal");
+    assert_eq!(DemoModal::create_modal("demo_modal".into()), expected);
 }

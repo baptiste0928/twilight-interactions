@@ -77,18 +77,16 @@ impl StructField {
 /// Parsed type attribute
 pub struct TypeAttribute {
     pub title: Option<LengthValidatedString<1, 45>>,
-    pub custom_id: Option<LengthValidatedString<1, 100>>,
 }
 
 impl TypeAttribute {
-    const VALID_ATTRIBUTES: &'static [&'static str] = &["title", "custom_id"];
+    const VALID_ATTRIBUTES: &'static [&'static str] = &["title"];
 
     pub fn parse(attr: &Attribute) -> Result<Self> {
         let mut parser = NamedAttrs::parse(attr, Self::VALID_ATTRIBUTES)?;
 
         Ok(Self {
             title: parser.optional("title")?,
-            custom_id: parser.optional("custom_id")?,
         })
     }
 }
