@@ -71,6 +71,8 @@ fn test_command_model() {
         pending: false,
         permissions: Permissions::empty(),
         flags: MemberFlags::empty(),
+        avatar_decoration_data: None,
+        banner: None,
     };
 
     let user = User {
@@ -92,6 +94,7 @@ fn test_command_model() {
         avatar_decoration: None,
         global_name: None,
         avatar_decoration_data: None,
+        primary_guild: None,
     };
 
     let resolved_user = ResolvedUser {

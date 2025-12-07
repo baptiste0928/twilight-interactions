@@ -12,15 +12,16 @@ fastrand = "2.1"
 
 futures-util = { version = "0.3", default-features = false }
 reqwest = { version = "0.12", features = ["json"] }
+rustls = "0.23.35"
 tokio = { version = "1.37", features = ["macros", "rt-multi-thread", "signal"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["std", "fmt", "ansi"], default-features = false }
 
-twilight-gateway = "0.16.0"
-twilight-http = "0.16.0"
+twilight-gateway = "0.17.0"
+twilight-http = "0.17.0"
 twilight-interactions = { path = "../twilight-interactions" }
-twilight-model = "0.16.0"
-twilight-util = { version = "0.16.0", features = ["builder"] }
+twilight-model = "0.17.0"
+twilight-util = { version = "0.17.0", features = ["builder"] }
 
 [[example]]
 name = "xkcd-bot"
