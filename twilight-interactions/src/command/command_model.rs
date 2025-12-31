@@ -369,6 +369,7 @@ pub struct ResolvedUser {
 /// This struct implements [`CommandOption`] and can be used to obtain the
 /// resolved data from a mentionable ID, that can be either a user or a role.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(clippy::large_enum_variant, reason = "minor impact, boxing would add additional indirection")]
 pub enum ResolvedMentionable {
     /// User mention.
     User(ResolvedUser),
