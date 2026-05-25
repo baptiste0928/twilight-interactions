@@ -455,15 +455,17 @@ impl CommandOption for String {
             other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
         };
 
+        let char_len = value.chars().count();
+
         if let Some(min) = data.min_length {
-            if value.len() < usize::from(min) {
-                todo!()
+            if char_len < usize::from(min) {
+                return Err(ParseOptionErrorType::StringLengthOutOfRange(value));
             }
         }
 
         if let Some(max) = data.max_length {
-            if value.len() > usize::from(max) {
-                todo!()
+            if char_len > usize::from(max) {
+                return Err(ParseOptionErrorType::StringLengthOutOfRange(value));
             }
         }
 
