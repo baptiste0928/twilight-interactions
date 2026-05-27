@@ -7,6 +7,7 @@
 
 mod command;
 mod localization;
+mod modal;
 mod option;
 mod parse;
 
@@ -70,5 +71,27 @@ pub fn create_option(input: TokenStream) -> TokenStream {
     match option::impl_create_option(input) {
         Ok(output) => output.into(),
         Err(error) => option::dummy_create_option(ident, error).into(),
+    }
+}
+
+#[proc_macro_derive(ModalModel, attributes(modal))]
+pub fn modal_model(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let ident = input.ident.clone();
+
+    match modal::impl_modal_model(input) {
+        Ok(output) => output.into(),
+        Err(error) => modal::dummy_modal_model(ident, error).into(),
+    }
+}
+
+#[proc_macro_derive(CreateModal, attributes(modal))]
+pub fn create_modal(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let ident = input.ident.clone();
+
+    match modal::impl_create_modal(input) {
+        Ok(output) => output.into(),
+        Err(error) => modal::dummy_create_modal(ident, error).into(),
     }
 }
