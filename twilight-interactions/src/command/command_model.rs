@@ -414,6 +414,16 @@ macro_rules! lookup {
     };
 }
 
+/// Extract the inner value of a [`CommandOptionValue`] of the expected type.
+fn extract<T>(value: CommandOptionValue) -> Result<T, ParseOptionErrorType>
+where
+    T: TryFrom<CommandOptionValue, Error = CommandOptionValue>,
+{
+    value
+        .try_into()
+        .map_err(|value: CommandOptionValue| ParseOptionErrorType::InvalidType(value.kind()))
+}
+
 impl CommandOption for CommandOptionValue {
     fn from_option(
         value: CommandOptionValue,
@@ -450,10 +460,7 @@ impl CommandOption for String {
         data: CommandOptionData,
         _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        let value = match value {
-            CommandOptionValue::String(value) => value,
-            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
-        };
+        let value: String = extract(value)?;
 
         let char_len = value.chars().count();
 
@@ -489,10 +496,7 @@ impl CommandOption for i64 {
         data: CommandOptionData,
         _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        let value = match value {
-            CommandOptionValue::Integer(value) => value,
-            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
-        };
+        let value: i64 = extract(value)?;
 
         if let Some(NumberCommandOptionValue::Integer(min)) = data.min_value {
             if value < min {
@@ -516,10 +520,7 @@ impl CommandOption for f64 {
         data: CommandOptionData,
         _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        let value = match value {
-            CommandOptionValue::Number(value) => value,
-            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
-        };
+        let value: f64 = extract(value)?;
 
         if let Some(NumberCommandOptionValue::Number(min)) = data.min_value {
             if value < min {
@@ -543,10 +544,7 @@ impl CommandOption for bool {
         _data: CommandOptionData,
         _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        match value {
-            CommandOptionValue::Boolean(value) => Ok(value),
-            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
-        }
+        extract(value)
     }
 }
 
@@ -556,10 +554,7 @@ impl CommandOption for Id<UserMarker> {
         _data: CommandOptionData,
         _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        match value {
-            CommandOptionValue::User(value) => Ok(value),
-            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
-        }
+        extract(value)
     }
 }
 
@@ -569,10 +564,7 @@ impl CommandOption for Id<ChannelMarker> {
         _data: CommandOptionData,
         _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        match value {
-            CommandOptionValue::Channel(value) => Ok(value),
-            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
-        }
+        extract(value)
     }
 }
 
@@ -582,10 +574,7 @@ impl CommandOption for Id<RoleMarker> {
         _data: CommandOptionData,
         _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        match value {
-            CommandOptionValue::Role(value) => Ok(value),
-            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
-        }
+        extract(value)
     }
 }
 
@@ -595,10 +584,7 @@ impl CommandOption for Id<GenericMarker> {
         _data: CommandOptionData,
         _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        match value {
-            CommandOptionValue::Mentionable(value) => Ok(value),
-            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
-        }
+        extract(value)
     }
 }
 
@@ -608,10 +594,7 @@ impl CommandOption for Id<AttachmentMarker> {
         _data: CommandOptionData,
         _resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        match value {
-            CommandOptionValue::Attachment(value) => Ok(value),
-            other => Err(ParseOptionErrorType::InvalidType(other.kind())),
-        }
+        extract(value)
     }
 }
 
@@ -621,10 +604,7 @@ impl CommandOption for Attachment {
         _data: CommandOptionData,
         resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        let attachment_id = match value {
-            CommandOptionValue::Attachment(value) => value,
-            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
-        };
+        let attachment_id: Id<AttachmentMarker> = extract(value)?;
 
         lookup!(resolved.attachments, attachment_id)
     }
@@ -636,10 +616,7 @@ impl CommandOption for User {
         _data: CommandOptionData,
         resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        let user_id = match value {
-            CommandOptionValue::User(value) => value,
-            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
-        };
+        let user_id: Id<UserMarker> = extract(value)?;
 
         lookup!(resolved.users, user_id)
     }
@@ -651,10 +628,7 @@ impl CommandOption for ResolvedUser {
         _data: CommandOptionData,
         resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        let user_id = match value {
-            CommandOptionValue::User(value) => value,
-            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
-        };
+        let user_id: Id<UserMarker> = extract(value)?;
 
         Ok(Self {
             resolved: lookup!(resolved.users, user_id)?,
@@ -669,10 +643,7 @@ impl CommandOption for ResolvedMentionable {
         _data: CommandOptionData,
         resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        let id = match value {
-            CommandOptionValue::Mentionable(value) => value,
-            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
-        };
+        let id: Id<GenericMarker> = extract(value)?;
 
         let user_id = id.cast();
         if let Ok(user) = lookup!(resolved.users, user_id) {
@@ -699,10 +670,8 @@ impl CommandOption for InteractionChannel {
         data: CommandOptionData,
         resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        let resolved = match value {
-            CommandOptionValue::Channel(value) => lookup!(resolved.channels, value)?,
-            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
-        };
+        let channel_id: Id<ChannelMarker> = extract(value)?;
+        let resolved = lookup!(resolved.channels, channel_id)?;
 
         if let Some(channel_types) = data.channel_types {
             if !channel_types.contains(&resolved.kind) {
@@ -720,10 +689,7 @@ impl CommandOption for Role {
         _data: CommandOptionData,
         resolved: Option<&InteractionDataResolved>,
     ) -> Result<Self, ParseOptionErrorType> {
-        let role_id = match value {
-            CommandOptionValue::Role(value) => value,
-            other => return Err(ParseOptionErrorType::InvalidType(other.kind())),
-        };
+        let role_id: Id<RoleMarker> = extract(value)?;
 
         lookup!(resolved.roles, role_id)
     }
