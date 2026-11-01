@@ -59,9 +59,10 @@ async fn main() -> anyhow::Result<()> {
     }
 
     // Start gateway shards.
-    let shards =
-        twilight_gateway::create_recommended(&client, config, |_id, builder| builder.build())
-            .await?;
+    let info = client.gateway().authed().await?.model().await?;
+    let shards = twilight_gateway::bucket(0, 1, info.shards)
+        .map(|id| Shard::with_config(id, config.clone()))
+        .collect::<Vec<_>>();
     let shard_len = shards.len();
     let mut senders = Vec::with_capacity(shard_len);
     let mut tasks = Vec::with_capacity(shard_len);

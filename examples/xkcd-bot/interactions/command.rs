@@ -4,11 +4,10 @@ use twilight_interactions::command::{CommandModel, CreateCommand, DescLocalizati
 use twilight_model::{
     application::interaction::{application_command::CommandData, Interaction},
     channel::message::Embed,
-    http::interaction::{InteractionResponse, InteractionResponseType},
 };
 use twilight_util::builder::{
     embed::{EmbedBuilder, ImageSource},
-    InteractionResponseDataBuilder,
+    interaction_response::ChannelMessageBuilder,
 };
 
 use crate::api::XkcdComic;
@@ -67,14 +66,7 @@ impl XkcdLatestCommand {
 
         // Respond to the interaction with an embed.
         let client = client.interaction(interaction.application_id);
-        let data = InteractionResponseDataBuilder::new()
-            .embeds([embed])
-            .build();
-
-        let response = InteractionResponse {
-            kind: InteractionResponseType::ChannelMessageWithSource,
-            data: Some(data),
-        };
+        let response = ChannelMessageBuilder::new().embeds([embed]).build();
 
         client
             .create_response(interaction.id, &interaction.token, &response)
@@ -108,18 +100,14 @@ impl XkcdNumberCommand {
     pub async fn run(&self, interaction: Interaction, client: &Client) -> anyhow::Result<()> {
         let comic = XkcdComic::get_number(self.number.try_into()?).await?;
 
-        let mut data = InteractionResponseDataBuilder::new();
-        if let Some(comic) = comic {
-            data = data.embeds([crate_comic_embed(comic)?]);
-        } else {
-            data = data.content(format!("No comic found for number {}", self.number));
+        let response = match comic {
+            Some(comic) => ChannelMessageBuilder::new().embeds([crate_comic_embed(comic)?]),
+            None => ChannelMessageBuilder::new()
+                .content(format!("No comic found for number {}", self.number)),
         }
+        .build();
 
         let client = client.interaction(interaction.application_id);
-        let response = InteractionResponse {
-            kind: InteractionResponseType::ChannelMessageWithSource,
-            data: Some(data.build()),
-        };
 
         client
             .create_response(interaction.id, &interaction.token, &response)
@@ -147,14 +135,7 @@ impl XkcdRandomCommand {
         let embed = crate_comic_embed(comic)?;
 
         let client = client.interaction(interaction.application_id);
-        let data = InteractionResponseDataBuilder::new()
-            .embeds([embed])
-            .build();
-
-        let response = InteractionResponse {
-            kind: InteractionResponseType::ChannelMessageWithSource,
-            data: Some(data),
-        };
+        let response = ChannelMessageBuilder::new().embeds([embed]).build();
 
         client
             .create_response(interaction.id, &interaction.token, &response)
