@@ -71,6 +71,7 @@ fn test_create_command() {
         CommandOption {
             autocomplete: Some(false),
             channel_types: None,
+            file_types: None,
             choices: None,
             description: "A member".into(),
             description_localizations: Some(HashMap::from([("fr".into(), "Un membre".into())])),
@@ -87,6 +88,7 @@ fn test_create_command() {
         CommandOption {
             autocomplete: Some(false),
             channel_types: None,
+            file_types: None,
             choices: None,
             description: "Some text".into(),
             description_localizations: None,
@@ -103,6 +105,7 @@ fn test_create_command() {
         CommandOption {
             autocomplete: Some(true),
             channel_types: None,
+            file_types: None,
             choices: None,
             description: "A number".into(),
             description_localizations: None,
@@ -119,6 +122,7 @@ fn test_create_command() {
         CommandOption {
             autocomplete: Some(false),
             channel_types: Some(vec![ChannelType::GuildText, ChannelType::Private]),
+            file_types: None,
             choices: None,
             description: "A text channel".into(),
             description_localizations: None,
@@ -135,6 +139,7 @@ fn test_create_command() {
         CommandOption {
             autocomplete: Some(false),
             channel_types: None,
+            file_types: None,
             choices: None,
             description: "Generic field".into(),
             description_localizations: None,
@@ -151,6 +156,7 @@ fn test_create_command() {
         CommandOption {
             autocomplete: Some(false),
             channel_types: None,
+            file_types: None,
             choices: None,
             description: "More text".into(),
             description_localizations: None,

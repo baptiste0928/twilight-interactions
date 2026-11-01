@@ -78,6 +78,7 @@ fn test_command_option_string() {
     let command_option = TwilightCommandOption {
         autocomplete: Some(false),
         channel_types: None,
+        file_types: None,
         choices: Some(vec![
             CommandOptionChoice {
                 name: "Dog".to_string(),
@@ -143,6 +144,7 @@ fn test_command_option_integer() {
     let command_option = TwilightCommandOption {
         autocomplete: Some(false),
         channel_types: None,
+        file_types: None,
         choices: Some(vec![
             CommandOptionChoice {
                 name: "One".to_string(),
@@ -208,6 +210,7 @@ fn test_command_option_number() {
     let command_option = TwilightCommandOption {
         autocomplete: Some(false),
         channel_types: None,
+        file_types: None,
         choices: Some(vec![
             CommandOptionChoice {
                 name: "One".to_string(),

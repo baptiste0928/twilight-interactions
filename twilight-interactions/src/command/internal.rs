@@ -142,6 +142,7 @@ impl CreateOptionBuilder {
         CommandOption {
             autocomplete: Some(self.option.autocomplete),
             channel_types: self.option.data.channel_types,
+            file_types: None,
             choices: self.choices,
             description: self.option.description,
             description_localizations: self.option.description_localizations,

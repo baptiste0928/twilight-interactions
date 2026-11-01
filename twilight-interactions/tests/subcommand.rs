@@ -126,6 +126,7 @@ fn test_create_subcommand() {
     let command_options = vec![CommandOption {
         autocomplete: Some(false),
         channel_types: None,
+        file_types: None,
         choices: None,
         description: "An option".into(),
         description_localizations: None,
@@ -144,6 +145,7 @@ fn test_create_subcommand() {
         CommandOption {
             autocomplete: Some(false),
             channel_types: None,
+            file_types: None,
             choices: None,
             description: "Command two".into(),
             description_localizations: None,
@@ -160,6 +162,7 @@ fn test_create_subcommand() {
         CommandOption {
             autocomplete: Some(false),
             channel_types: None,
+            file_types: None,
             choices: None,
             description: "Command three".into(),
             description_localizations: None,
@@ -179,6 +182,7 @@ fn test_create_subcommand() {
         CommandOption {
             autocomplete: Some(false),
             channel_types: None,
+            file_types: None,
             choices: None,
             description: "Command one".into(),
             description_localizations: None,
@@ -195,6 +199,7 @@ fn test_create_subcommand() {
         CommandOption {
             autocomplete: Some(false),
             channel_types: None,
+            file_types: None,
             choices: None,
             description: "Command group".into(),
             description_localizations: None,
