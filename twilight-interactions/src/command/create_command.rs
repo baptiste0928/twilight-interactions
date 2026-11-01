@@ -71,6 +71,7 @@ use super::{internal::CreateOptionData, ResolvedMentionable, ResolvedUser};
 /// | `desc_localizations`       | `fn`[^localization] | Type / Field / Variant | Localized description of the command (optional).                          |
 /// | `autocomplete`             | `bool`              | Field                  | Enable autocomplete on this field.                                        |
 /// | `channel_types`            | `str`               | Field                  | Restricts the channel choice to specific types.[^channel_types]           |
+/// | `file_types`               | `str`               | Field                  | Restricts the attachment choice to specific file types.[^file_types]      |
 /// | `max_value`, `min_value`   | `i64` or `f64`      | Field                  | Set the maximum and/or minimum value permitted.                           |
 /// | `max_length`, `min_length` | `u16`               | Field                  | Maximum and/or minimum string length permitted.                           |
 /// | `contexts`                 | `str`               | Type                   | Interaction context(s) where the command can be used.[^contexts]          |
@@ -85,6 +86,10 @@ use super::{internal::CreateOptionData, ResolvedMentionable, ResolvedUser};
 ///
 /// [^channel_types]: List of [`ChannelType`] names in snake_case separated by spaces
 /// like `guild_text private`.
+///
+/// [^file_types]: List of `image`, `video`, `audio` or dot-prefixed extensions
+/// separated by spaces like `image .pdf`. Only filters the client file picker:
+/// received attachments are not validated.
 ///
 /// [^contexts]: List of [`InteractionContextType`] names in snake_case separated by
 /// spaces like `guild private_channel`.
@@ -290,6 +295,7 @@ impl From<ApplicationCommandData> for CommandOption {
             description_localizations: item.description_localizations,
             required: None,
             autocomplete: false,
+            file_types: None,
             data: Default::default(),
         };
 

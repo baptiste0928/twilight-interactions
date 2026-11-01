@@ -9,7 +9,7 @@ use twilight_model::{
         command::{CommandOption, CommandOptionType, CommandOptionValue},
         interaction::{InteractionChannel, InteractionContextType},
     },
-    channel::ChannelType,
+    channel::{Attachment, ChannelType},
     guild::Permissions,
     oauth::ApplicationIntegrationType,
 };
@@ -47,6 +47,9 @@ where
     generic: Option<T>,
     /// More text
     cow: Option<Cow<'a, str>>,
+    /// An image or PDF
+    #[command(file_types = "image .pdf")]
+    attachment: Option<Attachment>,
 }
 
 fn demo_permissions() -> Permissions {
@@ -166,6 +169,23 @@ fn test_create_command() {
             min_length: None,
             min_value: None,
             name: "cow".into(),
+            name_localizations: None,
+            options: None,
+            required: Some(false),
+        },
+        CommandOption {
+            autocomplete: Some(false),
+            channel_types: None,
+            file_types: Some(vec!["image".into(), ".pdf".into()]),
+            choices: None,
+            description: "An image or PDF".into(),
+            description_localizations: None,
+            kind: CommandOptionType::Attachment,
+            max_length: None,
+            max_value: None,
+            min_length: None,
+            min_value: None,
+            name: "attachment".into(),
             name_localizations: None,
             options: None,
             required: Some(false),

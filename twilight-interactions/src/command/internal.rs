@@ -78,6 +78,9 @@ pub struct CreateOptionData {
     /// Whether the command supports autocomplete. Only for `STRING`, `INTEGER`
     /// and `NUMBER` option types.
     pub autocomplete: bool,
+    /// Restricts accepted file types, like `image` or `.pdf`. Only for
+    /// `ATTACHMENT` option type.
+    pub file_types: Option<Vec<String>>,
     /// Data of the command option.
     pub data: CommandOptionData,
 }
@@ -142,7 +145,7 @@ impl CreateOptionBuilder {
         CommandOption {
             autocomplete: Some(self.option.autocomplete),
             channel_types: self.option.data.channel_types,
-            file_types: None,
+            file_types: self.option.file_types,
             choices: self.choices,
             description: self.option.description,
             description_localizations: self.option.description_localizations,

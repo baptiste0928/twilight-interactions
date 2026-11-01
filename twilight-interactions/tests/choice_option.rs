@@ -72,6 +72,7 @@ fn test_command_option_string() {
         description_localizations: None,
         required: Some(false),
         autocomplete: false,
+        file_types: None,
         data,
     };
 
@@ -138,6 +139,7 @@ fn test_command_option_integer() {
         description_localizations: None,
         required: Some(false),
         autocomplete: false,
+        file_types: None,
         data,
     };
 
@@ -204,6 +206,7 @@ fn test_command_option_number() {
         description_localizations: None,
         required: Some(false),
         autocomplete: false,
+        file_types: None,
         data,
     };
 

@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 use syn::{spanned::Spanned, DeriveInput, Error, FieldsNamed, Result};
 
-use super::parse::{channel_type, command_option_value, StructField, TypeAttribute};
+use super::parse::{channel_type, command_option_value, FileType, StructField, TypeAttribute};
 use crate::{
     command::user_application::{context, integration_type},
     localization::{description_expr, name_expr},
@@ -133,6 +133,13 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
         quote! { ::std::option::Option::Some(::std::vec![#(#items),*]) }
     };
 
+    let file_types = if field.attributes.file_types.is_empty() {
+        quote! { ::std::option::Option::None }
+    } else {
+        let items = field.attributes.file_types.iter().map(|FileType(ty)| ty);
+        quote! { ::std::option::Option::Some(::std::vec![#(::std::string::String::from(#items)),*]) }
+    };
+
     Ok(quote_spanned! {span => {
         let __field_desc = #desc_expr;
         let __field_name = #name_expr;
@@ -145,6 +152,7 @@ fn field_option(field: &StructField) -> Result<TokenStream> {
                 description_localizations: __field_desc.localizations,
                 required: ::std::option::Option::Some(#required),
                 autocomplete: #autocomplete,
+                file_types: #file_types,
                 data: ::twilight_interactions::command::internal::CommandOptionData {
                     channel_types: #channel_types,
                     max_value: #max_value,

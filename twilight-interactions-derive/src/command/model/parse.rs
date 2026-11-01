@@ -158,6 +158,8 @@ pub struct FieldAttribute {
     pub autocomplete: bool,
     /// Limit to specific channel types
     pub channel_types: Vec<ChannelType>,
+    /// Limit to specific attachment file types
+    pub file_types: Vec<FileType>,
     /// Maximum value permitted
     pub max_value: Option<CommandOptionValue>,
     /// Minimum value permitted
@@ -176,6 +178,7 @@ impl FieldAttribute {
         "desc_localizations",
         "autocomplete",
         "channel_types",
+        "file_types",
         "max_value",
         "min_value",
         "max_length",
@@ -193,6 +196,7 @@ impl FieldAttribute {
             desc_localizations: parser.optional("desc_localizations")?,
             autocomplete: parser.optional("autocomplete")?.unwrap_or_default(),
             channel_types: parser.optional("channel_types")?.unwrap_or_default(),
+            file_types: parser.optional("file_types")?.unwrap_or_default(),
             max_value: parser.optional("max_value")?,
             min_value: parser.optional("min_value")?,
             max_length: parser.optional("max_length")?,
@@ -258,6 +262,34 @@ impl ChannelType {
             invalid => Err(Error::new(
                 span,
                 format!("`{invalid}` is not a valid channel type"),
+            )),
+        }
+    }
+}
+
+/// Attachment file type: `image`, `video`, `audio` or a dot-prefixed extension
+pub struct FileType(pub String);
+
+impl ParseAttribute for Vec<FileType> {
+    fn parse_attribute(input: Lit) -> Result<Self> {
+        let spanned: ParseSpanned<String> = ParseAttribute::parse_attribute(input)?;
+
+        spanned
+            .inner
+            .split_ascii_whitespace()
+            .map(|value| FileType::parse(value, spanned.span))
+            .collect()
+    }
+}
+
+impl FileType {
+    fn parse(value: &str, span: Span) -> Result<Self> {
+        match value {
+            "image" | "video" | "audio" => Ok(Self(value.to_owned())),
+            _ if value.len() > 1 && value.starts_with('.') => Ok(Self(value.to_owned())),
+            invalid => Err(Error::new(
+                span,
+                format!("`{invalid}` is not a valid file type"),
             )),
         }
     }
